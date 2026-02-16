@@ -45,15 +45,14 @@ import { withTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux";
 import { createSelector } from "reselect";
 
-const Dashboard = props => {
+const Dashboard = (props) => {
   const [modal, setmodal] = useState(false);
-  const [subscribemodal, setSubscribemodal] = useState(false);
 
   const dashboardSelector = createSelector(
-    state => state.Dashboard,
-    dashboard => ({
+    (state) => state.Dashboard,
+    (dashboard) => ({
       chartsData: dashboard.chartsData,
-    })
+    }),
   );
 
   const { chartsData } = useSelector(dashboardSelector);
@@ -68,12 +67,6 @@ const Dashboard = props => {
     },
   ];
 
-  useEffect(() => {
-    setTimeout(() => {
-      setSubscribemodal(true);
-    }, 2000);
-  }, []);
-
   const [periodData, setPeriodData] = useState([]);
   const [periodType, setPeriodType] = useState("Year");
 
@@ -81,7 +74,7 @@ const Dashboard = props => {
     setPeriodData(chartsData);
   }, [chartsData]);
 
-  const onChangeChartPeriod = pType => {
+  const onChangeChartPeriod = (pType) => {
     setPeriodType(pType);
     dispatch(onGetChartsData(pType));
   };
@@ -92,7 +85,8 @@ const Dashboard = props => {
   }, [dispatch]);
 
   //meta title
-  document.title = "Dashboard | Skote React + Laravel Admin And Dashboard Template";
+  document.title =
+    "Dashboard | Skote React + Laravel Admin And Dashboard Template";
 
   return (
     <React.Fragment>
@@ -125,7 +119,11 @@ const Dashboard = props => {
                           </div>
                           <div className="avatar-sm rounded-circle bg-primary align-self-center mini-stat-icon">
                             <span className="avatar-title rounded-circle bg-primary">
-                              <i className={"bx " + report.iconClass + " font-size-24"}></i>
+                              <i
+                                className={
+                                  "bx " + report.iconClass + " font-size-24"
+                                }
+                              ></i>
                             </span>
                           </div>
                         </div>
@@ -142,17 +140,47 @@ const Dashboard = props => {
                     <div className="ms-auto">
                       <ul className="nav nav-pills">
                         <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "Week" }, "nav-link")} onClick={() => { onChangeChartPeriod("Week"); }} id="one_month">
+                          <Link
+                            to="#"
+                            className={classNames(
+                              { active: periodType === "Week" },
+                              "nav-link",
+                            )}
+                            onClick={() => {
+                              onChangeChartPeriod("Week");
+                            }}
+                            id="one_month"
+                          >
                             Week
                           </Link>{" "}
                         </li>
                         <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "Month" }, "nav-link")} onClick={() => { onChangeChartPeriod("Month"); }} id="one_month">
+                          <Link
+                            to="#"
+                            className={classNames(
+                              { active: periodType === "Month" },
+                              "nav-link",
+                            )}
+                            onClick={() => {
+                              onChangeChartPeriod("Month");
+                            }}
+                            id="one_month"
+                          >
                             Month
                           </Link>
                         </li>
                         <li className="nav-item">
-                          <Link to="#" className={classNames({ active: periodType === "Year" }, "nav-link")} onClick={() => { onChangeChartPeriod("Year"); }} id="one_month">
+                          <Link
+                            to="#"
+                            className={classNames(
+                              { active: periodType === "Year" },
+                              "nav-link",
+                            )}
+                            onClick={() => {
+                              onChangeChartPeriod("Year");
+                            }}
+                            id="one_month"
+                          >
                             Year
                           </Link>
                         </li>
@@ -160,7 +188,10 @@ const Dashboard = props => {
                     </div>
                   </div>
                   {/* <div className="clearfix"></div> */}
-                  <StackedColumnChart periodData={periodData} dataColors='["--bs-primary", "--bs-warning", "--bs-success"]' />
+                  <StackedColumnChart
+                    periodData={periodData}
+                    dataColors='["--bs-primary", "--bs-warning", "--bs-success"]'
+                  />
                 </CardBody>
               </Card>
             </Col>
@@ -186,58 +217,6 @@ const Dashboard = props => {
           </Row>
         </Container>
       </div>
-
-      {/* subscribe ModalHeader */}
-      <Modal
-        isOpen={subscribemodal}
-        role="dialog"
-        autoFocus={true}
-        centered
-        data-toggle="modal"
-        toggle={() => {
-          setSubscribemodal(!subscribemodal);
-        }}
-      >
-        <div>
-          <ModalHeader
-            className="border-bottom-0"
-            toggle={() => {
-              setSubscribemodal(!subscribemodal);
-            }}
-          ></ModalHeader>
-        </div>
-        <div className="modal-body">
-          <div className="text-center mb-4">
-            <div className="avatar-md mx-auto mb-4">
-              <div className="avatar-title bg-light  rounded-circle text-primary h1">
-                <i className="mdi mdi-email-open"></i>
-              </div>
-            </div>
-
-            <div className="row justify-content-center">
-              <div className="col-xl-10">
-                <h4 className="text-primary">Subscribe !</h4>
-                <p className="text-muted font-size-14 mb-4">
-                  Subscribe our newletter and get notification to stay update.
-                </p>
-
-                <div
-                  className="input-group rounded bg-light"
-                >
-                  <Input
-                    type="email"
-                    className="form-control bg-transparent border-0"
-                    placeholder="Enter Email address"
-                  />
-                  <Button color="primary" type="button" id="button-addon2">
-                    <i className="bx bxs-paper-plane"></i>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Modal>
 
       <Modal
         isOpen={modal}
