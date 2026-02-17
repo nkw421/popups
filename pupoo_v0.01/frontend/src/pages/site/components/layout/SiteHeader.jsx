@@ -84,16 +84,22 @@ export default function SiteHeader() {
   const MENU_WIDTH = "w-[820px]";
 
   return (
-    <>
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      {/* ================= HEADER ================= */}
       <header
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         className={`fixed top-0 left-0 w-full z-[99999] transition-all duration-300 ${
-          isWhiteHeader ? "bg-white" : "bg-transparent"
+          isWhiteHeader
+            ? `bg-white/95 backdrop-blur-md ${
+                open ? "" : "border-b border-gray-200"
+              }`
+            : "bg-transparent"
         }`}
       >
         <div className="relative flex items-center justify-between h-16 px-12">
-          {/* 로고 */}
           <Link to="/" className="flex items-center">
             <img
               src={isWhiteHeader ? "/logo_blue.png" : "/logo_white.png"}
@@ -102,41 +108,26 @@ export default function SiteHeader() {
             />
           </Link>
 
-          {/* 대분류 */}
           <nav
             className={`absolute left-1/2 -translate-x-1/2 hidden lg:block ${MENU_WIDTH}`}
           >
             <div className="grid grid-cols-6 justify-items-center">
-              {navItems.map((item) => {
-                const isActive = location.pathname.startsWith(item.path);
-
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.path}
-                    className={`relative text-sm tracking-wide font-medium transition-colors duration-200 ${
-                      textColor
-                    }`}
-                  >
-                    {item.label}
-
-                    {/* 세련된 underline */}
-                    <span
-                      className={`absolute left-0 -bottom-1 h-[1.5px] w-full bg-current transition-transform duration-300 origin-left ${
-                        isActive ? "scale-x-100" : "scale-x-0"
-                      }`}
-                    />
-                  </Link>
-                );
-              })}
+              {navItems.map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  className={`text-sm tracking-wide font-medium transition-colors duration-200 ${textColor}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </nav>
 
-          {/* 우측 버튼 */}
           <div className="flex items-center gap-6">
             <Link
               to="/admin"
-              className={`${textColor} text-sm font-medium transition-colors duration-200 hover:text-gray-500`}
+              className={`${textColor} text-sm font-medium transition-colors duration-200 hover:text-gray-700`}
             >
               관리자
             </Link>
@@ -169,27 +160,27 @@ export default function SiteHeader() {
         </div>
       </header>
 
-      {/* 드롭다운 */}
+      {/* ================= DROPDOWN ================= */}
       <div
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         className={`fixed top-16 left-0 w-full transition-all duration-300 overflow-hidden z-[99998] ${
-          open ? "h-64 opacity-100 bg-white" : "h-0 opacity-0"
+          open
+            ? "h-64 opacity-100 bg-white/95 backdrop-blur-md"
+            : "h-0 opacity-0"
         }`}
       >
         <div className="relative px-12">
-          <div className={`mx-auto ${MENU_WIDTH} pt-8 pb-8`}>
+          <div className={`mx-auto ${MENU_WIDTH} pt-3 pb-8`}>
             <div className="grid grid-cols-6 justify-items-center">
               {navItems.map((item) => (
                 <div
                   key={item.label}
-                  className="flex flex-col items-center gap-3 text-center"
+                  className="flex flex-col items-center gap-5 text-center"
                 >
                   {item.children.map((child) => (
                     <Link
                       key={child.path}
                       to={child.path}
-                      className="text-sm text-gray-400 hover:text-black transition-colors duration-200"
+                      className="text-sm text-gray-600 hover:text-black transition-colors duration-200"
                     >
                       {child.name}
                     </Link>
@@ -200,6 +191,6 @@ export default function SiteHeader() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

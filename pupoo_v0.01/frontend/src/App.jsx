@@ -1,8 +1,6 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import SiteLayout from "./layouts/SiteLayout";
-
-/* admin */
-/* import SkoteAdminEntry from "./admin/SkoteAdminEntry";*/
+import ScrollToTop from "./ScrollToTop";
 
 /* Home */
 import Home from "./pages/site/home/Home";
@@ -44,55 +42,72 @@ import FAQ from "./pages/site/info/FAQ";
 import Inquiry from "./pages/site/info/Inquiry";
 import Location from "./pages/site/info/Location";
 
+/* Policy */
+import AboutUs from "./pages/site/policy/aboutus";
+import PrivacyPolicy from "./pages/site/policy/privacypolicy";
+import ServiceGuide from "./pages/site/policy/serviceguide";
+import TermsOfService from "./pages/site/policy/termsofservice";
+import EFTTerms from "./pages/site/policy/EFTTerms";
+
 export default function App() {
   return (
-    <Routes>
-      <Route element={<SiteLayout />}>
-        <Route path="/" element={<Home />} />
+    <>
+      {/* 스크롤 상단 이동 */}
+      <ScrollToTop />
 
-        {/* 행사 */}
-        <Route path="/event/current" element={<Current />} />
-        <Route path="/event/upcoming" element={<Upcoming />} />
-        <Route path="/event/ended" element={<Closed />} />
-        <Route path="/event/preregister" element={<PreRegister />} />
-        <Route path="/event/detail" element={<Detail />} />
+      <Routes>
+        <Route element={<SiteLayout />}>
+          {/* Home */}
+          <Route path="/" element={<Home />} />
 
-        {/* 프로그램 */}
-        <Route path="/program/experience" element={<Experience />} />
-        <Route path="/program/session" element={<Session />} />
-        <Route path="/program/booth" element={<Booth />} />
-        <Route path="/program/contest" element={<Contest />} />
-        <Route path="/program/schedule" element={<Schedule />} />
+          {/* 행사 */}
+          <Route path="/event/current" element={<Current />} />
+          <Route path="/event/upcoming" element={<Upcoming />} />
+          <Route path="/event/ended" element={<Closed />} />
+          <Route path="/event/preregister" element={<PreRegister />} />
+          <Route path="/event/detail" element={<Detail />} />
 
-        {/* 참가/신청 */}
-        <Route path="/apply" element={<Apply />} />
-        <Route path="/apply/history" element={<ApplyHistory />} />
-        <Route path="/apply/payment" element={<PaymentHistory />} />
-        <Route path="/apply/qr" element={<QRCheckin />} />
+          {/* 프로그램 */}
+          <Route path="/program/experience" element={<Experience />} />
+          <Route path="/program/session" element={<Session />} />
+          <Route path="/program/booth" element={<Booth />} />
+          <Route path="/program/contest" element={<Contest />} />
+          <Route path="/program/schedule" element={<Schedule />} />
 
-        {/* 실시간 */}
-        <Route path="/realtime/checkin" element={<CheckinStatus />} />
-        <Route path="/realtime/waiting" element={<WaitingStatus />} />
-        <Route path="/realtime/vote" element={<VoteStatus />} />
+          {/* 참가/신청 */}
+          <Route path="/apply" element={<Apply />} />
+          <Route path="/apply/history" element={<ApplyHistory />} />
+          <Route path="/apply/payment" element={<PaymentHistory />} />
+          <Route path="/apply/qr" element={<QRCheckin />} />
 
-        {/* 커뮤니티 */}
-        <Route path="/community/free" element={<FreeBoard />} />
-        <Route path="/community/review" element={<Review />} />
-        <Route path="/community/gallery" element={<Gallery />} />
+          {/* 실시간 */}
+          <Route path="/realtime/checkin" element={<CheckinStatus />} />
+          <Route path="/realtime/waiting" element={<WaitingStatus />} />
+          <Route path="/realtime/vote" element={<VoteStatus />} />
 
-        {/* 안내 */}
-        <Route path="/info/intro" element={<PlatformIntro />} />
-        <Route path="/info/notice" element={<Notice />} />
-        <Route path="/info/faq" element={<FAQ />} />
-        <Route path="/info/inquiry" element={<Inquiry />} />
-        <Route path="/info/directions" element={<Location />} />
-      </Route>
+          {/* 커뮤니티 */}
+          <Route path="/community/free" element={<FreeBoard />} />
+          <Route path="/community/review" element={<Review />} />
+          <Route path="/community/gallery" element={<Gallery />} />
 
-      {/* Admin 영역 */}
-      {/*<Route path="/admin/*" element={<SkoteAdminEntry />} /> */}
+          {/* 안내 */}
+          <Route path="/info/intro" element={<PlatformIntro />} />
+          <Route path="/info/notice" element={<Notice />} />
+          <Route path="/info/faq" element={<FAQ />} />
+          <Route path="/info/inquiry" element={<Inquiry />} />
+          <Route path="/info/directions" element={<Location />} />
 
-      {/* fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+          {/* 약관 */}
+          <Route path="/policy/aboutus" element={<AboutUs />} />
+          <Route path="/policy/privacypolicy" element={<PrivacyPolicy />} />
+          <Route path="/policy/serviceguide" element={<ServiceGuide />} />
+          <Route path="/policy/termsofservice" element={<TermsOfService />} />
+          <Route path="/policy/EFTTerms" element={<EFTTerms />} />
+        </Route>
+
+        {/* fallback 소문자 경로 대응 */}
+        <Route path="/policy/eftterms" element={<EFTTerms />} />
+      </Routes>
+    </>
   );
 }

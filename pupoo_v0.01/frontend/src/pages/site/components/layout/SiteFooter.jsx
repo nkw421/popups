@@ -59,13 +59,15 @@ const Footer = () => {
 
         <div className="flex justify-between items-center border-t border-[#1a1a1a] pt-8">
           <div className="flex items-center gap-1">
-            <DropLink to="/privacypolicy">개인정보처리방침</DropLink>
+            <DropLink to="/policy/privacypolicy">개인정보처리방침</DropLink>
             <span className="text-[#333333] text-sm mx-1">|</span>
-            <DropLink to="/termsofservice">이용약관</DropLink>
+            <DropLink to="/policy/eftterms">전자금융거래 기본약관</DropLink>
             <span className="text-[#333333] text-sm mx-1">|</span>
-            <DropLink to="/serviceguide">이용안내</DropLink>
+            <DropLink to="/policy/termsofservice">이용약관</DropLink>
             <span className="text-[#333333] text-sm mx-1">|</span>
-            <DropLink to="/aboutus">회사소개</DropLink>
+            <DropLink to="/policy/serviceguide">이용안내</DropLink>
+            <span className="text-[#333333] text-sm mx-1">|</span>
+            <DropLink to="/policy/aboutus">회사소개</DropLink>
           </div>
 
           <div>
