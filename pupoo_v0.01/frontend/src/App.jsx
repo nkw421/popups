@@ -1,9 +1,15 @@
 import { Routes, Route } from "react-router-dom";
 import SiteLayout from "./layouts/SiteLayout";
 import ScrollToTop from "./ScrollToTop";
+/* admin */
+import Intro from "./pages/admin/intro";
+import Dashboard from "./pages/admin/dashboard";
 
 /* Home */
 import Home from "./pages/site/home/Home";
+
+/* Auth */
+import Login from "./pages/site/auth/Login";
 
 /* Event */
 import Current from "./pages/site/event/Current";
@@ -57,8 +63,12 @@ export default function App() {
 
       <Routes>
         <Route element={<SiteLayout />}>
+          {/*대시보드*/}
+          <Route path="/admin/dashboard" element={<Dashboard />} />
+
           {/* Home */}
           <Route path="/" element={<Home />} />
+          <Route path="/auth/login" element={<Login />} />
 
           {/* 행사 */}
           <Route path="/event/current" element={<Current />} />
@@ -102,11 +112,12 @@ export default function App() {
           <Route path="/policy/privacypolicy" element={<PrivacyPolicy />} />
           <Route path="/policy/serviceguide" element={<ServiceGuide />} />
           <Route path="/policy/termsofservice" element={<TermsOfService />} />
-          <Route path="/policy/EFTTerms" element={<EFTTerms />} />
+          <Route path="/policy/eftterms" element={<EFTTerms />} />
         </Route>
 
-        {/* fallback 소문자 경로 대응 */}
-        <Route path="/policy/eftterms" element={<EFTTerms />} />
+        {/*admin */}
+        <Route path="/admin/intro" element={<Intro />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
       </Routes>
     </>
   );

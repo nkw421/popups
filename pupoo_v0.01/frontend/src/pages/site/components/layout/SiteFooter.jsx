@@ -68,6 +68,33 @@ const Footer = () => {
             <DropLink to="/policy/serviceguide">이용안내</DropLink>
             <span className="text-[#333333] text-sm mx-1">|</span>
             <DropLink to="/policy/aboutus">회사소개</DropLink>
+            <span className="text-[#333333] text-sm mx-1">|</span>
+            <a
+              href="/admin/intro"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative inline-block group cursor-pointer px-1"
+            >
+              {/* 점 애니메이션 */}
+              <span
+                className="absolute left-1/2 bottom-5 -translate-x-1/2 -translate-y-[250%]
+               w-2 h-2 bg-[#006BF0] rounded-full opacity-0
+               transition-all duration-700
+               ease-[cubic-bezier(0.34,1.56,0.64,1)]
+               group-hover:-translate-y-1/2 group-hover:opacity-100
+               pointer-events-none"
+              />
+
+              {/* 텍스트 */}
+              <span
+                className="text-[#8f949b] text-sm
+               transition-colors duration-300
+               group-hover:text-[#006BF0]
+               whitespace-nowrap"
+              >
+                관리자센터
+              </span>
+            </a>
           </div>
 
           <div>

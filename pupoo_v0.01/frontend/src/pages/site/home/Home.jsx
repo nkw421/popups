@@ -52,14 +52,14 @@ function EventSection() {
 
   return (
     <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 px-6">
-      <div className="max-w-[1365px] mx-auto">
+      <div className="max-w-[1370px] mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-[11px] font-semibold text-gray-500 uppercase mb-1">
+          <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">
             2026 애견 행사 진행 안내
           </p>
 
-          <h2 className="text-3xl font-bold text-gray-900 mb-4 leading-tight">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
             현재 진행 중인 반려견 행사
           </h2>
 
@@ -175,27 +175,27 @@ function EventCard({ event, isHovered, onHover, onLeave }) {
 function RecommendCarousel() {
   const items = [
     {
-      title: "서귀포 치유의 숲",
-      desc: "제주도 자연과 함께하는 휴식 공간",
-      tag: "제주 서귀포시",
+      title: "제목제목제목제목",
+      desc: "여기다가 덧불일 내용을 쓰세요 좋게 말할때",
+      tag: "서울시 강남구",
       img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
     },
     {
-      title: "신화테마파크",
-      desc: "라이브 세계관이 숨겨진 테마파크",
-      tag: "제주 서귀포시",
+      title: "제목제목제목제목",
+      desc: "여기다가 덧불일 내용을 쓰세요 좋게 말할때",
+      tag: "서울시 강남구",
       img: "https://images.unsplash.com/photo-1533106418989-88406c7cc8ca?auto=format&fit=crop&w=1200&q=80",
     },
     {
-      title: "향은",
-      desc: "전통 방식으로 술을 빚는 공간",
-      tag: "충남 청양군",
+      title: "제목제목제목제목",
+      desc: "여기다가 덧불일 내용을 쓰세요 좋게 말할때",
+      tag: "서울시 강남구",
       img: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
     },
     {
-      title: "월천서당",
-      desc: "전통 목조 건축 문화 공간",
-      tag: "경북 안동시",
+      title: "제목제목제목제목",
+      desc: "여기다가 덧불일 내용을 쓰세요 좋게 말할때",
+      tag: "서울시 강남구",
       img: "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?auto=format&fit=crop&w=1200&q=80",
     },
   ];
@@ -351,13 +351,155 @@ function RecommendCarousel() {
     </div>
   );
 }
+/* */
+// ================= SPEAKER LINEUP =================
+const speakers = [
+  {
+    id: 1,
+    tag: "기조연설",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop&grayscale",
+    name: "Speaker 1",
+  },
+  {
+    id: 2,
+    tag: "기조연설",
+    image:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=500&fit=crop&grayscale",
+    name: "Speaker 2",
+  },
+  {
+    id: 3,
+    tag: "슈스등장",
+    image:
+      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=500&fit=crop&grayscale",
+    name: "Dog 1",
+  },
+  {
+    id: 4,
+    tag: "슈스등장",
+    image:
+      "https://images.unsplash.com/photo-1552053831-71594a27632d?w=400&h=500&fit=crop&grayscale",
+    name: "Dog 2",
+  },
+  {
+    id: 5,
+    tag: "패널토론",
+    image:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=500&fit=crop&grayscale",
+    name: "Speaker 3",
+  },
+  {
+    id: 6,
+    tag: "패널토론",
+    image:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=500&fit=crop&grayscale",
+    name: "Speaker 4",
+  },
+];
+
+function SpeakerLineup() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const TOTAL_WIDTH = 1400;
+  const VISIBLE_COUNT = 4;
+  const GAP = 24;
+
+  const CARD_WIDTH = (TOTAL_WIDTH - GAP * (VISIBLE_COUNT - 1)) / VISIBLE_COUNT;
+
+  const slideWidth = CARD_WIDTH + GAP;
+  const maxIndex = speakers.length - VISIBLE_COUNT;
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
+  };
+
+  return (
+    <div className="w-full bg-white py-16">
+      <div className="max-w-[1400px] mx-auto px-4 font-sans">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">
+            2026 애견 행사 진행 안내
+          </p>
+
+          <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            현재 진행 중인 반려견 행사
+          </h2>
+
+          <button className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300">
+            자세히 보기
+          </button>
+        </div>
+
+        {/* Carousel */}
+        <div className="relative" style={{ width: TOTAL_WIDTH }}>
+          {/* 슬라이드 영역 */}
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{
+                gap: `${GAP}px`,
+                transform: `translateX(-${currentIndex * slideWidth}px)`,
+              }}
+            >
+              {speakers.map((speaker) => (
+                <div
+                  key={speaker.id}
+                  style={{ width: CARD_WIDTH }}
+                  className="shrink-0 flex flex-col"
+                >
+                  <span className="text-sm text-blue-600 font-semibold mb-2 pl-1">
+                    {speaker.tag}
+                  </span>
+
+                  <div className="relative overflow-hidden rounded-xl aspect-[3/4] bg-gray-200">
+                    <img
+                      src={speaker.image}
+                      alt={speaker.name}
+                      className="w-full h-full object-cover grayscale"
+                      draggable={false}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Left Button */}
+          <button
+            onClick={handlePrev}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-300 shadow flex items-center justify-center hover:bg-gray-100 transition"
+          >
+            ‹
+          </button>
+
+          {/* Right Button */}
+          <button
+            onClick={handleNext}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-300 shadow flex items-center justify-center hover:bg-gray-100 transition"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* */
 
 export default function Home() {
   const heroVideos = [
-    "/visual_video/1.mov",
-    "/visual_video/2.mov",
-    "/visual_video/3.mp4",
+    "http://kgj.dothome.co.kr/pupoo/1.mov",
+    "http://kgj.dothome.co.kr/pupoo/2.mov",
+    "http://kgj.dothome.co.kr/pupoo/3.mp4",
   ];
+
   // ================= HERO VIDEO =================
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [fade, setFade] = useState(true);
@@ -453,17 +595,17 @@ export default function Home() {
         </div>
       </section>{" "}
       {/* 끝 */}
+      <SpeakerLineup />
       <EventSection />
       {/* RECOMMEND CAROUSEL */}
       <section className="bg-[#f4f5f7] py-24 overflow-hidden">
         <div className="max-w-[1400px] mx-auto px-6">
           <h2 className="text-2xl md:text-3xl font-extrabold mb-8">
-            <span className="text-blue-600">당신이</span> 좋아할 만한 추천
-            콘텐츠
+            <span className="text-blue-600">당신이</span> 좋아할 만한 추천 행사
           </h2>
 
           <div className="bg-[#e9eaee] rounded-xl px-6 py-4 text-sm text-gray-700 mb-12">
-            ‘나의 성향에 따른 맞춤형 여행지’가 추천되고 있습니다.
+            ‘나의 성향에 따른 맞춤형 행사’가 추천되고 있습니다.
           </div>
 
           <RecommendCarousel />
