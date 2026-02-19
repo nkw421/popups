@@ -1,13 +1,22 @@
-import { Outlet } from "react-router-dom";
-import SiteHeader from "../site/SiteHeader";
-import SiteFooter from "../site/SiteFooter";
+import { Outlet, useLocation } from "react-router-dom";
+import SiteHeader from "../pages/site/components/layout/SiteHeader";
+import SiteFooter from "../pages/site/components/layout/SiteFooter";
 
 export default function SiteLayout() {
+  const location = useLocation();
+  const isAdminPage = location.pathname.startsWith("/admin");
+
   return (
-    <div className="min-h-dvh bg-[var(--color-bg)]">
-      <SiteHeader />
-      <Outlet />
-      <SiteFooter />
+    <div className="min-h-screen flex flex-col">
+      {/* 관리자센터에서는 Header 제거 */}
+      {!isAdminPage && <SiteHeader />}
+
+      <main className="flex-1">
+        <Outlet />
+      </main>
+
+      {/* 관리자센터에서는 Footer도 제거 */}
+      {!isAdminPage && <SiteFooter />}
     </div>
   );
 }
