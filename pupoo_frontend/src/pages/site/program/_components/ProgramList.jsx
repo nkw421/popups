@@ -8,14 +8,12 @@ export default function ProgramList({
   category, // "CONTEST" | "SESSION" | "EXPERIENCE" | undefined(전체)
   pageSize = 10,
 
+  // ✅ 상세 이동 경로를 페이지에서 주입 가능
+  // 예: Session.jsx에서는 "/program/session-detail"
+  detailPath = "/program/detail",
+
   // 버튼/노출 정책을 페이지에서 바꿀 수 있게 (EventList 패턴 그대로)
-  buttonConfig = {
-    showWhen: () => true,
-    primaryText: "신청",
-    secondaryText: null,
-    onPrimary: (p, navigate) =>
-      navigate(`/program/detail?programId=${p.programId}`),
-  },
+  buttonConfig,
 }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -30,13 +28,21 @@ export default function ProgramList({
     [category],
   );
 
+  // ✅ 기본 버튼 정책(상세로 이동)
+  const defaultButtonConfig = useMemo(
+    () => ({
+      showWhen: () => true,
+      primaryText: "상세보기", // 기존 "신청"보단 지금 단계에선 상세가 자연스러움(원하면 다시 "신청")
+      secondaryText: null,
+      onPrimary: (p, nav) => nav(`${detailPath}?programId=${p.programId}`),
+      onSecondary: null,
+    }),
+    [detailPath],
+  );
+
   const cfg = {
-    showWhen: () => true,
-    primaryText: null,
-    secondaryText: null,
-    onPrimary: null,
-    onSecondary: null,
-    ...buttonConfig,
+    ...defaultButtonConfig,
+    ...(buttonConfig || {}),
   };
 
   useEffect(() => {
@@ -57,11 +63,10 @@ export default function ProgramList({
           category: categoryKey || undefined,
           page: 0,
           size: pageSize,
-          // sort: "startAt,asc" 같은 것도 가능
+          // sort: "startAt,asc"
         });
 
-        // ApiResponse.success(PageResponse<ProgramResponse>)
-        setPrograms(res.data.data.content || []);
+        setPrograms(res?.data?.data?.content || []);
       } catch (e) {
         const statusCode = e?.response?.status;
         const msg =
@@ -80,7 +85,7 @@ export default function ProgramList({
   }, [eventId, categoryKey, pageSize]);
 
   const goDetail = (programId) => {
-    navigate(`/program/detail?programId=${programId}`);
+    navigate(`${detailPath}?programId=${programId}`);
   };
 
   return (

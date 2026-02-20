@@ -70,7 +70,7 @@ export default function Detail() {
       {
         key: "schedule",
         label: "세션/일정",
-        onClick: () => navigate(`/program/schedule?eventId=${id}`),
+        onClick: () => navigate(`/program/session?eventId=${eventId}`),
       },
       {
         key: "contest",
