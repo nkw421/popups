@@ -2,10 +2,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { eventApi } from "../../../../app/http/eventApi";
 
+/**
+ * EventList
+ * - 배너(사용처)마다 버튼 텍스트/노출/동작을 props로 주입해서 재사용
+ */
 export default function EventList({
   title = "행사 목록",
-  statusList = [], // 예: ["ONGOING"] or ["ENDED","CANCELLED"]
+  statusList = [],
   pageSize = 10,
+
+  // ✅ 배너별 버튼 정책 주입 (없으면 기본값)
+  buttonConfig = {
+    showWhen: (ev) => ev.status !== "ENDED" && ev.status !== "CANCELLED",
+    primaryText: "사전신청",
+    secondaryText: "사전신청확인",
+    onPrimary: (ev, navigate) =>
+      navigate(`/event/detail?eventId=${ev.eventId}`),
+    onSecondary: (ev, navigate) =>
+      navigate(`/event/preregister?eventId=${ev.eventId}`),
+  },
 }) {
   const navigate = useNavigate();
 
@@ -13,13 +28,11 @@ export default function EventList({
   const [errorMsg, setErrorMsg] = useState("");
   const [events, setEvents] = useState([]);
 
-  // ✅ statusList가 새 배열로 들어와도 동일하게 동작하도록 안정 키 생성
   const statusKey = useMemo(() => {
     const list = Array.isArray(statusList) ? statusList : [];
     return list.slice().sort().join(",");
   }, [statusList]);
 
-  // ✅ React StrictMode에서 useEffect가 개발환경에서 2번 실행되는 경우 중복 호출 방지(선택)
   const didFetchRef = useRef(false);
 
   const fetchEvents = async (signal) => {
@@ -27,7 +40,6 @@ export default function EventList({
     setErrorMsg("");
 
     try {
-      // status가 없으면 전체 조회
       if (!statusKey) {
         const res = await eventApi.getEvents({ page: 0, size: pageSize });
         if (signal.aborted) return;
@@ -37,7 +49,6 @@ export default function EventList({
 
       const statuses = statusKey.split(",");
 
-      // 단일 status
       if (statuses.length === 1) {
         const res = await eventApi.getEvents({
           status: statuses[0],
@@ -49,7 +60,6 @@ export default function EventList({
         return;
       }
 
-      // 다중 status: API가 status 단일만 받으므로 병렬 호출 후 병합/중복제거
       const results = await Promise.all(
         statuses.map((s) =>
           eventApi.getEvents({ status: s, page: 0, size: pageSize }),
@@ -81,10 +91,8 @@ export default function EventList({
   };
 
   useEffect(() => {
-    // StrictMode 중복 호출이 거슬리면 유지, 아니면 이 if 블록 제거해도 됨
     if (didFetchRef.current) {
-      // 이미 호출했으면 재호출 허용하려면 아래 return 제거
-      // return;
+      // 필요하면 return;로 막을 수 있음
     }
     didFetchRef.current = true;
 
@@ -99,9 +107,19 @@ export default function EventList({
     navigate(`/event/detail?eventId=${eventId}`);
   };
 
+  // ✅ config 병합(빠진 값 대비)
+  const cfg = {
+    showWhen: (ev) => ev.status !== "ENDED" && ev.status !== "CANCELLED",
+    primaryText: null,
+    secondaryText: null,
+    onPrimary: null,
+    onSecondary: null,
+    ...buttonConfig,
+  };
+
   return (
     <div style={{ padding: 16 }}>
-      <h2 style={{ marginBottom: 12 }}>{title}</h2>
+      <h2 style={{ marginBottom: 40 }}>{title}</h2>
 
       {loading && <div>로딩중...</div>}
 
@@ -119,27 +137,87 @@ export default function EventList({
       )}
 
       <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
-        {events.map((ev) => (
-          <div
-            key={ev.eventId}
-            onClick={() => goDetail(ev.eventId)}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 10,
-              padding: 12,
-              cursor: "pointer",
-            }}
-          >
-            <div style={{ fontWeight: 700 }}>{ev.eventName}</div>
-            <div style={{ opacity: 0.7 }}>status: {ev.status}</div>
-            <div style={{ opacity: 0.7 }}>
-              {String(ev.startAt ?? "")} ~ {String(ev.endAt ?? "")}
+        {events.map((ev) => {
+          const showButtons = !!cfg.showWhen?.(ev);
+
+          return (
+            <div
+              key={ev.eventId}
+              onClick={() => goDetail(ev.eventId)}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: 10,
+                cursor: "pointer",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "16px 20px",
+                gap: 12,
+              }}
+            >
+              {/* 왼쪽: 행사 정보 */}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 700 }}>{ev.eventName}</div>
+                <div style={{ opacity: 0.7 }}>status: {ev.status}</div>
+                <div style={{ opacity: 0.7 }}>
+                  {String(ev.startAt ?? "")} ~ {String(ev.endAt ?? "")}
+                </div>
+                {ev.location && (
+                  <div style={{ opacity: 0.7 }}>location: {ev.location}</div>
+                )}
+              </div>
+
+              {/* 오른쪽: 버튼(배너별 커스텀 가능) */}
+              {showButtons && (cfg.primaryText || cfg.secondaryText) && (
+                <div
+                  style={{ display: "flex", flexDirection: "column", gap: 10 }}
+                >
+                  {cfg.primaryText && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        cfg.onPrimary?.(ev, navigate);
+                      }}
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: 8,
+                        border: "1px solid #dcdcdc",
+                        backgroundColor: "#f8f8f8",
+                        fontSize: 14,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {cfg.primaryText}
+                    </button>
+                  )}
+
+                  {cfg.secondaryText && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        cfg.onSecondary?.(ev, navigate);
+                      }}
+                      style={{
+                        padding: "6px 12px",
+                        borderRadius: 8,
+                        border: "1px solid #dcdcdc",
+                        backgroundColor: "#f8f8f8",
+                        fontSize: 14,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {cfg.secondaryText}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-            {ev.location && (
-              <div style={{ opacity: 0.7 }}>location: {ev.location}</div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
