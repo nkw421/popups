@@ -1,3 +1,5 @@
+import ProgramList from "./_components/ProgramList";
+
 export default function Contest() {
-  return <div>콘테스트</div>;
+  return <ProgramList title="콘테스트" category="CONTEST" />;
 }
