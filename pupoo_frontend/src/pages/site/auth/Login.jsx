@@ -127,7 +127,8 @@ const LoginPage = ({ leftBgImage = null }) => {
       }
 
       tokenStore.setAccess(accessToken);
-      login();            // ✅ 전역 인증 상태 true -> 헤더 즉시 전환
+      login(); // ✅ 전역 인증 상태 true -> 헤더 즉시 전환
+
       navigate("/");
     } catch (e) {
       setError(e?.response?.data?.message ?? e?.message ?? "로그인 실패");
@@ -490,7 +491,9 @@ const LoginPage = ({ leftBgImage = null }) => {
               </div>
 
               {/* Social buttons */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div
+                style={{ display: "flex", flexDirection: "column", gap: 10 }}
+              >
                 <SocialButton
                   onClick={() => console.log("Kakao login")}
                   style={{ background: "#FEE500", color: "#3C1E1E" }}

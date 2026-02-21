@@ -1,4 +1,3 @@
-
 package com.popups.pupoo.auth.application;
 
 import com.popups.pupoo.auth.domain.model.EmailVerificationToken;
