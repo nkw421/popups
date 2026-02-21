@@ -85,8 +85,11 @@ public class SecurityConfig {
             //  비회원 조회 허용
             .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/programs/**").permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/programs/**/votes/result").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/programs/*/votes/result").permitAll()
             .requestMatchers("/error").permitAll()
+            
+            // Program 
+            .requestMatchers(HttpMethod.GET, "/api/program-applies/programs/*/candidates").permitAll()
 
             //  USER 가능
             // DB에 ROLE_ROLE_USER가 들어가 있다면 아래처럼 둘 다 허용해야 함
