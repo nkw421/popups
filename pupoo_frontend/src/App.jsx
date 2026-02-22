@@ -46,7 +46,7 @@ import FreeBoard from "./pages/site/community/FreeBoard";
 import Review from "./pages/site/community/Review";
 import Gallery from "./pages/site/community/Gallery";
 import QnA from "./pages/site/community/QnA";
-import Notice from "./pages/site/community/Notice.jsx";
+import Notice from "./pages/site/community/Notice";
 
 /* Info */
 import PlatformIntro from "./pages/site/info/PlatformIntro";
@@ -61,6 +61,15 @@ import PrivacyPolicy from "./pages/site/policy/privacypolicy";
 import ServiceGuide from "./pages/site/policy/serviceguide";
 import TermsOfService from "./pages/site/policy/termsofservice";
 import EFTTerms from "./pages/site/policy/EFTTerms";
+
+/* gallery */
+import EventGallery from "./pages/site/gallery/eventgallery";
+import EventSketch from "./pages/site/gallery/eventsketch";
+
+/* guide */
+import Operation from "./pages/site/guide/Operation";
+import LocationPage from "./pages/site/guide/location";
+import Timetable from "./pages/site/guide/timetable";
 
 export default function App() {
   return (
@@ -127,7 +136,7 @@ export default function App() {
 
           <Route path="/info/faq" element={<FAQ />} />
           <Route path="/info/inquiry" element={<Inquiry />} />
-          <Route path="/info/location" element={<Location />} />
+          <Route path="/info/location" element={<LocationPage />} />
 
           {/* Policy */}
           <Route path="/policy/aboutus" element={<AboutUs />} />
@@ -135,6 +144,15 @@ export default function App() {
           <Route path="/policy/serviceguide" element={<ServiceGuide />} />
           <Route path="/policy/termsofservice" element={<TermsOfService />} />
           <Route path="/policy/eftterms" element={<EFTTerms />} />
+
+          {/*gallery*/}
+          <Route path="/gallery/eventgallery" element={<EventGallery />} />
+          <Route path="/gallery/eventsketch" element={<EventSketch />} />
+
+          {/* guide */}
+          <Route path="/guide/Location" element={<Location />} />
+          <Route path="/guide/Operation" element={<Operation />} />
+          <Route path="/guide/Timetable" element={<Timetable />} />
         </Route>
       </Routes>
     </>

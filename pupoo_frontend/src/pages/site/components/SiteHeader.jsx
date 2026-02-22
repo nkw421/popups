@@ -212,9 +212,8 @@ const megaMenuData = {
       {
         title: "미디어",
         items: [
-          { label: "행사 갤러리", href: "/gallery/eventgallery" },
-          { label: "인기 게시글", href: "/gallery/bestgallery" },
-          { label: "베스트 후기", href: "/gallery/bestreview" },
+          { label: "참가자 갤러리", href: "/gallery/eventgallery" },
+          { label: "현장 스케치", href: "/gallery/eventsketch" },
         ],
       },
     ],
