@@ -231,9 +231,9 @@ const megaMenuData = {
         title: "참가신청",
         items: [
           { label: "행사 참가 신청", href: "/registration/apply" },
-          { label: "신청 내역 조회", href: "/registration/apply-history" },
-          { label: "결제 내역", href: "/registration/payment-history" },
-          { label: "QR 체크인", href: "/registration/qr-checkin" },
+          { label: "신청 내역 조회", href: "/registration/applyhistory" },
+          { label: "결제 내역", href: "/registration/paymenthistory" },
+          { label: "QR 체크인", href: "/registration/qrcheckin" },
         ],
       },
       {
@@ -259,7 +259,6 @@ const megaMenuData = {
         items: [
           { label: "통합 현황", href: "/realtime/dashboard" },
           { label: "입장 대기", href: "/realtime/waitingstatus" },
-          { label: "QR 체크인", href: "/realtime/checkinstatus" },
           { label: "투표 현황", href: "/realtime/votestatus" },
         ],
       },

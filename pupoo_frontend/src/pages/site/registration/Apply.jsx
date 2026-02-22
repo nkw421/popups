@@ -1,5 +1,19 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader";
+import {
+  CalendarDays,
+  Ticket,
+  User,
+  PawPrint,
+  ClipboardList,
+  CreditCard,
+  CheckCircle2,
+  Minus,
+  Plus,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+} from "lucide-react";
 
 const styles = `
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
@@ -44,7 +58,7 @@ const styles = `
   }
   .reg-card-title-icon {
     width: 24px; height: 24px; border-radius: 6px;
-    background: #eff4ff; display: flex; align-items: center; justify-content: center; font-size: 13px;
+    background: #eff4ff; display: flex; align-items: center; justify-content: center;
   }
 
   /* Event selector */
@@ -118,7 +132,6 @@ const styles = `
     transition: all 0.15s; background: #fff;
   }
   .reg-checkbox.checked { background: #1a4fd6; border-color: #1a4fd6; }
-  .reg-checkbox-check { color: #fff; font-size: 11px; }
   .reg-agree-text { font-size: 13px; color: #374151; line-height: 1.5; }
   .reg-agree-required { font-size: 11px; color: #ef4444; font-weight: 600; margin-right: 4px; }
 
@@ -130,7 +143,7 @@ const styles = `
 
   /* Buttons */
   .reg-btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
-  .reg-btn { padding: 11px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+  .reg-btn { padding: 11px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; display: flex; align-items: center; gap: 6px; }
   .reg-btn-ghost { background: #fff; border: 1px solid #e2e8f0; color: #6b7280; }
   .reg-btn-ghost:hover { border-color: #9ca3af; color: #374151; }
   .reg-btn-primary { background: #1a4fd6; color: #fff; }
@@ -138,7 +151,7 @@ const styles = `
 
   /* Success */
   .reg-success { text-align: center; padding: 48px 24px; }
-  .reg-success-icon { width: 64px; height: 64px; border-radius: 50%; background: #ecfdf5; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 28px; }
+  .reg-success-icon { width: 64px; height: 64px; border-radius: 50%; background: #ecfdf5; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #10b981; }
   .reg-success-title { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 8px; }
   .reg-success-desc { font-size: 15px; color: #6b7280; line-height: 1.6; }
   .reg-success-num { display: inline-block; margin-top: 16px; background: #f5f8ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 10px 24px; font-size: 18px; font-weight: 700; color: #1a4fd6; letter-spacing: 0.1em; }
@@ -153,14 +166,15 @@ const styles = `
 /* ─────────────────────────────────────────────
    DATA
 ───────────────────────────────────────────── */
-const SERVICE_CATEGORIES = [
+
+export const SERVICE_CATEGORIES = [
   { label: "행사 참가 신청", path: "/registration/apply" },
-  { label: "신청 내역 조회", path: "/registration/history" },
-  { label: "결제 내역", path: "/registration/payment" },
-  { label: "QR 체크인", path: "/registration/qr" },
+  { label: "신청 내역 조회", path: "/registration/applyhistory" },
+  { label: "결제 내역", path: "/registration/paymenthistory" },
+  { label: "QR 체크인", path: "/registration/qrcheckin" },
 ];
 
-const SUBTITLE_MAP = {
+export const SUBTITLE_MAP = {
   "/registration/apply": "행사에 참가 신청하세요",
   "/registration/history": "나의 행사 참가 신청 이력을 확인하세요",
   "/registration/payment": "결제 완료된 내역을 확인하세요",
@@ -247,7 +261,9 @@ function ApplyForm() {
             <div
               className={`reg-step${step === i ? " active" : ""}${step > i ? " done" : ""}`}
             >
-              <div className="reg-step-circle">{step > i ? "✓" : i + 1}</div>
+              <div className="reg-step-circle">
+                {step > i ? <Check size={16} /> : i + 1}
+              </div>
               <div className="reg-step-label">{s}</div>
             </div>
             {i < STEPS.length - 1 && (
@@ -262,8 +278,10 @@ function ApplyForm() {
         <>
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">📅</div>참가할 행사를
-              선택하세요
+              <div className="reg-card-title-icon">
+                <CalendarDays size={14} color="#1a4fd6" />
+              </div>
+              참가할 행사를 선택하세요
             </div>
             <div className="reg-event-list">
               {EVENTS.map((ev) => (
@@ -295,7 +313,10 @@ function ApplyForm() {
 
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">🎫</div>티켓 종류
+              <div className="reg-card-title-icon">
+                <Ticket size={14} color="#1a4fd6" />
+              </div>
+              티켓 종류
             </div>
             <div className="reg-ticket-grid">
               {TICKETS.map((t) => (
@@ -326,14 +347,14 @@ function ApplyForm() {
                   className="reg-counter-btn"
                   onClick={() => setCount((c) => Math.max(1, c - 1))}
                 >
-                  −
+                  <Minus size={14} />
                 </button>
                 <span className="reg-counter-num">{count}</span>
                 <button
                   className="reg-counter-btn"
                   onClick={() => setCount((c) => Math.min(10, c + 1))}
                 >
-                  +
+                  <Plus size={14} />
                 </button>
               </div>
               <span style={{ fontSize: 12, color: "#9ca3af" }}>최대 10매</span>
@@ -346,7 +367,8 @@ function ApplyForm() {
               style={{ opacity: selectedEvent ? 1 : 0.4 }}
               onClick={() => selectedEvent && setStep(1)}
             >
-              다음 단계 →
+              다음 단계
+              <ChevronRight size={16} />
             </button>
           </div>
         </>
@@ -357,7 +379,10 @@ function ApplyForm() {
         <>
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">👤</div>신청자 정보
+              <div className="reg-card-title-icon">
+                <User size={14} color="#1a4fd6" />
+              </div>
+              신청자 정보
             </div>
             <div className="reg-form-grid">
               <div className="reg-form-group">
@@ -404,7 +429,10 @@ function ApplyForm() {
 
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">🐶</div>반려동물 정보 (선택)
+              <div className="reg-card-title-icon">
+                <PawPrint size={14} color="#1a4fd6" />
+              </div>
+              반려동물 정보 (선택)
             </div>
             <div className="reg-form-grid">
               <div className="reg-form-group">
@@ -454,13 +482,15 @@ function ApplyForm() {
               className="reg-btn reg-btn-ghost"
               onClick={() => setStep(0)}
             >
-              ← 이전
+              <ChevronLeft size={16} />
+              이전
             </button>
             <button
               className="reg-btn reg-btn-primary"
               onClick={() => setStep(2)}
             >
-              다음 단계 →
+              다음 단계
+              <ChevronRight size={16} />
             </button>
           </div>
         </>
@@ -471,7 +501,10 @@ function ApplyForm() {
         <>
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">📋</div>약관 동의
+              <div className="reg-card-title-icon">
+                <ClipboardList size={14} color="#1a4fd6" />
+              </div>
+              약관 동의
             </div>
             <div className="reg-agree-list">
               {[
@@ -494,7 +527,7 @@ function ApplyForm() {
                   onClick={() => toggleAgree(i)}
                 >
                   <div className={`reg-checkbox${agrees[i] ? " checked" : ""}`}>
-                    {agrees[i] && <span className="reg-checkbox-check">✓</span>}
+                    {agrees[i] && <Check size={11} color="#fff" />}
                   </div>
                   <div className="reg-agree-text">
                     {a.required ? (
@@ -519,7 +552,10 @@ function ApplyForm() {
 
           <div className="reg-card">
             <div className="reg-card-title">
-              <div className="reg-card-title-icon">💳</div>결제 내역 확인
+              <div className="reg-card-title-icon">
+                <CreditCard size={14} color="#1a4fd6" />
+              </div>
+              결제 내역 확인
             </div>
             <div className="reg-summary">
               <div className="reg-summary-row">
@@ -550,7 +586,8 @@ function ApplyForm() {
               className="reg-btn reg-btn-ghost"
               onClick={() => setStep(1)}
             >
-              ← 이전
+              <ChevronLeft size={16} />
+              이전
             </button>
             <button
               className="reg-btn reg-btn-primary"
@@ -560,6 +597,7 @@ function ApplyForm() {
               }}
             >
               결제하기
+              <ChevronRight size={16} />
             </button>
           </div>
         </>
@@ -569,7 +607,9 @@ function ApplyForm() {
       {step === 3 && (
         <div className="reg-card">
           <div className="reg-success">
-            <div className="reg-success-icon">✅</div>
+            <div className="reg-success-icon">
+              <CheckCircle2 size={32} color="#10b981" />
+            </div>
             <div className="reg-success-title">신청이 완료되었습니다!</div>
             <div className="reg-success-desc">
               입력하신 이메일로 신청 확인서가 발송되었습니다.
@@ -671,14 +711,21 @@ function RegistrationHistory() {
           <div
             style={{
               display: "flex",
-              gap: 24,
+              gap: 20,
               fontSize: 12.5,
               color: "#4b5563",
+              alignItems: "center",
             }}
           >
-            <span>📅 {r.date}</span>
-            <span>🎫 {r.ticket}</span>
-            <span>💳 {r.amount}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <CalendarDays size={13} color="#6b7280" /> {r.date}
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <Ticket size={13} color="#6b7280" /> {r.ticket}
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <CreditCard size={13} color="#6b7280" /> {r.amount}
+            </span>
           </div>
           {r.status === "confirmed" && (
             <div
@@ -892,7 +939,50 @@ function QRCheckin() {
             gap: 8,
           }}
         >
-          <div style={{ fontSize: 40 }}>📱</div>
+          <div style={{ color: "#1a4fd6" }}>
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <rect
+                x="3"
+                y="3"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="#1a4fd6"
+                strokeWidth="2"
+              />
+              <rect
+                x="14"
+                y="3"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="#1a4fd6"
+                strokeWidth="2"
+              />
+              <rect
+                x="3"
+                y="14"
+                width="7"
+                height="7"
+                rx="1"
+                stroke="#1a4fd6"
+                strokeWidth="2"
+              />
+              <rect x="5" y="5" width="3" height="3" fill="#1a4fd6" />
+              <rect x="16" y="5" width="3" height="3" fill="#1a4fd6" />
+              <rect x="5" y="16" width="3" height="3" fill="#1a4fd6" />
+              <path
+                d="M14 14h2v2h-2zM18 14h3v2h-3zM14 18h2v3h-2zM18 18h3v3h-3z"
+                fill="#1a4fd6"
+              />
+            </svg>
+          </div>
           <div style={{ fontSize: 11, color: "#6b7280" }}>REG-2026-003847</div>
         </div>
         <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 12 }}>
@@ -970,8 +1060,17 @@ function QRCheckin() {
               border: "1px solid #a7f3d0",
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 600, color: "#059669" }}>
-              ✅ 체크인 완료!
+            <div
+              style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#059669",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <CheckCircle2 size={14} color="#059669" /> 체크인 완료!
             </div>
             <div style={{ fontSize: 12, color: "#065f46", marginTop: 4 }}>
               2026 봄 반려동물 페스티벌 - Day 1 | 홍길동님

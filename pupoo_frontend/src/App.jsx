@@ -36,7 +36,6 @@ import PaymentHistory from "./pages/site/registration/PaymentHistory";
 import QRCheckin from "./pages/site/registration/QRCheckin";
 
 /* Realtime */
-import CheckinStatus from "./pages/site/realtime/CheckinStatus";
 import WaitingStatus from "./pages/site/realtime/WaitingStatus";
 import VoteStatus from "./pages/site/realtime/VoteStatus";
 import RealtimeDashboard from "./pages/site/realtime/Dashboard";
@@ -69,7 +68,7 @@ import EventSketch from "./pages/site/gallery/eventsketch";
 /* guide */
 import Operation from "./pages/site/guide/Operation";
 import LocationPage from "./pages/site/guide/location";
-import Timetable from "./pages/site/guide/timetable";
+import Timetable from "./pages/site/guide/Timetable";
 
 export default function App() {
   return (
@@ -108,20 +107,16 @@ export default function App() {
 
           {/* Registration */}
           <Route path="/registration/apply" element={<Apply />} />
+          <Route path="/registration/applyhistory" element={<ApplyHistory />} />
           <Route
-            path="/registration/apply-history"
-            element={<ApplyHistory />}
-          />
-          <Route
-            path="/registration/payment-history"
+            path="/registration/paymenthistory"
             element={<PaymentHistory />}
           />
-          <Route path="/registration/qr-checkin" element={<QRCheckin />} />
+          <Route path="/registration/qrcheckin" element={<QRCheckin />} />
 
           {/* Realtime */}
-          <Route path="/realtime/checkin-status" element={<CheckinStatus />} />
-          <Route path="/realtime/waiting-status" element={<WaitingStatus />} />
-          <Route path="/realtime/vote-status" element={<VoteStatus />} />
+          <Route path="/realtime/waitingstatus" element={<WaitingStatus />} />
+          <Route path="/realtime/votestatus" element={<VoteStatus />} />
           <Route path="/realtime/dashboard" element={<RealtimeDashboard />} />
 
           {/* Community */}
@@ -136,7 +131,7 @@ export default function App() {
 
           <Route path="/info/faq" element={<FAQ />} />
           <Route path="/info/inquiry" element={<Inquiry />} />
-          <Route path="/info/location" element={<LocationPage />} />
+          <Route path="/info/location" element={<Location />} />
 
           {/* Policy */}
           <Route path="/policy/aboutus" element={<AboutUs />} />
@@ -150,9 +145,9 @@ export default function App() {
           <Route path="/gallery/eventsketch" element={<EventSketch />} />
 
           {/* guide */}
-          <Route path="/guide/Location" element={<Location />} />
-          <Route path="/guide/Operation" element={<Operation />} />
-          <Route path="/guide/Timetable" element={<Timetable />} />
+          <Route path="/guide/location" element={<LocationPage />} />
+          <Route path="/guide/operation" element={<Operation />} />
+          <Route path="/guide/timetable" element={<Timetable />} />
         </Route>
       </Routes>
     </>
