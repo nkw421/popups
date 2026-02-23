@@ -1,17 +1,32 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, UserCircle } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    ICONS
 ───────────────────────────────────────────── */
 const IconButtonWithTooltip = ({ children, tooltip, to }) => {
   const [hovered, setHovered] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const btnRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    setHovered(true);
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setTooltipPos({
+        top: rect.bottom + 10,
+        left: rect.left + rect.width / 2,
+      });
+    }
+  };
 
   return (
     <div
+      ref={btnRef}
       style={{ position: "relative", display: "inline-block" }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setHovered(false)}
     >
       <Link to={to} style={{ display: "inline-block" }}>
@@ -28,42 +43,44 @@ const IconButtonWithTooltip = ({ children, tooltip, to }) => {
         </button>
       </Link>
 
-      {/* Tooltip */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "-38px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "#262626",
-          color: "#ffffff",
-          fontSize: "12px",
-          padding: "6px 10px",
-          borderRadius: "6px",
-          whiteSpace: "nowrap",
-          opacity: hovered ? 1 : 0,
-          pointerEvents: "none",
-          transition: "opacity 0.2s ease, transform 0.2s ease",
-          zIndex: 3000,
-        }}
-      >
-        {tooltip}
+      {/* Tooltip — createPortal로 body에 직접 렌더링 (header stacking context 밖) */}
+      {hovered &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed",
+              top: tooltipPos.top + "px",
+              left: tooltipPos.left + "px",
+              transform: "translateX(-50%)",
+              backgroundColor: "#262626",
+              color: "#ffffff",
+              fontSize: "12px",
+              padding: "6px 10px",
+              borderRadius: "6px",
+              whiteSpace: "nowrap",
+              pointerEvents: "none",
+              zIndex: 99999,
+            }}
+          >
+            {tooltip}
 
-        {/* 말풍선 꼬리 */}
-        <div
-          style={{
-            position: "absolute",
-            top: "-6px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: 0,
-            height: 0,
-            borderLeft: "6px solid transparent",
-            borderRight: "6px solid transparent",
-            borderBottom: "6px solid #262626",
-          }}
-        />
-      </div>
+            {/* 말풍선 꼬리 */}
+            <div
+              style={{
+                position: "absolute",
+                bottom: "100%",
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: 0,
+                height: 0,
+                borderLeft: "6px solid transparent",
+                borderRight: "6px solid transparent",
+                borderBottom: "6px solid #262626",
+              }}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
@@ -116,54 +133,6 @@ const ArrowRight = ({ color = "#1c69d4" }) => (
   </svg>
 );
 
-const LoginIcon = ({ color = "#262626" }) => (
-  <svg
-    width="25"
-    height="25"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M15 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H15"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M10 17L15 12L10 7"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path d="M15 12H3" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-);
-const SignupIcon = ({ color = "#262626" }) => (
-  <svg
-    width="25"
-    height="25"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <circle cx="12" cy="8" r="4" stroke={color} strokeWidth="1.5" />
-    <path
-      d="M4 20C4 16.6863 7.13401 14 12 14C16.866 14 20 16.6863 20 20"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-    <path
-      d="M19 4V10M16 7H22"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
 /* ─────────────────────────────────────────────
    NAV DATA  (categories & routes from Code 1)
 ───────────────────────────────────────────── */
@@ -177,7 +146,7 @@ const megaMenuData = {
           { label: "예정 행사", href: "/event/upcoming" },
           { label: "종료 행사", href: "/event/closed" },
           { label: "행사 사전 등록", href: "/event/preregister" },
-          { label: "행사 일정 안내", href: "/event/detail" },
+          { label: "행사 일정 안내", href: "/event/eventSchedule" },
         ],
       },
       {
@@ -185,9 +154,9 @@ const megaMenuData = {
         items: [
           { label: "체험존 안내", href: "/program/experience" },
           { label: "세션 · 강연", href: "/program/session" },
-          { label: "프로그램", href: "/program/schedule" },
-          { label: "참가 신청", href: "/program/contest" },
-          { label: "실시간 투표 · 결과", href: "/program/booth" },
+          { label: "프로그램 안내", href: "/program/schedule" },
+          { label: "콘테스트 · 투표", href: "/program/contest" },
+          { label: "부스 안내", href: "/program/booth" },
         ],
       },
     ],
@@ -240,7 +209,6 @@ const megaMenuData = {
         title: "참여 안내",
         items: [
           { label: "현장 운영 안내", href: "/guide/operation" },
-          { label: "타임 테이블", href: "/guide/timetable" },
           { label: "장소/오시는길", href: "/guide/location" },
         ],
       },
@@ -258,7 +226,7 @@ const megaMenuData = {
         title: "실시간 현황",
         items: [
           { label: "통합 현황", href: "/realtime/dashboard" },
-          { label: "입장 대기", href: "/realtime/waitingstatus" },
+          { label: "대기 현황", href: "/realtime/waitingstatus" },
           { label: "체크인 현황", href: "/realtime/checkinstatus" },
           { label: "투표 현황", href: "/realtime/votestatus" },
         ],
@@ -326,7 +294,7 @@ const MegaMenu = ({ menuData }) => {
         backdropFilter: "blur(12px)",
         borderTop: "1px solid #e0e0e0",
         boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
-        zindex: 1000,
+        zIndex: 1000,
         padding: "40px 0 48px",
       }}
     >
@@ -615,7 +583,7 @@ export default function pupooHeader() {
             height: "70px",
             display: "flex",
             alignItems: "stretch",
-            zindex: 1000,
+            zIndex: 1000,
             /* Smooth background + shadow transition */
             backgroundColor: isWhiteMode
               ? "rgba(255,255,255,0.97)"
@@ -694,14 +662,18 @@ export default function pupooHeader() {
             {/* Right: Icons */}
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <IconButtonWithTooltip to="/auth/login" tooltip="로그인">
-                <LoginIcon color={iconColor} />
+                <LogIn size={23} color={iconColor} strokeWidth={1.5} />
               </IconButtonWithTooltip>
 
               <IconButtonWithTooltip
                 to="/auth/join/joinselect"
                 tooltip="회원가입"
               >
-                <SignupIcon color={iconColor} />
+                <UserPlus size={23} color={iconColor} strokeWidth={1.5} />
+              </IconButtonWithTooltip>
+
+              <IconButtonWithTooltip to="/mypage" tooltip="마이페이지">
+                <UserCircle size={23} color={iconColor} strokeWidth={1.5} />
               </IconButtonWithTooltip>
             </div>
           </div>
@@ -715,7 +687,7 @@ export default function pupooHeader() {
               top: "70px",
               left: 0,
               right: 0,
-              zindex: 1000,
+              zIndex: 1000,
             }}
           >
             <MegaMenu menuData={megaMenuData[activeMenu]} />
