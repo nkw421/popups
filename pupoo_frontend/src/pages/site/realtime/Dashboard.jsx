@@ -120,7 +120,7 @@ const styles = `
 `;
 
 export const SERVICE_CATEGORIES = [
-  { label: "대시보드", path: "/realtime/dashboard" },
+  { label: "통합 현황", path: "/realtime/dashboard" },
   { label: "체크인 현황", path: "/realtime/checkinstatus" },
   { label: "투표 현황", path: "/realtime/votestatus" },
   { label: "대기 현황", path: "/realtime/waitingstatus" },
@@ -382,7 +382,7 @@ export default function Dashboard() {
     <div className="rt-root">
       <style>{styles}</style>
       <PageHeader
-        title="대시보드"
+        title="통합 현황"
         subtitle={SUBTITLE_MAP[currentPath]}
         categories={SERVICE_CATEGORIES}
         currentPath={currentPath}

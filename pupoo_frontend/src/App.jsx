@@ -20,7 +20,7 @@ import Current from "./pages/site/event/Current";
 import Upcoming from "./pages/site/event/Upcoming";
 import Closed from "./pages/site/event/Closed";
 import PreRegister from "./pages/site/event/PreRegister";
-import Detail from "./pages/site/event/Detail";
+import EventSchedule from "./pages/site/event/EventSchedule";
 
 /* Program */
 import Experience from "./pages/site/program/Experience";
@@ -28,6 +28,7 @@ import Session from "./pages/site/program/Session";
 import Booth from "./pages/site/program/Booth";
 import Contest from "./pages/site/program/Contest";
 import Schedule from "./pages/site/program/Schedule";
+import VoteResult from "./pages/site/program/VoteResult";
 
 /* Registration */
 import Apply from "./pages/site/registration/Apply";
@@ -97,7 +98,7 @@ export default function App() {
           <Route path="/event/upcoming" element={<Upcoming />} />
           <Route path="/event/closed" element={<Closed />} />
           <Route path="/event/preregister" element={<PreRegister />} />
-          <Route path="/event/detail" element={<Detail />} />
+          <Route path="/event/eventschedule" element={<EventSchedule />} />
 
           {/* Program */}
           <Route path="/program/experience" element={<Experience />} />
@@ -105,6 +106,7 @@ export default function App() {
           <Route path="/program/booth" element={<Booth />} />
           <Route path="/program/contest" element={<Contest />} />
           <Route path="/program/schedule" element={<Schedule />} />
+          <Route path="/program/voteresult" element={<VoteResult />} />
 
           {/* Registration */}
           <Route path="/registration/apply" element={<Apply />} />

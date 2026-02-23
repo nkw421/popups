@@ -172,12 +172,11 @@ const styles = `
 `;
 
 export const SERVICE_CATEGORIES = [
-  { label: "대시보드", path: "/realtime/dashboard" },
+  { label: "통합 현황", path: "/realtime/dashboard" },
   { label: "체크인 현황", path: "/realtime/checkinstatus" },
   { label: "투표 현황", path: "/realtime/votestatus" },
   { label: "대기 현황", path: "/realtime/waitingstatus" },
 ];
-
 export const SUBTITLE_MAP = {
   "/realtime/dashboard": "행사 전체 현황을 실시간으로 모니터링합니다",
   "/realtime/checkinstatus": "참가자 체크인 현황을 실시간으로 확인합니다",
@@ -531,13 +530,13 @@ function WaitingContent() {
 }
 
 export default function WaitingStatus() {
-  const [currentPath, setCurrentPath] = useState("/realtime/waiting");
+  const [currentPath, setCurrentPath] = useState("/realtime/waitingstatus");
 
   return (
     <div className="wt-root">
       <style>{styles}</style>
       <PageHeader
-        title="실시간 현황"
+        title="대기 현황"
         subtitle={SUBTITLE_MAP[currentPath]}
         categories={SERVICE_CATEGORIES}
         currentPath={currentPath}

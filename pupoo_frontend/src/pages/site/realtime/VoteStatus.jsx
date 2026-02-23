@@ -128,7 +128,7 @@ const styles = `
 `;
 
 export const SERVICE_CATEGORIES = [
-  { label: "대시보드", path: "/realtime/dashboard" },
+  { label: "통합 현황", path: "/realtime/dashboard" },
   { label: "체크인 현황", path: "/realtime/checkinstatus" },
   { label: "투표 현황", path: "/realtime/votestatus" },
   { label: "대기 현황", path: "/realtime/waitingstatus" },
@@ -359,7 +359,7 @@ export default function VoteStatus() {
     <div className="vt-root">
       <style>{styles}</style>
       <PageHeader
-        title="실시간 현황"
+        title="대기 현황"
         subtitle={SUBTITLE_MAP[currentPath]}
         categories={SERVICE_CATEGORIES}
         currentPath={currentPath}

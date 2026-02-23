@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PageHeader from "../components/PageHeader";
 import {
   CheckCircle2,
   XCircle,
@@ -8,9 +7,56 @@ import {
   UserCheck,
   Users,
   ScanLine,
-  Filter,
 } from "lucide-react";
 
+// ─────────────────────────────────────────────
+// 상수
+// ─────────────────────────────────────────────
+export const SERVICE_CATEGORIES = [
+  { label: "통합 현황", path: "/realtime/dashboard" },
+  { label: "체크인 현황", path: "/realtime/checkinstatus" },
+  { label: "투표 현황", path: "/realtime/votestatus" },
+  { label: "대기 현황", path: "/realtime/waitingstatus" },
+];
+
+const SUBTITLE_MAP = {
+  "/realtime/dashboard": "행사 전체 운영 현황을 실시간으로 확인하세요.",
+  "/realtime/checkinstatus": "참가자 체크인 현황을 실시간으로 확인합니다.",
+  "/realtime/votestatus": "실시간 투표 집계 현황입니다.",
+  "/realtime/waitingstatus": "대기 인원 및 처리 현황입니다.",
+};
+
+// ─────────────────────────────────────────────
+// 인라인 PageHeader  ← subtitle이 확실하게 렌더링됨
+// ─────────────────────────────────────────────
+function PageHeader({ title, subtitle, categories, currentPath, onNavigate }) {
+  return (
+    <header className="ck-ph-header">
+      <div className="ck-ph-inner">
+        <div className="ck-ph-left">
+          <div className="ck-ph-title">{title}</div>
+          {/* subtitle이 있을 때만 표시 */}
+          {subtitle && <div className="ck-ph-sub">{subtitle}</div>}
+        </div>
+        <nav className="ck-ph-nav">
+          {categories.map((c) => (
+            <button
+              key={c.path}
+              className={`ck-ph-nav-btn${currentPath === c.path ? " active" : ""}`}
+              onClick={() => onNavigate && onNavigate(c.path)}
+            >
+              {c.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+    </header>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 스타일
+// ─────────────────────────────────────────────
 const styles = `
   @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
 
@@ -21,8 +67,34 @@ const styles = `
     min-height: 100vh;
   }
   .ck-root *, .ck-root *::before, .ck-root *::after { box-sizing: border-box; font-family: inherit; }
+
+  /* ── PageHeader ── */
+  .ck-ph-header {
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0 32px;
+  }
+  .ck-ph-inner {
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+  }
+  .ck-ph-left { display: flex; flex-direction: column; gap: 2px; }
+  .ck-ph-title { font-size: 17px; font-weight: 800; color: #111827; }
+  .ck-ph-sub   { font-size: 12px; color: #9ca3af; }   /* ← 이게 subtitle */
+  .ck-ph-nav   { display: flex; gap: 4px; }
+  .ck-ph-nav-btn {
+    height: 34px; padding: 0 14px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 500; color: #6b7280; background: transparent;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .ck-ph-nav-btn:hover  { background: #f3f4f6; color: #111827; }
+  .ck-ph-nav-btn.active { background: #1a4fd6; color: #fff; font-weight: 600; }
+
+  /* ── Container ── */
   .ck-container { max-width: 1400px; margin: 0 auto; padding: 32px 24px 64px; }
 
+  /* ── Live Badge ── */
   .rt-live-badge {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 4px 12px; background: #fff0f0; border: 1px solid #fecaca;
@@ -38,7 +110,7 @@ const styles = `
     50% { opacity: 0.5; transform: scale(0.8); }
   }
 
-  /* Stat row */
+  /* ── Stat Grid ── */
   .ck-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
   .ck-stat-card {
     background: #fff; border: 1px solid #e9ecef; border-radius: 13px;
@@ -48,20 +120,20 @@ const styles = `
   .ck-stat-label { font-size: 12px; color: #6b7280; font-weight: 500; }
   .ck-stat-value { font-size: 22px; font-weight: 800; color: #111827; }
 
-  /* Ring chart */
+  /* ── Ring / Legend ── */
   .ck-ring-wrap { display: flex; align-items: center; justify-content: center; padding: 8px 0 16px; gap: 28px; }
   .ck-ring-legend { display: flex; flex-direction: column; gap: 10px; }
   .ck-ring-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; }
   .ck-ring-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .ck-ring-legend-val { font-weight: 700; color: #111827; margin-left: 4px; }
 
-  /* Card */
+  /* ── Card ── */
   .ck-card { background: #fff; border: 1px solid #e9ecef; border-radius: 13px; padding: 24px 28px; margin-bottom: 16px; }
   .ck-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #f1f3f5; }
   .ck-card-title { font-size: 15px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; margin: 0; }
   .ck-card-title-icon { width: 24px; height: 24px; border-radius: 6px; background: #eff4ff; display: flex; align-items: center; justify-content: center; }
 
-  /* Toolbar */
+  /* ── Toolbar ── */
   .ck-toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; }
   .ck-search-wrap { position: relative; flex: 1; }
   .ck-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
@@ -78,53 +150,43 @@ const styles = `
     cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit;
     transition: border-color 0.15s;
   }
-  .ck-filter-btn:hover { border-color: #1a4fd6; color: #1a4fd6; }
+  .ck-filter-btn:hover  { border-color: #1a4fd6; color: #1a4fd6; }
   .ck-filter-btn.active { border-color: #1a4fd6; background: #f5f8ff; color: #1a4fd6; }
 
-  /* Table */
+  /* ── Table ── */
   .ck-table-wrap { overflow-x: auto; }
   .ck-table { width: 100%; border-collapse: collapse; }
   .ck-table thead tr { background: #f9fafb; }
-  .ck-table th {
-    padding: 11px 16px; font-size: 12px; font-weight: 600; color: #6b7280;
-    text-align: left; border-bottom: 1px solid #e9ecef; white-space: nowrap;
-  }
+  .ck-table th { padding: 11px 16px; font-size: 12px; font-weight: 600; color: #6b7280; text-align: left; border-bottom: 1px solid #e9ecef; white-space: nowrap; }
   .ck-table td { padding: 14px 16px; font-size: 13px; color: #374151; border-bottom: 1px solid #f1f3f5; }
   .ck-table tbody tr:hover { background: #fafbff; }
   .ck-table tbody tr:last-child td { border-bottom: none; }
 
-  /* Status badge */
-  .ck-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
-  }
+  /* ── Badges ── */
+  .ck-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; }
   .ck-badge.done { background: #ecfdf5; color: #059669; }
   .ck-badge.wait { background: #fff7ed; color: #d97706; }
-  .ck-badge.no { background: #fef2f2; color: #dc2626; }
+  .ck-badge.no   { background: #fef2f2; color: #dc2626; }
+  .ck-ticket-chip { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
 
-  .ck-ticket-chip {
-    display: inline-block; padding: 2px 8px; border-radius: 4px;
-    font-size: 11px; font-weight: 600;
-  }
-
-  /* Two col */
+  /* ── Two-col layout ── */
   .ck-two-col { display: grid; grid-template-columns: 320px 1fr; gap: 14px; margin-bottom: 16px; }
 
-  /* Progress list */
+  /* ── Progress ── */
   .ck-prog-list { display: flex; flex-direction: column; gap: 14px; }
-  .ck-prog-item {}
   .ck-prog-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
   .ck-prog-name { font-size: 13px; font-weight: 600; color: #374151; }
-  .ck-prog-val { font-size: 12px; color: #6b7280; }
+  .ck-prog-val  { font-size: 12px; color: #6b7280; }
   .ck-prog-track { height: 7px; background: #f1f3f5; border-radius: 100px; overflow: hidden; }
-  .ck-prog-fill { height: 100%; border-radius: 100px; }
+  .ck-prog-fill  { height: 100%; border-radius: 100px; }
 
-  /* Empty */
+  /* ── Empty ── */
   .ck-empty { text-align: center; padding: 36px 0; color: #9ca3af; font-size: 13.5px; }
 
   @media (max-width: 900px) {
     .ck-stat-grid { grid-template-columns: repeat(2, 1fr); }
-    .ck-two-col { grid-template-columns: 1fr; }
+    .ck-two-col   { grid-template-columns: 1fr; }
+    .ck-ph-nav    { display: none; }
   }
   @media (max-width: 640px) {
     .ck-container { padding: 20px 16px 48px; }
@@ -132,20 +194,9 @@ const styles = `
   }
 `;
 
-export const SERVICE_CATEGORIES = [
-  { label: "대시보드", path: "/realtime/dashboard" },
-  { label: "체크인 현황", path: "/realtime/checkinstatus" },
-  { label: "투표 현황", path: "/realtime/votestatus" },
-  { label: "대기 현황", path: "/realtime/waitingstatus" },
-];
-
-export const SUBTITLE_MAP = {
-  "/realtime/dashboard": "행사 전체 현황을 실시간으로 모니터링합니다",
-  "/realtime/checkinstatus": "참가자 체크인 현황을 실시간으로 확인합니다",
-  "/realtime/votestatus": "진행 중인 투표의 실시간 결과를 확인합니다",
-  "/realtime/waitingstatus": "대기열 현황을 실시간으로 확인합니다",
-};
-
+// ─────────────────────────────────────────────
+// 데이터
+// ─────────────────────────────────────────────
 const CHECKIN_DATA = [
   {
     id: "REG-2026-003847",
@@ -247,6 +298,9 @@ const TICKET_COLORS = {
   "가족 패키지": { bg: "#ecfdf5", color: "#059669" },
 };
 
+// ─────────────────────────────────────────────
+// 콘텐츠
+// ─────────────────────────────────────────────
 function CheckinContent() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
@@ -280,7 +334,7 @@ function CheckinContent() {
         LIVE
       </div>
 
-      {/* Stats */}
+      {/* 통계 카드 */}
       <div className="ck-stat-grid">
         {[
           {
@@ -321,8 +375,8 @@ function CheckinContent() {
       </div>
 
       <div className="ck-two-col">
-        {/* Donut + ticket stats */}
-        <div className="ck-card" style={{ padding: "24px 24px" }}>
+        {/* 도넛 차트 + 티켓별 */}
+        <div className="ck-card" style={{ padding: "24px" }}>
           <div className="ck-card-header">
             <div className="ck-card-title">
               <div className="ck-card-title-icon">
@@ -331,6 +385,7 @@ function CheckinContent() {
               체크인 비율
             </div>
           </div>
+
           <div className="ck-ring-wrap">
             <svg width="140" height="140" viewBox="0 0 140 140">
               <circle
@@ -452,8 +507,8 @@ function CheckinContent() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="ck-card" style={{ padding: "24px 24px" }}>
+        {/* 체크인 목록 테이블 */}
+        <div className="ck-card" style={{ padding: "24px" }}>
           <div className="ck-card-header">
             <div className="ck-card-title">
               <div className="ck-card-title-icon">
@@ -547,15 +602,20 @@ function CheckinContent() {
   );
 }
 
+// ─────────────────────────────────────────────
+// 메인
+// ─────────────────────────────────────────────
 export default function CheckinStatus() {
-  const [currentPath, setCurrentPath] = useState("/realtime/checkin");
+  const [currentPath, setCurrentPath] = useState("/realtime/checkinstatus");
 
   return (
     <div className="ck-root">
       <style>{styles}</style>
       <PageHeader
-        title="실시간 현황"
-        subtitle={SUBTITLE_MAP[currentPath]}
+        title="체크인 현황"
+        subtitle={
+          SUBTITLE_MAP[currentPath]
+        } /* ← currentPath 바뀌어도 자동 반영 */
         categories={SERVICE_CATEGORIES}
         currentPath={currentPath}
         onNavigate={setCurrentPath}
