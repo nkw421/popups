@@ -20,7 +20,7 @@ import Current from "./pages/site/event/Current";
 import Upcoming from "./pages/site/event/Upcoming";
 import Closed from "./pages/site/event/Closed";
 import PreRegister from "./pages/site/event/PreRegister";
-import Detail from "./pages/site/event/Detail";
+import EventSchedule from "./pages/site/event/EventSchedule";
 
 /* Program */
 import Experience from "./pages/site/program/Experience";
@@ -28,11 +28,7 @@ import Session from "./pages/site/program/Session";
 import Booth from "./pages/site/program/Booth";
 import Contest from "./pages/site/program/Contest";
 import Schedule from "./pages/site/program/Schedule";
-import SessionDetail from "./pages/site/program/SessionDetail";
-import ContestDetail from "./pages/site/program/contest/ContestDetail";
-import ContestApply from "./pages/site/program/contest/ContestApply";
-import ContestVote from "./pages/site/program/contest/ContestVote";
-import ContestResult from "./pages/site/program/contest/ContestResult";
+import VoteResult from "./pages/site/program/VoteResult";
 
 /* Registration */
 import Apply from "./pages/site/registration/Apply";
@@ -41,7 +37,6 @@ import PaymentHistory from "./pages/site/registration/PaymentHistory";
 import QRCheckin from "./pages/site/registration/QRCheckin";
 
 /* Realtime */
-import CheckinStatus from "./pages/site/realtime/CheckinStatus";
 import WaitingStatus from "./pages/site/realtime/WaitingStatus";
 import VoteStatus from "./pages/site/realtime/VoteStatus";
 import RealtimeDashboard from "./pages/site/realtime/Dashboard";
@@ -51,7 +46,7 @@ import FreeBoard from "./pages/site/community/FreeBoard";
 import Review from "./pages/site/community/Review";
 import Gallery from "./pages/site/community/Gallery";
 import QnA from "./pages/site/community/QnA";
-import Notice from "./pages/site/community/Notice.jsx";
+import Notice from "./pages/site/community/Notice";
 
 /* Info */
 import PlatformIntro from "./pages/site/info/PlatformIntro";
@@ -66,6 +61,16 @@ import PrivacyPolicy from "./pages/site/policy/privacypolicy";
 import ServiceGuide from "./pages/site/policy/serviceguide";
 import TermsOfService from "./pages/site/policy/termsofservice";
 import EFTTerms from "./pages/site/policy/EFTTerms";
+
+/* gallery */
+import EventGallery from "./pages/site/gallery/eventgallery";
+import EventSketch from "./pages/site/gallery/eventsketch";
+
+/* guide */
+import Operation from "./pages/site/guide/Operation";
+import LocationPage from "./pages/site/guide/location";
+import Timetable from "./pages/site/guide/Timetable";
+import CheckinStatus from "./pages/site/realtime/CheckinStatus";
 
 export default function App() {
   return (
@@ -93,40 +98,30 @@ export default function App() {
           <Route path="/event/upcoming" element={<Upcoming />} />
           <Route path="/event/closed" element={<Closed />} />
           <Route path="/event/preregister" element={<PreRegister />} />
-          <Route path="/event/detail" element={<Detail />} />
+          <Route path="/event/eventschedule" element={<EventSchedule />} />
 
-          {/* program */}
+          {/* Program */}
           <Route path="/program/experience" element={<Experience />} />
           <Route path="/program/session" element={<Session />} />
           <Route path="/program/booth" element={<Booth />} />
           <Route path="/program/contest" element={<Contest />} />
           <Route path="/program/schedule" element={<Schedule />} />
-
-          <Route path="/program/session-detail" element={<SessionDetail />} />
-
-          {/* contest 상세/기능 */}
-          <Route path="/program/contest/detail" element={<ContestDetail />} />
-          <Route path="/program/contest/apply" element={<ContestApply />} />
-          <Route path="/program/contest/vote" element={<ContestVote />} />
-          <Route path="/program/contest/result" element={<ContestResult />} />
+          <Route path="/program/voteresult" element={<VoteResult />} />
 
           {/* Registration */}
           <Route path="/registration/apply" element={<Apply />} />
+          <Route path="/registration/applyhistory" element={<ApplyHistory />} />
           <Route
-            path="/registration/apply-history"
-            element={<ApplyHistory />}
-          />
-          <Route
-            path="/registration/payment-history"
+            path="/registration/paymenthistory"
             element={<PaymentHistory />}
           />
-          <Route path="/registration/qr-checkin" element={<QRCheckin />} />
+          <Route path="/registration/qrcheckin" element={<QRCheckin />} />
 
           {/* Realtime */}
-          <Route path="/realtime/checkin-status" element={<CheckinStatus />} />
-          <Route path="/realtime/waiting-status" element={<WaitingStatus />} />
-          <Route path="/realtime/vote-status" element={<VoteStatus />} />
+          <Route path="/realtime/waitingstatus" element={<WaitingStatus />} />
+          <Route path="/realtime/votestatus" element={<VoteStatus />} />
           <Route path="/realtime/dashboard" element={<RealtimeDashboard />} />
+          <Route path="/realtime/checkinstatus" element={<CheckinStatus />} />
 
           {/* Community */}
           <Route path="/community/freeboard" element={<FreeBoard />} />
@@ -148,6 +143,15 @@ export default function App() {
           <Route path="/policy/serviceguide" element={<ServiceGuide />} />
           <Route path="/policy/termsofservice" element={<TermsOfService />} />
           <Route path="/policy/eftterms" element={<EFTTerms />} />
+
+          {/*gallery*/}
+          <Route path="/gallery/eventgallery" element={<EventGallery />} />
+          <Route path="/gallery/eventsketch" element={<EventSketch />} />
+
+          {/* guide */}
+          <Route path="/guide/location" element={<LocationPage />} />
+          <Route path="/guide/operation" element={<Operation />} />
+          <Route path="/guide/timetable" element={<Timetable />} />
         </Route>
       </Routes>
     </>
