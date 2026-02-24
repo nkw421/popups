@@ -31,8 +31,4 @@ public class RefreshToken {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-public Long getUserId() { return userId; }
-public LocalDateTime getExpiredAt() { return expiredAt; }
-public void setUserId(Long userId) { this.userId = userId; }
-public void setExpiredAt(LocalDateTime expiredAt) { this.expiredAt = expiredAt; }
 }

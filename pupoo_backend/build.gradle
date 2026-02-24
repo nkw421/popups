@@ -15,14 +15,15 @@ java {
 }
 
 /* =========================
- * 프로젝트 전체 인코딩 명시 
+ * 프로젝트 전체 인코딩/파라미터 보존
  * ========================= */
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
-
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = 'UTF-8'
-	options.compilerArgs += ["-parameters"]  // 메서드 파라미터 이름 보존
+	options.compilerArgs += ["-parameters"]  // 리플렉션/SpEL/Validation 등에서 파라미터명 보존
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs += "-parameters"
 }
 
 tasks.withType(Javadoc).configureEach {
@@ -81,9 +82,10 @@ dependencies {
 	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
 
 	/* =========================
-	 * AWS S3
+	 * AWS SDK (BOM 권장)
 	 * ========================= */
-	implementation 'software.amazon.awssdk:s3:2.25.21'
+	implementation platform('software.amazon.awssdk:bom:2.25.21')
+	implementation 'software.amazon.awssdk:s3'
 
 	/* =========================
 	 * Dev
@@ -108,3 +110,6 @@ tasks.named('test') {
 bootJar {
 	archiveFileName = "pupoo-backend.jar"
 }
+
+/* (선택) plain jar 산출물 비활성화 */
+// jar { enabled = false }
