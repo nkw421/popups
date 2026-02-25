@@ -1,6 +1,7 @@
 import PageHeader from "../components/PageHeader";
 import EventDetailModal from "./EventDetailModal";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { eventApi } from "../../../app/http/eventApi"; // ✅ 추가
 import {
   Play,
   MapPin,
@@ -92,96 +93,131 @@ const styles = `
   .ev-card-btn { height: 32px; padding: 0 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
   .ev-card-btn:hover { background: #1a4fd6; color: #fff; border-color: #1a4fd6; }
 
+  .ev-state { margin: 18px 0; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid #e9ecef; color: #374151; font-size: 13px; }
+  .ev-state.err { border-color: #fecaca; background: #fff1f2; color: #b91c1c; }
+
   @media (max-width: 1100px) { .ev-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 700px) { .ev-grid { grid-template-columns: 1fr; } .ev-stat-grid { grid-template-columns: repeat(3, 1fr); } }
 `;
 
-const EVENTS = [
-  {
-    id: 1,
-    category: "컨퍼런스",
-    title: "2026 스타트업 이노베이션 서밋",
-    location: "코엑스 그랜드볼룸, 서울",
-    time: "09:00 ~ 18:00",
-    date: "2026.02.23",
-    participants: 1240,
-    capacity: 1500,
-    image:
-      "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&auto=format&fit=crop&q=80",
-    fallback: "🚀",
-  },
-  {
-    id: 2,
-    category: "워크샵",
-    title: "AI & 머신러닝 실전 워크샵",
-    location: "강남 D.CAMP, 서울",
-    time: "13:00 ~ 17:00",
-    date: "2026.02.23",
-    participants: 87,
-    capacity: 100,
-    image:
-      "https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&auto=format&fit=crop&q=80",
-    fallback: "🤖",
-  },
-  {
-    id: 3,
-    category: "네트워킹",
-    title: "테크 스타트업 네트워킹 나이트",
-    location: "성수 헤이그라운드, 서울",
-    time: "18:00 ~ 21:00",
-    date: "2026.02.23",
-    participants: 210,
-    capacity: 250,
-    image:
-      "https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600&auto=format&fit=crop&q=80",
-    fallback: "🤝",
-  },
-  {
-    id: 4,
-    category: "세미나",
-    title: "디지털 마케팅 전략 세미나 2026",
-    location: "여의도 IFC, 서울",
-    time: "10:00 ~ 16:00",
-    date: "2026.02.23",
-    participants: 310,
-    capacity: 400,
-    image:
-      "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=600&auto=format&fit=crop&q=80",
-    fallback: "📊",
-  },
-  {
-    id: 5,
-    category: "포럼",
-    title: "ESG 경영 혁신 포럼",
-    location: "롯데월드타워, 서울",
-    time: "09:30 ~ 12:30",
-    date: "2026.02.23",
-    participants: 445,
-    capacity: 600,
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
-    fallback: "🌱",
-  },
-  {
-    id: 6,
-    category: "전시",
-    title: "한국 핀테크 기술 박람회",
-    location: "킨텍스 제1전시장, 일산",
-    time: "10:00 ~ 18:00",
-    date: "2026.02.23",
-    participants: 3200,
-    capacity: 5000,
-    image:
-      "https://images.unsplash.com/photo-1559526324-593bc073d938?w=600&auto=format&fit=crop&q=80",
-    fallback: "💳",
-  },
-];
+/** 날짜/시간 유틸 (백엔드 포맷이 ISO 문자열/LocalDateTime 문자열이어도 최대한 안전하게 표시) */
+function safeText(v, fallback = "-") {
+  if (v === null || v === undefined) return fallback;
+  const s = String(v).trim();
+  return s.length ? s : fallback;
+}
+
+function formatDateKorean(dt) {
+  // dt가 "2026-02-23T09:00:00" 또는 "2026-02-23 09:00:00" 등일 수 있음
+  const s = safeText(dt, "");
+  if (!s) return "-";
+  // 날짜만 뽑기
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return s;
+  return `${m[1]}.${m[2]}.${m[3]}`;
+}
+
+function formatTimeRange(startAt, endAt) {
+  const a = safeText(startAt, "");
+  const b = safeText(endAt, "");
+  // HH:mm 추출
+  const pickHm = (x) => {
+    const m = x.match(/(\d{2}):(\d{2})/);
+    return m ? `${m[1]}:${m[2]}` : "";
+  };
+  const ahm = pickHm(a);
+  const bhm = pickHm(b);
+  if (ahm && bhm) return `${ahm} ~ ${bhm}`;
+  if (ahm) return `${ahm}`;
+  return "-";
+}
+
+/**
+ * ✅ 백엔드 이벤트 응답 -> 기존 UI 카드가 기대하는 모양으로 변환
+ * - 백엔드 필드는 프로젝트마다 조금씩 달라서 "가능한 후보"를 넓게 잡았음.
+ */
+function normalizeEvent(raw) {
+  const eventId = raw?.eventId ?? raw?.id ?? raw?.event_id;
+  const title = raw?.eventName ?? raw?.name ?? raw?.title ?? "행사";
+  const location =
+    raw?.location ??
+    raw?.place ??
+    raw?.address ??
+    raw?.venue ??
+    raw?.eventLocation ??
+    "-";
+
+  const startAt =
+    raw?.startAt ?? raw?.start_at ?? raw?.startedAt ?? raw?.startDateTime;
+  const endAt = raw?.endAt ?? raw?.end_at ?? raw?.endedAt ?? raw?.endDateTime;
+
+  const date = formatDateKorean(startAt);
+  const time = formatTimeRange(startAt, endAt);
+
+  const participants =
+    raw?.participants ??
+    raw?.currentParticipants ??
+    raw?.appliedCount ??
+    raw?.applyCount ??
+    0;
+
+  const capacity =
+    raw?.capacity ??
+    raw?.maxParticipants ??
+    raw?.limitCount ??
+    raw?.maxCount ??
+    100;
+
+  const category =
+    raw?.category ??
+    raw?.eventCategory ??
+    raw?.type ??
+    raw?.eventType ??
+    "행사";
+
+  const image =
+    raw?.imageUrl ??
+    raw?.thumbnailUrl ??
+    raw?.bannerUrl ??
+    raw?.posterUrl ??
+    null;
+
+  const status = raw?.status ?? raw?.eventStatus ?? "ONGOING";
+
+  const fallback = "🐶"; // 프로젝트 컨셉에 맞춰 기본 이모지
+
+  return {
+    // ✅ 기존 카드에서 쓰는 필드 유지
+    id: Number(eventId),
+    category: String(category),
+    title: String(title),
+    location: String(location),
+    time,
+    date,
+    participants: Number(participants) || 0,
+    capacity: Number(capacity) || 0,
+    image,
+    fallback,
+    status: String(status),
+    // 모달에서 필요할 수 있는 원본도 붙여둠
+    raw,
+  };
+}
+
+function statusLabel(status) {
+  if (status === "ONGOING") return "진행 중";
+  if (status === "PLANNED") return "예정";
+  if (status === "ENDED") return "종료";
+  if (status === "CANCELLED") return "취소";
+  return "진행";
+}
 
 function EventThumb({ ev }) {
   const [imgError, setImgError] = useState(false);
+
   return (
     <div className="ev-card-thumb">
-      {!imgError ? (
+      {ev.image && !imgError ? (
         <img
           src={ev.image}
           alt={ev.title}
@@ -198,10 +234,12 @@ function EventThumb({ ev }) {
           {ev.fallback}
         </div>
       )}
+
       <div className="ev-card-thumb-overlay" />
+
       <div className="ev-card-thumb-label">
         <Zap size={10} />
-        진행 중
+        {statusLabel(ev.status)}
       </div>
     </div>
   );
@@ -212,16 +250,93 @@ export default function Current() {
   const [currentPath, setCurrentPath] = useState("/event/current");
   const [selectedEvent, setSelectedEvent] = useState(null);
 
-  const filtered = EVENTS.filter(
-    (e) =>
-      e.title.includes(query) ||
-      e.category.includes(query) ||
-      e.location.includes(query),
-  );
+  // ✅ 서버 데이터
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  // ✅ 최초 로딩 시 현재 진행(ONGOING)만 조회
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchEvents = async () => {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        // 백엔드 /api/events
+        // eventApi.getEvents(params) 가 ApiResponse<PageResponse>를 반환하는 구조를 기준으로 처리
+        const res = await eventApi.getEvents({
+          status: "ONGOING",
+          page: 0,
+          size: 50,
+        });
+
+        const content = res?.data?.data?.content ?? res?.data?.data ?? [];
+        const list = Array.isArray(content) ? content : [];
+
+        const normalized = list.map(normalizeEvent).filter((e) => !!e.id);
+        if (mounted) setEvents(normalized);
+      } catch (e) {
+        const statusCode = e?.response?.status;
+        const msg =
+          e?.response?.data?.message ||
+          e?.response?.data?.error ||
+          e?.message ||
+          "행사 목록 조회 실패";
+        if (mounted) setErrorMsg(statusCode ? `[${statusCode}] ${msg}` : msg);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    fetchEvents();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // ✅ 검색 필터 (기존 로직 유지 + 대소문자 무시)
+  const filtered = useMemo(() => {
+    const q = (query || "").trim().toLowerCase();
+    if (!q) return events;
+    return events.filter((e) => {
+      const t = (e.title || "").toLowerCase();
+      const c = (e.category || "").toLowerCase();
+      const l = (e.location || "").toLowerCase();
+      return t.includes(q) || c.includes(q) || l.includes(q);
+    });
+  }, [events, query]);
+
+  // ✅ 통계 (기존 UI 유지)
+  const stats = useMemo(() => {
+    const totalParticipants = events.reduce(
+      (a, e) => a + (e.participants || 0),
+      0,
+    );
+    const avgRate =
+      events.length === 0
+        ? 0
+        : Math.round(
+            (events.reduce(
+              (a, e) =>
+                a + ((e.capacity ? e.participants / e.capacity : 0) || 0),
+              0,
+            ) /
+              events.length) *
+              100,
+          );
+
+    return {
+      count: events.length,
+      totalParticipants,
+      avgRate,
+    };
+  }, [events]);
 
   return (
     <div className="ev-root">
       <style>{styles}</style>
+
       <PageHeader
         title="현재 진행 행사"
         subtitle={SUBTITLE_MAP[currentPath]}
@@ -233,26 +348,30 @@ export default function Current() {
       <main className="ev-container">
         <div className="ev-live-badge">
           <div className="ev-live-dot" />
-          LIVE · {EVENTS.length}개 행사 진행 중
+          LIVE · {stats.count}개 행사 진행 중
         </div>
+
+        {/* 상태 메시지 */}
+        {loading && <div className="ev-state">행사 목록 불러오는 중...</div>}
+        {errorMsg && <div className="ev-state err">에러: {errorMsg}</div>}
 
         <div className="ev-stat-grid">
           {[
             {
               label: "진행 중 행사",
-              value: `${EVENTS.length}개`,
+              value: `${stats.count}개`,
               icon: <Play size={20} color="#1a4fd6" />,
               bg: "#eff4ff",
             },
             {
               label: "총 참가자",
-              value: `${EVENTS.reduce((a, e) => a + e.participants, 0).toLocaleString()}명`,
+              value: `${stats.totalParticipants.toLocaleString()}명`,
               icon: <Users size={20} color="#10b981" />,
               bg: "#ecfdf5",
             },
             {
               label: "평균 참석률",
-              value: `${Math.round((EVENTS.reduce((a, e) => a + e.participants / e.capacity, 0) / EVENTS.length) * 100)}%`,
+              value: `${stats.avgRate}%`,
               icon: <TrendingUp size={20} color="#f59e0b" />,
               bg: "#fffbeb",
             },
@@ -283,7 +402,14 @@ export default function Current() {
 
         <div className="ev-grid">
           {filtered.map((ev) => {
-            const pct = Math.round((ev.participants / ev.capacity) * 100);
+            const pct =
+              ev.capacity > 0
+                ? Math.min(
+                    100,
+                    Math.round((ev.participants / ev.capacity) * 100),
+                  )
+                : 0;
+
             return (
               <div
                 key={ev.id}
@@ -291,27 +417,33 @@ export default function Current() {
                 onClick={() => setSelectedEvent(ev)}
               >
                 <EventThumb ev={ev} />
+
                 <div className="ev-card-body">
                   <div className="ev-card-category">{ev.category}</div>
                   <div className="ev-card-title">{ev.title}</div>
+
                   <div className="ev-card-meta">
                     <div className="ev-card-meta-row">
                       <MapPin size={12} />
-                      {ev.location}
+                      {safeText(ev.location)}
                     </div>
                     <div className="ev-card-meta-row">
                       <Clock size={12} />
-                      {ev.time}
+                      {safeText(ev.time)}
                     </div>
                     <div className="ev-card-meta-row">
                       <Calendar size={12} />
-                      {ev.date}
+                      {safeText(ev.date)}
                     </div>
                   </div>
+
                   <div className="ev-card-footer">
                     <div className="ev-progress-wrap">
                       <div className="ev-progress-label">
-                        <span>참가자 {ev.participants.toLocaleString()}명</span>
+                        <span>
+                          참가자 {Number(ev.participants || 0).toLocaleString()}
+                          명
+                        </span>
                         <span>{pct}%</span>
                       </div>
                       <div className="ev-progress-track">
@@ -321,6 +453,7 @@ export default function Current() {
                         />
                       </div>
                     </div>
+
                     <button
                       className="ev-card-btn"
                       onClick={(e) => {
@@ -341,7 +474,7 @@ export default function Current() {
       {/* Detail Modal */}
       {selectedEvent && (
         <EventDetailModal
-          event={selectedEvent}
+          event={selectedEvent} // ✅ 기존 그대로 (단, now normalized event)
           onClose={() => setSelectedEvent(null)}
         />
       )}
