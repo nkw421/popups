@@ -1,7 +1,14 @@
 // file: src/app/http/axiosInstance.js
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+/**
+ * 기본값은 same-origin("/")으로 둬서
+ * - Vite dev: vite.config.js의 /api proxy를 사용
+ * - 배포 환경: 리버스 프록시(Nginx 등) 경로 규칙을 그대로 사용
+ *
+ * 필요할 때만 VITE_API_BASE_URL로 절대 URL을 주입한다.
+ */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "/";
 
 // localStorage 키는 qnaApi.js와 동일하게 유지
 const USER_TOKEN_KEY = "pupoo_user_token";
