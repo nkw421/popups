@@ -124,7 +124,7 @@ export default function KakaoJoin() {
       setSignupKey(key);
       setStep(STEP.OTP);
 
-      if (res?.data?.devOtp) {
+      if (res?.devOtp) {
         setOtpCode(String(res.devOtp));
       }
     } catch (e) {
