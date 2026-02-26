@@ -52,11 +52,10 @@ public class AdminEventOperationController {
     /** 행사 목록(관리자) */
     @GetMapping
     public ApiResponse<Page<EventResponse>> list(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) EventStatus status,
-            @RequestParam(required = false) LocalDateTime fromAt,
-            @RequestParam(required = false) LocalDateTime toAt,
-            Pageable pageable
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "status", required = false) EventStatus status,
+            @RequestParam(name = "fromAt", required = false) LocalDateTime fromAt,
+            @RequestParam(name = "toAt", required = false) LocalDateTime toAt, Pageable pageable
     ) {
         return ApiResponse.success(eventAdminService.list(keyword, status, fromAt, toAt, pageable));
     }
@@ -71,7 +70,7 @@ public class AdminEventOperationController {
     @PatchMapping("/{eventId}/status")
     public ApiResponse<EventResponse> changeStatus(
             @PathVariable Long eventId,
-            @RequestParam EventStatus status
+            @RequestParam("status") EventStatus status
     ) {
         return ApiResponse.success(eventAdminService.changeStatus(eventId, status));
     }

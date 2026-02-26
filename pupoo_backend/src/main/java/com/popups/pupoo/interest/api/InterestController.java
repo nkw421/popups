@@ -30,7 +30,7 @@ public class InterestController {
     private final InterestService interestService;
 
     @GetMapping
-    public ApiResponse<List<InterestResponse>> getAll(@RequestParam(required = false) InterestType type) {
+    public ApiResponse<List<InterestResponse>> getAll(@RequestParam(name = "type", required = false) InterestType type) {
         return ApiResponse.success(interestService.getAll(type));
     }
 
@@ -46,7 +46,7 @@ public class InterestController {
 
     @PostMapping("/mysubscriptions")
     public ApiResponse<List<UserInterestSubscriptionResponse>> mySubscriptions(
-            @RequestParam(defaultValue = "false") boolean includeInactive
+            @RequestParam(name = "includeInactive", defaultValue = "false") boolean includeInactive
     ) {
         return ApiResponse.success(interestService.mySubscriptions(includeInactive));
     }

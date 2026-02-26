@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
     };
 
     const onStorage = (e) => {
-      if (e.key === "pupoo_access_token" || e.key === "pupoo_refresh_token") {
+      if (e.key === "pupoo_user_token" || e.key === "pupoo_admin_token" || e.key === "pupoo_access_token") {
         if (DEBUG_AUTH) {
           console.log("[AuthProvider] storage event", {
             key: e.key,

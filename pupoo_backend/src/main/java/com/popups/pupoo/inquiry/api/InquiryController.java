@@ -28,8 +28,7 @@ public class InquiryController {
     }
 
     @GetMapping("/api/inquiries/mine")
-    public ApiResponse<Page<InquiryResponse>> getMyInquiries(@RequestParam(required = false) InquiryStatus status,
-                                                             Pageable pageable) {
+    public ApiResponse<Page<InquiryResponse>> getMyInquiries(@RequestParam(name = "status", required = false) InquiryStatus status, Pageable pageable) {
         Long userId = securityUtil.currentUserId();
         return ApiResponse.success(inquiryService.getMyInquiries(userId, status, pageable));
     }
@@ -55,9 +54,8 @@ public class InquiryController {
     }
 
     @GetMapping("/api/admin/inquiries")
-    public ApiResponse<Page<InquiryResponse>> getInquiries(@RequestParam(required = false) InquiryStatus status,
-                                                           @RequestParam(required = false) String keyword,
-                                                           Pageable pageable) {
+    public ApiResponse<Page<InquiryResponse>> getInquiries(@RequestParam(name = "status", required = false) InquiryStatus status,
+                                                           @RequestParam(name = "keyword", required = false) String keyword, Pageable pageable) {
         return ApiResponse.success(inquiryAdminService.getInquiries(status, keyword, pageable));
     }
 
@@ -69,7 +67,7 @@ public class InquiryController {
     }
 
     @PatchMapping("/api/admin/inquiries/{inquiryId}/status")
-    public ApiResponse<MessageResponse> changeStatus(@PathVariable Long inquiryId, @RequestParam InquiryStatus status) {
+    public ApiResponse<MessageResponse> changeStatus(@PathVariable Long inquiryId, @RequestParam("status") InquiryStatus status) {
         inquiryAdminService.changeStatus(inquiryId, status);
         return ApiResponse.success(new MessageResponse("STATUS_CHANGED"));
     }

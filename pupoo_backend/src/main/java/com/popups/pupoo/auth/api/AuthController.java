@@ -25,11 +25,11 @@ import com.popups.pupoo.common.exception.ErrorCode;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -40,13 +40,23 @@ public class AuthController {
     private final AuthService authService;
     private final SignupSessionService signupSessionService;
     private final KakaoOAuthService kakaoOAuthService;
+    private final boolean refreshCookieSecure;
+    private final String refreshCookieSameSite;
+    private final String refreshCookiePath;
+
 
     public AuthController(AuthService authService,
                           SignupSessionService signupSessionService,
-                          KakaoOAuthService kakaoOAuthService) {
+                          KakaoOAuthService kakaoOAuthService,
+                          @Value("${auth.refresh.cookie.secure:true}") boolean refreshCookieSecure,
+                          @Value("${auth.refresh.cookie.same-site:Lax}") String refreshCookieSameSite,
+                          @Value("${auth.refresh.cookie.path:/}") String refreshCookiePath) {
         this.authService = authService;
         this.signupSessionService = signupSessionService;
         this.kakaoOAuthService = kakaoOAuthService;
+        this.refreshCookieSecure = refreshCookieSecure;
+        this.refreshCookieSameSite = refreshCookieSameSite;
+        this.refreshCookiePath = refreshCookiePath;
     }
 
     /**
@@ -203,17 +213,15 @@ public class AuthController {
     }
 
     /**
-     * ✅ refresh_token 쿠키 만료를 ResponseCookie로 명시적으로 내려줌
-     * - Path는 "/"로 통일해야 브라우저에서 확실히 제거됨
-     * - 로컬 http 환경: secure=false
+     * refresh_token 쿠키 만료를 profile 기반 설정으로 내려준다.
      */
     private void expireRefreshCookie(HttpServletResponse response) {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, "")
                 .httpOnly(true)
-                .secure(false)
-                .sameSite("Lax")
-                .path("/")               // 🔥 매우 중요
-                .maxAge(Duration.ZERO)
+                .secure(refreshCookieSecure)
+                .sameSite(refreshCookieSameSite)
+                .path(refreshCookiePath)
+                .maxAge(0)
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

@@ -18,7 +18,7 @@ public class BoardController {
     private final BoardService boardService;
 
     @GetMapping("/api/boards")
-    public ApiResponse<List<BoardResponse>> getBoards(@RequestParam(defaultValue = "true") boolean activeOnly) {
+    public ApiResponse<List<BoardResponse>> getBoards(@RequestParam(name = "activeOnly", defaultValue = "true") boolean activeOnly) {
         return ApiResponse.success(boardService.getBoards(activeOnly));
     }
 
@@ -39,7 +39,7 @@ public class BoardController {
     }
 
     @PatchMapping("/api/admin/boards/{boardId}/active")
-    public ApiResponse<BoardResponse> changeActive(@PathVariable Long boardId, @RequestParam boolean active) {
+    public ApiResponse<BoardResponse> changeActive(@PathVariable Long boardId, @RequestParam("active") boolean active) {
         boardService.changeActive(boardId, active);
         return ApiResponse.success(boardService.getBoard(boardId));
     }

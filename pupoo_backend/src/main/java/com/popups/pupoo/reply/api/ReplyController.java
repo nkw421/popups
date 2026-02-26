@@ -43,10 +43,10 @@ public class ReplyController {
      * 댓글 목록 조회
      */
     @GetMapping
-    public ApiResponse<Page<ReplyResponse>> list(@RequestParam ReplyTargetType targetType,
-                                                @RequestParam Long targetId,
-                                                @RequestParam(defaultValue = "0") int page,
-                                                @RequestParam(defaultValue = "20") int size) {
+    public ApiResponse<Page<ReplyResponse>> list(@RequestParam("targetType") ReplyTargetType targetType,
+                                                @RequestParam("targetId") Long targetId,
+                                                @RequestParam(name = "page", defaultValue = "0") int page,
+                                                @RequestParam(name = "size", defaultValue = "20") int size) {
         return ApiResponse.success(replyService.list(targetType, targetId, page, size));
     }
 
@@ -55,7 +55,7 @@ public class ReplyController {
      */
     @PatchMapping("/{replyId}")
     public ApiResponse<ReplyResponse> update(@PathVariable Long replyId,
-                                            @RequestParam ReplyTargetType targetType,
+                                            @RequestParam("targetType") ReplyTargetType targetType,
                                             @Valid @RequestBody ReplyUpdateRequest request) {
         Long userId = securityUtil.currentUserId();
         return ApiResponse.success(replyService.update(userId, targetType, replyId, request));
@@ -66,7 +66,7 @@ public class ReplyController {
      */
     @DeleteMapping("/{replyId}")
     public ApiResponse<IdResponse> delete(@PathVariable Long replyId,
-                                    @RequestParam ReplyTargetType targetType) {
+                                    @RequestParam("targetType") ReplyTargetType targetType) {
         Long userId = securityUtil.currentUserId();
         replyService.delete(userId, targetType, replyId);
         return ApiResponse.success(new IdResponse(replyId));

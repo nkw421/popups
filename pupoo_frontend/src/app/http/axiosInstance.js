@@ -1,7 +1,11 @@
 // file: src/app/http/axiosInstance.js
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+/**
+ * VITE_API_BASE_URL 우선 사용 (예: http://localhost:8080)
+ * - 미지정 시 로컬 기본 백엔드(8080)로 연결
+ */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "http://localhost:8080";
 
 // localStorage 키는 qnaApi.js와 동일하게 유지
 const USER_TOKEN_KEY = "pupoo_user_token";
@@ -26,6 +30,15 @@ function setToken(tokenKey, token) {
 
 function clearToken(tokenKey) {
   localStorage.removeItem(tokenKey);
+}
+
+function shouldSkipRefresh(url = "") {
+  return (
+    url.includes("/api/auth/login") ||
+    url.includes("/api/auth/refresh") ||
+    url.includes("/api/auth/logout") ||
+    url.includes("/api/auth/signup/")
+  );
 }
 
 /* =========================
@@ -103,8 +116,10 @@ axiosInstance.interceptors.response.use(
 
     const status = error?.response?.status;
 
-    // refresh 자체가 401이면 무한루프 방지
-    if (original.url?.includes("/api/auth/refresh")) {
+    const url = original.url || "";
+
+    // auth 계열은 refresh 재시도에서 제외(무한루프/정책 방지)
+    if (shouldSkipRefresh(url)) {
       return Promise.reject(error);
     }
 

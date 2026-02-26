@@ -41,10 +41,10 @@ public class ReviewController {
     }
 
     @GetMapping
-    public ApiResponse<Page<ReviewResponse>> list(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size,
-                                                  @RequestParam(required = false) String searchType,
-                                                  @RequestParam(required = false) String keyword) {
+    public ApiResponse<Page<ReviewResponse>> list(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                  @RequestParam(name = "size", defaultValue = "10") int size,
+                                                  @RequestParam(name = "searchType", required = false) String searchType,
+                                                  @RequestParam(name = "keyword", required = false) String keyword) {
         return ApiResponse.success(reviewService.list(SearchType.from(searchType), keyword, page, size));
     }
 

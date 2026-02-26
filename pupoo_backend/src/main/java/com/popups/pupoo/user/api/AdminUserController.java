@@ -31,7 +31,7 @@ public class AdminUserController {
 
     @GetMapping
     public ApiResponse<Page<UserResponse>> list(
-            @RequestParam(required = false) String keyword,
+            @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(required = false) com.popups.pupoo.user.domain.enums.UserStatus status,
             Pageable pageable
     ) {

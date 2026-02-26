@@ -28,9 +28,8 @@ public class AdminDashboardRealtimeController {
 
     @GetMapping("/events")
     public ApiResponse<Page<AdminRealtimeEventListResponse>> events(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) EventStatus status,
-            Pageable pageable
+            @RequestParam(name = "keyword", required = false) String keyword,
+            @RequestParam(name = "status", required = false) EventStatus status, Pageable pageable
     ) {
         return ApiResponse.success(queryService.events(keyword, status, pageable));
     }
@@ -38,7 +37,7 @@ public class AdminDashboardRealtimeController {
     @GetMapping("/events/{eventId}/congestions")
     public ApiResponse<List<AdminRealtimeCongestionResponse>> congestions(
             @PathVariable Long eventId,
-            @RequestParam(defaultValue = "50") int limit
+            @RequestParam(name = "limit", defaultValue = "50") int limit
     ) {
         return ApiResponse.success(queryService.congestions(eventId, limit));
     }

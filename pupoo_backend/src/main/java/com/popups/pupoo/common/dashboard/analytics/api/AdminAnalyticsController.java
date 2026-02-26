@@ -23,10 +23,10 @@ public class AdminAnalyticsController {
 
     @GetMapping("/events")
     public ApiResponse<List<AdminEventPerformanceResponse>> eventPerformance(
-            @RequestParam(required = false) LocalDateTime fromAt,
-            @RequestParam(required = false) LocalDateTime toAt,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @RequestParam(name = "fromAt", required = false) LocalDateTime fromAt,
+            @RequestParam(name = "toAt", required = false) LocalDateTime toAt,
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "50") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         return ApiResponse.success(queryService.eventPerformance(fromAt, toAt, pageable));
@@ -39,8 +39,8 @@ public class AdminAnalyticsController {
 
     @GetMapping("/yearly")
     public ApiResponse<List<AdminYearlyCompareResponse>> yearly(
-            @RequestParam int fromYear,
-            @RequestParam int toYear
+            @RequestParam("fromYear") int fromYear,
+            @RequestParam("toYear") int toYear
     ) {
         return ApiResponse.success(queryService.yearlyCompare(fromYear, toYear));
     }

@@ -147,7 +147,7 @@ export default function JoinSelect() {
           onClick={() => {
             console.log(
               "AUTHTOKEN",
-              localStorage.getItem("pupoo_access_token"),
+              localStorage.getItem("pupoo_user_token"),
             );
 
             navigate("/auth/join/joinnormal");

@@ -54,7 +54,7 @@ public class NotificationController {
      * (전역) 마케팅 수신 동의 업데이트
      */
     @PutMapping("/settings")
-    public ApiResponse<NotificationSettingsResponse> updateSettings(@RequestParam boolean allowMarketing) {
+    public ApiResponse<NotificationSettingsResponse> updateSettings(@RequestParam("allowMarketing") boolean allowMarketing) {
         Long userId = securityUtil.currentUserId();
         return ApiResponse.success(notificationService.updateAllowMarketing(userId, allowMarketing));
     }
