@@ -689,7 +689,7 @@ export default function PupooHeader() {
                   <IconButtonWithTooltip
                     tooltip="로그아웃"
                     onClick={() => {
-                      logoutLocal();
+                      logout();
 
                       navigate("/", { replace: true });
                     }}
