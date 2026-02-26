@@ -22,6 +22,10 @@ public class QnaResponse {
 
     private int viewCount;
 
+    // ── 운영자 답변 ──
+    private String answerContent;
+    private LocalDateTime answeredAt;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

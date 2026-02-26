@@ -16,7 +16,7 @@ import PastEvents from "./pages/admin/past/PastEvents";
 import ZoneManage from "./pages/admin/zone/zoneManage";
 import ContestManage from "./pages/admin/contest/contestManage";
 import SessionManage from "./pages/admin/session/sessionManage";
-import Reviews from "./pages/admin/community/Reviews";
+import Reviews from "./pages/admin/board/reviews";
 import GalleryManage from "./pages/admin/gallery/Gallery";
 import ParticipantList from "./pages/admin/participant/ParticipantList";
 
@@ -67,7 +67,7 @@ import RealtimeDashboard from "./pages/site/realtime/Dashboard";
 /* Community */
 import FreeBoard from "./pages/site/community/FreeBoard";
 import Review from "./pages/site/community/Review";
-import Gallery from "./pages/site/community/Gallery";
+
 import QnA from "./pages/site/community/QnA";
 import Notice from "./pages/site/community/Notice";
 
@@ -156,7 +156,7 @@ export default function App() {
         <Route path="/admin/zone" element={<ZoneManage />} />
         <Route path="/admin/contest" element={<ContestManage />} />
         <Route path="/admin/session" element={<SessionManage />} />
-        <Route path="/admin/community/reviews" element={<Reviews />} />
+        <Route path="/admin/board/reviews" element={<Reviews />} />
         <Route path="/admin/gallery" element={<GalleryManage />} />
 
         <Route path="/admin/participant" element={<ParticipantList />} />
@@ -273,7 +273,7 @@ export default function App() {
           {/* Community */}
           <Route path="/community/freeboard" element={<FreeBoard />} />
           <Route path="/community/review" element={<Review />} />
-          <Route path="/community/gallery" element={<Gallery />} />
+
           <Route path="/community/qna" element={<QnA />} />
           <Route path="/community/notice" element={<Notice />} />
           {/* Info */}

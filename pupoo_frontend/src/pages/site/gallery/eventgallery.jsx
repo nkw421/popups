@@ -8,6 +8,11 @@ import {
   Heart,
   Eye,
   X,
+  Search,
+  Plus,
+  ChevronDown,
+  AlertTriangle,
+  Loader2,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -89,12 +94,8 @@ const styles = `
     color: #ced4da;
   }
 
-  /* slide nav — 카드에서는 숨김, 모달에서만 표시 */
-  .eg-slide-nav {
-    display: none;
-  }
+  .eg-slide-nav { display: none; }
 
-  /* slide dots */
   .eg-slide-dots {
     position: absolute;
     bottom: 8px;
@@ -120,7 +121,6 @@ const styles = `
     border-radius: 3px;
   }
 
-  /* Count badge */
   .eg-img-count {
     position: absolute;
     top: 8px;
@@ -137,7 +137,6 @@ const styles = `
     font-variant-numeric: tabular-nums;
   }
 
-  /* 확대하기 button overlay */
   .eg-enlarge-btn {
     position: absolute;
     bottom: 12px;
@@ -178,7 +177,6 @@ const styles = `
     flex: 1;
   }
 
-  /* author row */
   .eg-card-author {
     display: flex;
     align-items: center;
@@ -225,7 +223,6 @@ const styles = `
     flex-shrink: 0;
   }
 
-  /* comment */
   .eg-card-comment {
     font-size: 12.5px;
     color: #374151;
@@ -238,7 +235,6 @@ const styles = `
     word-break: break-word;
   }
 
-  /* tags */
   .eg-card-tags {
     display: flex;
     flex-wrap: wrap;
@@ -254,7 +250,6 @@ const styles = `
     font-weight: 500;
   }
 
-  /* stats row */
   .eg-card-meta {
     display: flex;
     align-items: center;
@@ -388,7 +383,6 @@ const styles = `
   }
   .eg-modal-close:hover { background: #fff; color: #111; }
 
-  /* 왼쪽: 이미지 */
   .eg-modal-img-wrap {
     flex: 1 1 0;
     min-width: 0;
@@ -435,7 +429,6 @@ const styles = `
   .eg-modal-nav.prev { left: 14px; }
   .eg-modal-nav.next { right: 14px; }
 
-  /* dot + counter — 이미지 하단 오버레이 */
   .eg-modal-footer {
     position: absolute;
     bottom: 14px;
@@ -477,7 +470,6 @@ const styles = `
     border-radius: 3px;
   }
 
-  /* 오른쪽: 정보 패널 — 화이트 테마 */
   .eg-modal-info {
     width: 300px;
     flex-shrink: 0;
@@ -566,7 +558,6 @@ const styles = `
     font-variant-numeric: tabular-nums;
   }
 
-  /* 모바일: 세로 레이아웃 */
   @media (max-width: 640px) {
     .eg-modal-inner {
       flex-direction: column;
@@ -593,6 +584,8 @@ const SERVICE_CATEGORIES = [
   { label: "참가자 갤러리", path: "/gallery/eventgallery" },
   { label: "현장 스케치", path: "/gallery/eventsketch" },
 ];
+
+const FILTER_OPTIONS = ["전체", "최신순", "인기순"];
 
 const GALLERY_CARDS = [
   {
@@ -733,21 +726,252 @@ const GALLERY_CARDS = [
 ];
 
 /* ─────────────────────────────────────────────
+   WRITE MODAL (등록하기)
+───────────────────────────────────────────── */
+function Overlay({ children, onClose }) {
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 5000,
+        background: "rgba(0,0,0,0.32)",
+        backdropFilter: "blur(4px)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#fff",
+          borderRadius: 16,
+          width: 520,
+          maxHeight: "85vh",
+          overflow: "auto",
+          boxShadow: "0 24px 60px rgba(0,0,0,0.18)",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function WriteModal({ onClose }) {
+  const [form, setForm] = useState({ comment: "", tags: "" });
+  const [err, setErr] = useState("");
+
+  const handleSave = () => {
+    if (!form.comment.trim()) {
+      setErr("내용을 입력해주세요.");
+      return;
+    }
+    // TODO: API 연동
+    onClose();
+  };
+
+  return (
+    <Overlay onClose={onClose}>
+      <div style={{ padding: "28px" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: 24,
+          }}
+        >
+          <h3
+            style={{ fontSize: 18, fontWeight: 700, color: "#222", margin: 0 }}
+          >
+            사진 등록
+          </h3>
+          <button
+            onClick={onClose}
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 8,
+              border: "1px solid #eee",
+              background: "#fff",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <X size={14} color="#999" />
+          </button>
+        </div>
+
+        {err && (
+          <div
+            style={{
+              background: "#FEF2F2",
+              border: "1px solid #FECACA",
+              borderRadius: 8,
+              padding: "10px 14px",
+              fontSize: 13,
+              color: "#DC2626",
+              marginBottom: 18,
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <AlertTriangle size={14} /> {err}
+          </div>
+        )}
+
+        <div style={{ marginBottom: 18 }}>
+          <label
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#555",
+              marginBottom: 6,
+              display: "block",
+            }}
+          >
+            사진 첨부 <span style={{ color: "#EF4444" }}>*</span>
+          </label>
+          <div
+            style={{
+              border: "2px dashed #ddd",
+              borderRadius: 10,
+              padding: "28px 0",
+              textAlign: "center",
+              color: "#aaa",
+              fontSize: 13,
+              cursor: "pointer",
+              transition: "border-color 0.15s",
+            }}
+          >
+            클릭하여 사진을 업로드하세요
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 18 }}>
+          <label
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#555",
+              marginBottom: 6,
+              display: "block",
+            }}
+          >
+            내용 <span style={{ color: "#EF4444" }}>*</span>
+          </label>
+          <textarea
+            rows={4}
+            value={form.comment}
+            onChange={(e) =>
+              setForm((p) => ({ ...p, comment: e.target.value }))
+            }
+            placeholder="사진에 대한 설명을 입력하세요"
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              fontSize: 14,
+              color: "#222",
+              outline: "none",
+              boxSizing: "border-box",
+              resize: "vertical",
+              fontFamily: "'Pretendard Variable', sans-serif",
+              lineHeight: 1.6,
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "#1a4fd6")}
+            onBlur={(e) => (e.target.style.borderColor = "#ddd")}
+          />
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: "#555",
+              marginBottom: 6,
+              display: "block",
+            }}
+          >
+            태그
+          </label>
+          <input
+            value={form.tags}
+            onChange={(e) => setForm((p) => ({ ...p, tags: e.target.value }))}
+            placeholder="#태그1 #태그2"
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              fontSize: 14,
+              color: "#222",
+              outline: "none",
+              boxSizing: "border-box",
+              fontFamily: "'Pretendard Variable', sans-serif",
+            }}
+            onFocus={(e) => (e.target.style.borderColor = "#1a4fd6")}
+            onBlur={(e) => (e.target.style.borderColor = "#ddd")}
+          />
+        </div>
+
+        <div style={{ display: "flex", gap: 10 }}>
+          <button
+            onClick={onClose}
+            style={{
+              flex: 1,
+              padding: "11px 0",
+              borderRadius: 8,
+              border: "1px solid #ddd",
+              background: "#fff",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              color: "#666",
+              fontFamily: "'Pretendard Variable', sans-serif",
+            }}
+          >
+            취소
+          </button>
+          <button
+            onClick={handleSave}
+            style={{
+              flex: 1,
+              padding: "11px 0",
+              borderRadius: 8,
+              border: "none",
+              background: "#1a4fd6",
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: 700,
+              cursor: "pointer",
+              fontFamily: "'Pretendard Variable', sans-serif",
+            }}
+          >
+            등록하기
+          </button>
+        </div>
+      </div>
+    </Overlay>
+  );
+}
+
+/* ─────────────────────────────────────────────
    CARD IMAGE SLIDER
 ───────────────────────────────────────────── */
 const CardSlider = ({ images, onEnlarge }) => {
   const [idx, setIdx] = useState(0);
   const [imgError, setImgError] = useState(false);
   const total = images.length;
-
-  const prev = (e) => {
-    e.stopPropagation();
-    setIdx((i) => (i - 1 + total) % total);
-  };
-  const next = (e) => {
-    e.stopPropagation();
-    setIdx((i) => (i + 1) % total);
-  };
 
   return (
     <div className="eg-card-img-wrap" onClick={() => onEnlarge(idx)}>
@@ -763,45 +987,26 @@ const CardSlider = ({ images, onEnlarge }) => {
           onError={() => setImgError(true)}
         />
       )}
-
       {total > 1 && (
         <span className="eg-img-count">
           {idx + 1} / {total}
         </span>
       )}
-
       {total > 1 && (
-        <>
-          <button
-            className="eg-slide-nav prev"
-            onClick={prev}
-            aria-label="이전"
-          >
-            <ChevronLeft size={14} />
-          </button>
-          <button
-            className="eg-slide-nav next"
-            onClick={next}
-            aria-label="다음"
-          >
-            <ChevronRight size={14} />
-          </button>
-          <div className="eg-slide-dots">
-            {images.map((_, i) => (
-              <button
-                key={i}
-                className={`eg-slide-dot${i === idx ? " active" : ""}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIdx(i);
-                }}
-                aria-label={`${i + 1}번`}
-              />
-            ))}
-          </div>
-        </>
+        <div className="eg-slide-dots">
+          {images.map((_, i) => (
+            <button
+              key={i}
+              className={`eg-slide-dot${i === idx ? " active" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIdx(i);
+              }}
+              aria-label={`${i + 1}번`}
+            />
+          ))}
+        </div>
       )}
-
       <button
         className="eg-enlarge-btn"
         onClick={(e) => {
@@ -876,7 +1081,6 @@ const FullscreenViewer = ({
     setClosing(true);
     setTimeout(onClose, 170);
   }, [onClose]);
-
   const prev = useCallback(
     (e) => {
       e?.stopPropagation();
@@ -885,7 +1089,6 @@ const FullscreenViewer = ({
     },
     [total],
   );
-
   const next = useCallback(
     (e) => {
       e?.stopPropagation();
@@ -919,7 +1122,6 @@ const FullscreenViewer = ({
       >
         <X size={16} />
       </button>
-
       <div className="eg-modal-inner" onClick={(e) => e.stopPropagation()}>
         <div className="eg-modal-img-wrap">
           <div className="eg-modal-img-inner">
@@ -973,8 +1175,6 @@ const FullscreenViewer = ({
             </div>
           )}
         </div>
-
-        {/* Info panel */}
         <div className="eg-modal-info" onClick={(e) => e.stopPropagation()}>
           <div className="eg-modal-author-row">
             <div
@@ -1070,9 +1270,21 @@ export default function EventGallery() {
   const [currentPath, setCurrentPath] = useState("/gallery/eventgallery");
   const [liked, setLiked] = useState({});
   const [viewer, setViewer] = useState(null);
+  const [filter, setFilter] = useState("전체");
+  const [search, setSearch] = useState("");
+  const [writeModal, setWriteModal] = useState(false);
 
   const toggleLike = (id) => setLiked((prev) => ({ ...prev, [id]: !prev[id] }));
   const handleEnlarge = (card, idx) => setViewer({ card, startIndex: idx });
+
+  const filtered = GALLERY_CARDS.filter((c) => {
+    const matchSearch =
+      !search ||
+      c.comment.includes(search) ||
+      c.author.includes(search) ||
+      c.tags.some((t) => t.includes(search));
+    return matchSearch;
+  });
 
   return (
     <div className="eg-root">
@@ -1087,18 +1299,165 @@ export default function EventGallery() {
       />
 
       <main className="eg-container">
-        <section style={{ marginBottom: "48px" }}>
-          <div className="eg-masonry">
-            {GALLERY_CARDS.map((card) => (
-              <GalleryCard
-                key={card.id}
-                card={card}
-                liked={!!liked[card.id]}
-                onToggleLike={() => toggleLike(card.id)}
-                onEnlarge={handleEnlarge}
+        {/* ── 상단 필터/검색/등록 바 ── */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingBottom: "16px",
+            borderBottom: "1px solid #e0e0e0",
+            marginBottom: "20px",
+          }}
+        >
+          <span style={{ fontSize: "15px", fontWeight: "600", color: "#222" }}>
+            총 {filtered.length}개
+          </span>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {/* 드롭다운 */}
+            <div style={{ position: "relative" }}>
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                style={{
+                  appearance: "none",
+                  WebkitAppearance: "none",
+                  border: "1px solid #ccc",
+                  borderRadius: "4px",
+                  padding: "7px 32px 7px 12px",
+                  fontSize: "14px",
+                  color: "#333",
+                  background: "#fff",
+                  cursor: "pointer",
+                  outline: "none",
+                  minWidth: "80px",
+                }}
+              >
+                {FILTER_OPTIONS.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
+              </select>
+              <span
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  pointerEvents: "none",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <ChevronDown size={14} color="#666" />
+              </span>
+            </div>
+
+            {/* 검색창 */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                border: "1px solid #ccc",
+                borderRadius: "6px",
+                overflow: "hidden",
+                background: "#fff",
+              }}
+            >
+              <input
+                type="text"
+                placeholder="검색어를 입력하세요."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  padding: "8px 12px",
+                  fontSize: "14px",
+                  color: "#333",
+                  width: "240px",
+                  background: "transparent",
+                }}
               />
-            ))}
+              <button
+                style={{
+                  border: "none",
+                  background: "#fff",
+                  padding: "8px 12px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  transition: "background 0.15s ease",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = "#f5f5f5")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = "#fff")
+                }
+              >
+                <Search size={16} strokeWidth={2} color="#555" />
+              </button>
+            </div>
+
+            {/* 등록하기 버튼 */}
+            <button
+              onClick={() => setWriteModal(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+                padding: "8px 16px",
+                borderRadius: 6,
+                border: "none",
+                background: "#1a4fd6",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                fontFamily: "'Pretendard Variable', sans-serif",
+                transition: "background .15s",
+                whiteSpace: "nowrap",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#153fb0")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#1a4fd6")
+              }
+            >
+              <Plus size={14} strokeWidth={2.5} /> 등록하기
+            </button>
           </div>
+        </div>
+
+        {/* ── 갤러리 ── */}
+        <section style={{ marginBottom: "48px" }}>
+          {filtered.length > 0 ? (
+            <div className="eg-masonry">
+              {filtered.map((card) => (
+                <GalleryCard
+                  key={card.id}
+                  card={card}
+                  liked={!!liked[card.id]}
+                  onToggleLike={() => toggleLike(card.id)}
+                  onEnlarge={handleEnlarge}
+                />
+              ))}
+            </div>
+          ) : (
+            <div
+              style={{
+                textAlign: "center",
+                padding: "60px 0",
+                color: "#999",
+                fontSize: "14px",
+              }}
+            >
+              검색 결과가 없습니다.
+            </div>
+          )}
         </section>
 
         <div
@@ -1125,6 +1484,8 @@ export default function EventGallery() {
           onClose={() => setViewer(null)}
         />
       )}
+
+      {writeModal && <WriteModal onClose={() => setWriteModal(false)} />}
     </div>
   );
 }

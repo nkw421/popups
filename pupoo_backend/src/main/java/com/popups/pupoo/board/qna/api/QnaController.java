@@ -53,4 +53,11 @@ public class QnaController {
         qnaService.close(userId, qnaId);
         return ResponseEntity.ok().build();
     }
+
+    /** 운영자 답변 등록/수정 */
+    @PostMapping("/{qnaId}/answer")
+    public ResponseEntity<QnaResponse> answer(@PathVariable Long qnaId,
+                                              @Valid @RequestBody QnaAnswerRequest request) {
+        return ResponseEntity.ok(qnaService.answer(qnaId, request));
+    }
 }

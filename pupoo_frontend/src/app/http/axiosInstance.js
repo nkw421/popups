@@ -7,7 +7,8 @@ export function createAxiosInstance() {
   ).replace(/\/+$/, ""); // ✅ 끝 슬래시 제거
 
   const instance = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+    // baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+    baseURL: import.meta.env.VITE_API_BASE_URL || "",
     timeout: 10000,
     headers: { "Content-Type": "application/json" },
   });
