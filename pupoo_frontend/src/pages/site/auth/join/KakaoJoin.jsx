@@ -77,7 +77,7 @@ export default function KakaoJoin() {
     step === STEP.OTP &&
     !!signupKey &&
     phoneDigits.length >= 10 &&
-    (otpCode || "").trim().length >= 4;
+    (otpCode || "").trim().length === 6;
 
   /**
    * ✅ 페이지 진입 시 신규회원 전용 진입 검증
@@ -124,8 +124,8 @@ export default function KakaoJoin() {
       setSignupKey(key);
       setStep(STEP.OTP);
 
-      if (res?.devOtp) {
-        setOtpCode(String(res.data.devOtp));
+      if (res?.data?.devOtp) {
+        setOtpCode(String(res.devOtp));
       }
     } catch (e) {
       console.error(e);

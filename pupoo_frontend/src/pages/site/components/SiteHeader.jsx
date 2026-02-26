@@ -23,51 +23,45 @@ const IconButtonWithTooltip = ({ children, tooltip, to, onClick }) => {
     }
   };
 
-  const handleMouseLeave = () => setHovered(false);
-
-  const commonStyle = {
+  const commonButtonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
     background: "none",
     border: "none",
     cursor: "pointer",
     padding: "4px",
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
     textDecoration: "none",
+    color: "inherit",
   };
 
-  const trigger = to ? (
-    <Link
-      to={to}
-      ref={btnRef}
-      style={commonStyle}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      aria-label={tooltip}
-      title={tooltip}
-    >
-      {children}
-    </Link>
-  ) : (
-    <button
-      type="button"
-      ref={btnRef}
-      style={commonStyle}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      aria-label={tooltip}
-      title={tooltip}
-    >
-      {children}
-    </button>
-  );
-
   return (
-    <>
-      {trigger}
+    <div
+      ref={btnRef}
+      style={{ position: "relative", display: "inline-block" }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {to ? (
+        <Link
+          to={to}
+          onClick={onClick}
+          className="pupoo-icon-btn"
+          style={commonButtonStyle}
+        >
+          {children}
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={onClick}
+          className="pupoo-icon-btn"
+          style={commonButtonStyle}
+        >
+          {children}
+        </button>
+      )}
 
+      {/* Tooltip — createPortal로 body에 직접 렌더링 (header stacking context 밖) */}
       {hovered &&
         createPortal(
           <div
@@ -105,7 +99,7 @@ const IconButtonWithTooltip = ({ children, tooltip, to, onClick }) => {
           </div>,
           document.body,
         )}
-    </>
+    </div>
   );
 };
 
@@ -158,7 +152,7 @@ const ArrowRight = ({ color = "#1c69d4" }) => (
 );
 
 /* ─────────────────────────────────────────────
-   NAV DATA
+   NAV DATA  (categories & routes from Code 1)
 ───────────────────────────────────────────── */
 const megaMenuData = {
   행사: {
@@ -217,6 +211,7 @@ const megaMenuData = {
       ctaHref: "#shop-online",
     },
   },
+
   참가신청: {
     columns: [
       {
@@ -264,13 +259,13 @@ const megaMenuData = {
   },
 };
 
+/* Top-level nav items (from Code 1) */
 const navItems = [
   { label: "행사", hasDropdown: true, menuKey: "행사" },
   { label: "커뮤니티", hasDropdown: true, menuKey: "커뮤니티" },
   { label: "참가신청", hasDropdown: true, menuKey: "참가신청" },
   { label: "실시간현황", hasDropdown: true, menuKey: "실시간현황" },
 ];
-
 /* ─────────────────────────────────────────────
    MEGA MENU ITEM
 ───────────────────────────────────────────── */
@@ -331,6 +326,7 @@ const MegaMenu = ({ menuData }) => {
           alignItems: "flex-start",
         }}
       >
+        {/* Left columns */}
         <div style={{ display: "flex", gap: "80px", flex: "1" }}>
           {columns.map((col, i) => (
             <div key={i} style={{ minWidth: "200px" }}>
@@ -357,6 +353,7 @@ const MegaMenu = ({ menuData }) => {
           ))}
         </div>
 
+        {/* Right promo area */}
         {promo && (
           <div style={{ width: "380px", flexShrink: 0, marginLeft: "40px" }}>
             <div
@@ -445,6 +442,9 @@ const NavItem = ({
 }) => {
   const [hovered, setHovered] = useState(false);
 
+  /* Decide text colour:
+     - When header is transparent (top + no open menu): white
+     - When header has background (scrolled OR menu open): dark, active → blue */
   const isLight = isHome && !isScrolled && !isMenuOpen;
 
   const baseColor = isLight ? "#ffffff" : "#262626";
@@ -540,19 +540,21 @@ const NavItem = ({
 ───────────────────────────────────────────── */
 export default function pupooHeader() {
   const navigate = useNavigate();
-  const { isAuthed, logout } = useAuth(); // ✅ logoutLocal 제거
+  const { isAuthed, logoutLocal } = useAuth();
   const [activeMenu, setActiveMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef(null);
   const location = useLocation();
   const isHome = location.pathname === "/";
 
+  /* Scroll detection */
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  /* Close mega menu on outside click */
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (headerRef.current && !headerRef.current.contains(e.target)) {
@@ -567,16 +569,31 @@ export default function pupooHeader() {
     setActiveMenu((prev) => (prev === menuKey ? null : menuKey));
   };
 
+  /* Header is "white mode" when scrolled OR a mega menu is open */
   const isWhiteMode = !isHome || scrolled || activeMenu !== null;
+
+  /* Icon colour follows header mode */
   const iconColor = isWhiteMode ? "#262626" : "#ffffff";
 
   return (
     <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+      
+        body { font-family: 'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif; }
+
+        .pupoo-header-root {
+          font-family: 'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+      `}</style>
+
       <div
         className="pupoo-header-root"
         ref={headerRef}
         style={{ position: "relative", zIndex: 3000 }}
       >
+        {/* ── Header bar ── */}
         <header
           style={{
             position: "fixed",
@@ -587,6 +604,7 @@ export default function pupooHeader() {
             display: "flex",
             alignItems: "stretch",
             zIndex: 1000,
+            /* Smooth background + shadow transition */
             backgroundColor: isWhiteMode
               ? "rgba(255,255,255,0.97)"
               : "transparent",
@@ -608,7 +626,11 @@ export default function pupooHeader() {
               justifyContent: "space-between",
             }}
           >
-            <div style={{ display: "flex", alignItems: "stretch", gap: "32px" }}>
+            {/* Left: Logo + Nav */}
+            <div
+              style={{ display: "flex", alignItems: "stretch", gap: "32px" }}
+            >
+              {/* 로고 */}
               <Link
                 to="/"
                 style={{
@@ -635,7 +657,10 @@ export default function pupooHeader() {
                 />
               </Link>
 
-              <nav style={{ display: "flex", alignItems: "stretch", gap: "28px" }}>
+              {/* Nav items */}
+              <nav
+                style={{ display: "flex", alignItems: "stretch", gap: "28px" }}
+              >
                 {navItems.map((item) => (
                   <NavItem
                     key={item.label}
@@ -654,6 +679,7 @@ export default function pupooHeader() {
               </nav>
             </div>
 
+            {/* Right: Icons */}
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               {!isAuthed ? (
                 <>
@@ -661,20 +687,24 @@ export default function pupooHeader() {
                     <LogIn size={23} color={iconColor} strokeWidth={1.5} />
                   </IconButtonWithTooltip>
 
-                  <IconButtonWithTooltip to="/auth/join/joinselect" tooltip="회원가입">
+                  <IconButtonWithTooltip
+                    to="/auth/join/joinselect"
+                    tooltip="회원가입"
+                  >
                     <UserPlus size={23} color={iconColor} strokeWidth={1.5} />
                   </IconButtonWithTooltip>
                 </>
               ) : (
                 <>
+                  {/* ✅ 로그아웃: Link로 하면 GET 이동이라 비추. 버튼으로 처리 */}
                   <IconButtonWithTooltip
                     tooltip="로그아웃"
-                    onClick={async () => {
-                      console.log("logout click");
-                      await logout(); // ✅ 서버 로그아웃 + 로컬 정리
+                    onClick={() => {
+                      logoutLocal(); // 토큰 제거 + isAuthed false
                       navigate("/", { replace: true });
                     }}
                   >
+                    {/* 가능하면 LogOut 아이콘 추천 */}
                     <LogOut size={23} color={iconColor} strokeWidth={1.5} />
                   </IconButtonWithTooltip>
 
@@ -687,6 +717,7 @@ export default function pupooHeader() {
           </div>
         </header>
 
+        {/* ── Mega menu panel ── */}
         {activeMenu && megaMenuData[activeMenu] && (
           <div
             style={{
