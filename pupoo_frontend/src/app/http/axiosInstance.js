@@ -32,6 +32,15 @@ function clearToken(tokenKey) {
   localStorage.removeItem(tokenKey);
 }
 
+function shouldSkipRefresh(url = "") {
+  return (
+    url.includes("/api/auth/login") ||
+    url.includes("/api/auth/refresh") ||
+    url.includes("/api/auth/logout") ||
+    url.includes("/api/auth/signup/")
+  );
+}
+
 /* =========================
  * axios instance
  * - withCredentials: true (refresh_token 쿠키 송수신 필수)
@@ -107,8 +116,10 @@ axiosInstance.interceptors.response.use(
 
     const status = error?.response?.status;
 
-    // refresh 자체가 401이면 무한루프 방지
-    if (original.url?.includes("/api/auth/refresh")) {
+    const url = original.url || "";
+
+    // auth 계열은 refresh 재시도에서 제외(무한루프/정책 방지)
+    if (shouldSkipRefresh(url)) {
       return Promise.reject(error);
     }
 

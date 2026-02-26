@@ -66,6 +66,8 @@ public class SignupSessionService {
     private final boolean exposeDevCode;
 
     private final boolean refreshCookieSecure;
+    private final String refreshCookieSameSite;
+    private final String refreshCookiePath;
     private final int refreshCookieMaxAgeSeconds;
 
     public SignupSessionService(
@@ -86,6 +88,8 @@ public class SignupSessionService {
             @Value("${signup.email.max-fail-count:5}") int emailMaxFailCount,
             @Value("${verification.dev.expose:true}") boolean exposeDevCode,
             @Value("${auth.refresh.cookie.secure:true}") boolean refreshCookieSecure,
+            @Value("${auth.refresh.cookie.same-site:Lax}") String refreshCookieSameSite,
+            @Value("${auth.refresh.cookie.path:/}") String refreshCookiePath,
             @Value("${auth.refresh.cookie.max-age-seconds:1209600}") int refreshCookieMaxAgeSeconds
     ) {
         this.signupSessionRepository = signupSessionRepository;
@@ -105,6 +109,8 @@ public class SignupSessionService {
         this.emailMaxFailCount = emailMaxFailCount;
         this.exposeDevCode = exposeDevCode;
         this.refreshCookieSecure = refreshCookieSecure;
+        this.refreshCookieSameSite = refreshCookieSameSite;
+        this.refreshCookiePath = refreshCookiePath;
         this.refreshCookieMaxAgeSeconds = refreshCookieMaxAgeSeconds;
     }
 
@@ -452,8 +458,8 @@ public class SignupSessionService {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, token)
                 .httpOnly(true)
                 .secure(refreshCookieSecure)
-                .path("/api/auth")
-                .sameSite("Lax")
+                .path(refreshCookiePath)
+                .sameSite(refreshCookieSameSite)
                 .maxAge(refreshCookieMaxAgeSeconds)
                 .build();
 

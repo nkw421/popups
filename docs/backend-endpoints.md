@@ -1,270 +1,266 @@
-# Backend Endpoint Inventory (Controller Mappings)
+# Backend Endpoint Inventory
 
-## com/popups/pupoo/auth/api/AuthController.java  (base: `/api/auth`)
-- `POST` `/api/auth/signup/start`
-- `POST` `/api/auth/signup/verify-otp`
-- `POST` `/api/auth/signup/email/request`
-- `POST` `/api/auth/signup/email/confirm`
-- `POST` `/api/auth/signup/complete`
-- `POST` `/api/auth/oauth/kakao/exchange`
-- `POST` `/api/auth/oauth/kakao/login`
-- `POST` `/api/auth/login`
-- `POST` `/api/auth/refresh`
-- `POST` `/api/auth/logout`
-- `GET` `/api/auth/secure-ping`
+## AuthController (`com/popups/pupoo/auth/api/AuthController.java`)
+- `POST /api/auth/signup/start` | Controller: `AuthController` | Description: `signupStart`
+- `POST /api/auth/signup/verify-otp` | Controller: `AuthController` | Description: `signupVerifyOtp`
+- `POST /api/auth/signup/email/request` | Controller: `AuthController` | Description: `signupEmailRequest`
+- `POST /api/auth/signup/email/confirm` | Controller: `AuthController` | Description: `signupEmailConfirm`
+- `POST /api/auth/signup/complete` | Controller: `AuthController` | Description: `signupComplete`
+- `POST /api/auth/oauth/kakao/exchange` | Controller: `AuthController` | Description: `kakaoExchange`
+- `POST /api/auth/oauth/kakao/login` | Controller: `AuthController` | Description: `kakaoLogin`
+- `POST /api/auth/login` | Controller: `AuthController` | Description: `login`
+- `POST /api/auth/refresh` | Controller: `AuthController` | Description: `refreshToken`
+- `POST /api/auth/logout` | Controller: `AuthController` | Description: `logout`
+- `GET /api/auth/secure-ping` | Controller: `AuthController` | Description: `securePing`
 
-## com/popups/pupoo/auth/api/AuthVerificationController.java  (base: `(none)`)
-- `POST` `/api/users/me/email-verification/request`
-- `GET` `/api/auth/email/verification/confirm`
-- `POST` `/api/users/me/phone-verification/request`
-- `POST` `/api/users/me/phone-verification/confirm`
+## AuthVerificationController (`com/popups/pupoo/auth/api/AuthVerificationController.java`)
+- `POST /api/users/me/email-verification/request` | Controller: `AuthVerificationController` | Description: `requestEmailVerification`
+- `GET /api/auth/email/verification/confirm` | Controller: `AuthVerificationController` | Description: `confirmEmailVerification`
+- `POST /api/users/me/phone-verification/request` | Controller: `AuthVerificationController` | Description: `requestPhoneVerification`
+- `POST /api/users/me/phone-verification/confirm` | Controller: `AuthVerificationController` | Description: `confirmPhoneVerification`
 
-## com/popups/pupoo/board/boardinfo/api/AdminModerationController.java  (base: `/api/admin/moderation`)
-- `GET` `/api/admin/moderation/posts`
-- `GET` `/api/admin/moderation/reviews`
-- `GET` `/api/admin/moderation/replies`
-- `PATCH` `/api/admin/moderation/posts/{postId}/hide`
-- `PATCH` `/api/admin/moderation/posts/{postId}/restore`
-- `DELETE` `/api/admin/moderation/posts/{postId}`
-- `PATCH` `/api/admin/moderation/reviews/{reviewId}/blind`
-- `PATCH` `/api/admin/moderation/reviews/{reviewId}/restore`
-- `DELETE` `/api/admin/moderation/reviews/{reviewId}`
-- `PATCH` `/api/admin/moderation/replies/{targetType}/{commentId}/hide`
-- `PATCH` `/api/admin/moderation/replies/{targetType}/{commentId}/restore`
-- `DELETE` `/api/admin/moderation/replies/{targetType}/{commentId}`
+## AdminModerationController (`com/popups/pupoo/board/boardinfo/api/AdminModerationController.java`)
+- `GET /api/admin/moderation/posts` | Controller: `AdminModerationController` | Description: `searchPosts`
+- `GET /api/admin/moderation/reviews` | Controller: `AdminModerationController` | Description: `searchReviews`
+- `GET /api/admin/moderation/replies` | Controller: `AdminModerationController` | Description: `searchReplies`
+- `PATCH /api/admin/moderation/posts/{postId}/hide` | Controller: `AdminModerationController` | Description: `hidePost`
+- `PATCH /api/admin/moderation/posts/{postId}/restore` | Controller: `AdminModerationController` | Description: `restorePost`
+- `DELETE /api/admin/moderation/posts/{postId}` | Controller: `AdminModerationController` | Description: `deletePost`
+- `PATCH /api/admin/moderation/reviews/{reviewId}/blind` | Controller: `AdminModerationController` | Description: `blindReview`
+- `PATCH /api/admin/moderation/reviews/{reviewId}/restore` | Controller: `AdminModerationController` | Description: `restoreReview`
+- `DELETE /api/admin/moderation/reviews/{reviewId}` | Controller: `AdminModerationController` | Description: `deleteReview`
+- `PATCH /api/admin/moderation/replies/{targetType}/{commentId}/hide` | Controller: `AdminModerationController` | Description: `hideReply`
+- `PATCH /api/admin/moderation/replies/{targetType}/{commentId}/restore` | Controller: `AdminModerationController` | Description: `restoreReply`
+- `DELETE /api/admin/moderation/replies/{targetType}/{commentId}` | Controller: `AdminModerationController` | Description: `deleteReply`
 
-## com/popups/pupoo/board/boardinfo/api/BoardController.java  (base: `(none)`)
-- `GET` `/api/boards`
-- `POST` `/api/admin/boards`
-- `GET` `/api/admin/boards/{boardId}`
-- `PUT` `/api/admin/boards/{boardId}`
-- `PATCH` `/api/admin/boards/{boardId}/active`
+## BoardController (`com/popups/pupoo/board/boardinfo/api/BoardController.java`)
+- `GET /api/boards` | Controller: `BoardController` | Description: `getBoards`
+- `POST /api/admin/boards` | Controller: `BoardController` | Description: `createBoard`
+- `GET /api/admin/boards/{boardId}` | Controller: `BoardController` | Description: `getBoard`
+- `PUT /api/admin/boards/{boardId}` | Controller: `BoardController` | Description: `updateBoard`
+- `PATCH /api/admin/boards/{boardId}/active` | Controller: `BoardController` | Description: `changeActive`
 
-## com/popups/pupoo/board/faq/api/AdminFaqController.java  (base: `/api/admin/faqs`)
-- `POST` `/api/admin/faqs`
-- `PATCH` `/api/admin/faqs/{postId}`
-- `DELETE` `/api/admin/faqs/{postId}`
+## AdminFaqController (`com/popups/pupoo/board/faq/api/AdminFaqController.java`)
+- `POST /api/admin/faqs` | Controller: `AdminFaqController` | Description: `create`
+- `PATCH /api/admin/faqs/{postId}` | Controller: `AdminFaqController` | Description: `update`
+- `DELETE /api/admin/faqs/{postId}` | Controller: `AdminFaqController` | Description: `delete`
 
-## com/popups/pupoo/board/faq/api/FaqController.java  (base: `/api/faqs`)
-- `GET` `/api/faqs`
-- `GET` `/api/faqs/{postId}`
+## FaqController (`com/popups/pupoo/board/faq/api/FaqController.java`)
+- `GET /api/faqs` | Controller: `FaqController` | Description: `list`
+- `GET /api/faqs/{postId}` | Controller: `FaqController` | Description: `get`
 
-## com/popups/pupoo/board/post/api/AdminPostController.java  (base: `/api/admin/posts`)
-- `PATCH` `/api/admin/posts/{postId}/delete`
+## AdminPostController (`com/popups/pupoo/board/post/api/AdminPostController.java`)
+- `PATCH /api/admin/posts/{postId}/delete` | Controller: `AdminPostController` | Description: `delete`
 
-## com/popups/pupoo/board/post/api/PostController.java  (base: `/api/posts`)
-- `GET` `/api/posts`
-- `GET` `/api/posts/{postId}`
-- `POST` `/api/posts/{postId}/report`
-- `POST` `/api/posts`
-- `PUT` `/api/posts/{postId}`
-- `DELETE` `/api/posts/{postId}`
-- `PATCH` `/api/posts/{postId}/close`
+## PostController (`com/popups/pupoo/board/post/api/PostController.java`)
+- `GET /api/posts` | Controller: `PostController` | Description: `getPosts`
+- `GET /api/posts/{postId}` | Controller: `PostController` | Description: `getPost`
+- `POST /api/posts/{postId}/report` | Controller: `PostController` | Description: `reportPost`
+- `POST /api/posts` | Controller: `PostController` | Description: `createPost`
+- `PUT /api/posts/{postId}` | Controller: `PostController` | Description: `updatePost`
+- `DELETE /api/posts/{postId}` | Controller: `PostController` | Description: `deletePost`
+- `PATCH /api/posts/{postId}/close` | Controller: `PostController` | Description: `closePost`
 
-## com/popups/pupoo/board/qna/api/AdminQnaController.java  (base: `/api/admin/qnas`)
-- `POST` `/api/admin/qnas/{qnaId}/answer`
+## AdminQnaController (`com/popups/pupoo/board/qna/api/AdminQnaController.java`)
+- `POST /api/admin/qnas/{qnaId}/answer` | Controller: `AdminQnaController` | Description: `answer`
 
-## com/popups/pupoo/board/qna/api/QnaController.java  (base: `/api/qnas`)
-- `POST` `/api/qnas`
-- `GET` `/api/qnas/{qnaId}`
-- `GET` `/api/qnas`
-- `PATCH` `/api/qnas/{qnaId}`
-- `DELETE` `/api/qnas/{qnaId}`
-- `POST` `/api/qnas/{qnaId}/close`
+## QnaController (`com/popups/pupoo/board/qna/api/QnaController.java`)
+- `POST /api/qnas` | Controller: `QnaController` | Description: `create`
+- `GET /api/qnas/{qnaId}` | Controller: `QnaController` | Description: `get`
+- `GET /api/qnas` | Controller: `QnaController` | Description: `list`
+- `PATCH /api/qnas/{qnaId}` | Controller: `QnaController` | Description: `update`
+- `DELETE /api/qnas/{qnaId}` | Controller: `QnaController` | Description: `delete`
+- `POST /api/qnas/{qnaId}/close` | Controller: `QnaController` | Description: `close`
 
-## com/popups/pupoo/board/review/api/ReviewController.java  (base: `/api/reviews`)
-- `POST` `/api/reviews`
-- `GET` `/api/reviews/{reviewId}`
-- `GET` `/api/reviews`
-- `PATCH` `/api/reviews/{reviewId}`
-- `DELETE` `/api/reviews/{reviewId}`
-- `POST` `/api/reviews/{reviewId}/report`
+## ReviewController (`com/popups/pupoo/board/review/api/ReviewController.java`)
+- `POST /api/reviews` | Controller: `ReviewController` | Description: `create`
+- `GET /api/reviews/{reviewId}` | Controller: `ReviewController` | Description: `get`
+- `GET /api/reviews` | Controller: `ReviewController` | Description: `list`
+- `PATCH /api/reviews/{reviewId}` | Controller: `ReviewController` | Description: `update`
+- `DELETE /api/reviews/{reviewId}` | Controller: `ReviewController` | Description: `delete`
+- `POST /api/reviews/{reviewId}/report` | Controller: `ReviewController` | Description: `report`
 
-## com/popups/pupoo/booth/api/BoothController.java  (base: `/api`)
-- `GET` `/api/events/{eventId}/booths`
-- `GET` `/api/booths/{boothId}`
+## BoothController (`com/popups/pupoo/booth/api/BoothController.java`)
+- `GET /api/events/{eventId}/booths` | Controller: `BoothController` | Description: `getEventBooths`
+- `GET /api/booths/{boothId}` | Controller: `BoothController` | Description: `getBoothDetail`
 
-## com/popups/pupoo/common/dashboard/analytics/api/AdminAnalyticsController.java  (base: `/api/admin/analytics`)
-- `GET` `/api/admin/analytics/events`
-- `GET` `/api/admin/analytics/events/{eventId}/congestion-by-hour`
-- `GET` `/api/admin/analytics/yearly`
+## AdminAnalyticsController (`com/popups/pupoo/common/dashboard/analytics/api/AdminAnalyticsController.java`)
+- `GET /api/admin/analytics/events` | Controller: `AdminAnalyticsController` | Description: `eventPerformance`
+- `GET /api/admin/analytics/events/{eventId}/congestion-by-hour` | Controller: `AdminAnalyticsController` | Description: `congestionByHour`
+- `GET /api/admin/analytics/yearly` | Controller: `AdminAnalyticsController` | Description: `yearly`
 
-## com/popups/pupoo/common/dashboard/api/AdminDashboardRealtimeController.java  (base: `/api/admin/dashboard/realtime`)
-- `GET` `/api/admin/dashboard/realtime/summary`
-- `GET` `/api/admin/dashboard/realtime/events`
-- `GET` `/api/admin/dashboard/realtime/events/{eventId}/congestions`
+## AdminDashboardRealtimeController (`com/popups/pupoo/common/dashboard/api/AdminDashboardRealtimeController.java`)
+- `GET /api/admin/dashboard/realtime/summary` | Controller: `AdminDashboardRealtimeController` | Description: `summary`
+- `GET /api/admin/dashboard/realtime/events` | Controller: `AdminDashboardRealtimeController` | Description: `events`
+- `GET /api/admin/dashboard/realtime/events/{eventId}/congestions` | Controller: `AdminDashboardRealtimeController` | Description: `congestions`
 
-## com/popups/pupoo/common/dashboard/api/DashboardController.java  (base: `/api/admin/dashboard`)
-- `GET` `/api/admin/dashboard`
-- `GET` `/api/admin/dashboard/{id}`
+## DashboardController (`com/popups/pupoo/common/dashboard/api/DashboardController.java`)
+- `GET /api/admin/dashboard` | Controller: `DashboardController` | Description: `summary`
+- `GET /api/admin/dashboard/{id}` | Controller: `DashboardController` | Description: `summaryById`
 
-## com/popups/pupoo/contest/vote/api/ContestVoteController.java  (base: `/api/programs/{programId}/votes`)
-- `POST` `/api/programs/{programId}/votes`
-- `DELETE` `/api/programs/{programId}/votes`
-- `GET` `/api/programs/{programId}/votes/result`
+## ContestVoteController (`com/popups/pupoo/contest/vote/api/ContestVoteController.java`)
+- `POST /api/programs/{programId}/votes` | Controller: `ContestVoteController` | Description: `vote`
+- `DELETE /api/programs/{programId}/votes` | Controller: `ContestVoteController` | Description: `cancel`
+- `GET /api/programs/{programId}/votes/result` | Controller: `ContestVoteController` | Description: `result`
 
-## com/popups/pupoo/event/api/AdminEventOperationController.java  (base: `/api/admin/events`)
-- `POST` `/api/admin/events`
-- `PATCH` `/api/admin/events/{eventId}`
-- `GET` `/api/admin/events`
-- `GET` `/api/admin/events/{eventId}`
-- `PATCH` `/api/admin/events/{eventId}/status`
+## AdminEventOperationController (`com/popups/pupoo/event/api/AdminEventOperationController.java`)
+- `POST /api/admin/events` | Controller: `AdminEventOperationController` | Description: `createEvent`
+- `PATCH /api/admin/events/{eventId}` | Controller: `AdminEventOperationController` | Description: `updateEvent`
+- `GET /api/admin/events` | Controller: `AdminEventOperationController` | Description: `list`
+- `GET /api/admin/events/{eventId}` | Controller: `AdminEventOperationController` | Description: `get`
+- `PATCH /api/admin/events/{eventId}/status` | Controller: `AdminEventOperationController` | Description: `changeStatus`
 
-## com/popups/pupoo/event/api/EventController.java  (base: `/api/events`)
-- `GET` `/api/events`
-- `GET` `/api/events/{eventId}`
-- `GET` `/api/events/{eventId}/galleries`
+## EventController (`com/popups/pupoo/event/api/EventController.java`)
+- `GET /api/events` | Controller: `EventController` | Description: `getEvents`
+- `GET /api/events/{eventId}` | Controller: `EventController` | Description: `getEvent`
+- `GET /api/events/{eventId}/galleries` | Controller: `EventController` | Description: `getEventGalleries`
 
-## com/popups/pupoo/event/api/EventRegistrationController.java  (base: `(none)`)
-- `POST` `/api/event-registrations`
-- `DELETE` `/api/event-registrations/{applyId}`
-- `GET` `/api/users/me/event-registrations`
+## EventRegistrationController (`com/popups/pupoo/event/api/EventRegistrationController.java`)
+- `POST /api/event-registrations` | Controller: `EventRegistrationController` | Description: `apply`
+- `DELETE /api/event-registrations/{applyId}` | Controller: `EventRegistrationController` | Description: `cancel`
+- `GET /api/users/me/event-registrations` | Controller: `EventRegistrationController` | Description: `myRegistrations`
 
-## com/popups/pupoo/gallery/api/GalleryAdminController.java  (base: `/api/admin/galleries`)
-- `POST` `/api/admin/galleries`
-- `PATCH` `/api/admin/galleries/{galleryId}`
-- `DELETE` `/api/admin/galleries/{galleryId}`
+## GalleryAdminController (`com/popups/pupoo/gallery/api/GalleryAdminController.java`)
+- `POST /api/admin/galleries` | Controller: `GalleryAdminController` | Description: `create`
+- `PATCH /api/admin/galleries/{galleryId}` | Controller: `GalleryAdminController` | Description: `update`
+- `DELETE /api/admin/galleries/{galleryId}` | Controller: `GalleryAdminController` | Description: `delete`
 
-## com/popups/pupoo/gallery/api/GalleryController.java  (base: `/api/galleries`)
-- `GET` `/api/galleries/{galleryId}`
-- `GET` `/api/galleries`
-- `POST` `/api/galleries`
-- `PATCH` `/api/galleries/{galleryId}`
-- `DELETE` `/api/galleries/{galleryId}`
-- `POST` `/api/galleries/{galleryId}/like`
-- `DELETE` `/api/galleries/{galleryId}/like`
+## GalleryController (`com/popups/pupoo/gallery/api/GalleryController.java`)
+- `GET /api/galleries/{galleryId}` | Controller: `GalleryController` | Description: `get`
+- `GET /api/galleries` | Controller: `GalleryController` | Description: `list`
+- `POST /api/galleries` | Controller: `GalleryController` | Description: `create`
+- `PATCH /api/galleries/{galleryId}` | Controller: `GalleryController` | Description: `update`
+- `DELETE /api/galleries/{galleryId}` | Controller: `GalleryController` | Description: `delete`
+- `POST /api/galleries/{galleryId}/like` | Controller: `GalleryController` | Description: `like`
+- `DELETE /api/galleries/{galleryId}/like` | Controller: `GalleryController` | Description: `unlike`
 
-## com/popups/pupoo/inquiry/api/InquiryController.java  (base: `(none)`)
-- `POST` `/api/inquiries`
-- `GET` `/api/inquiries/mine`
-- `GET` `/api/inquiries/{inquiryId}`
-- `PUT` `/api/inquiries/{inquiryId}`
-- `PATCH` `/api/inquiries/{inquiryId}/close`
-- `GET` `/api/admin/inquiries`
-- `PUT` `/api/admin/inquiries/{inquiryId}/answer`
-- `PATCH` `/api/admin/inquiries/{inquiryId}/status`
+## InquiryController (`com/popups/pupoo/inquiry/api/InquiryController.java`)
+- `POST /api/inquiries` | Controller: `InquiryController` | Description: `createInquiry`
+- `GET /api/inquiries/mine` | Controller: `InquiryController` | Description: `getMyInquiries`
+- `GET /api/inquiries/{inquiryId}` | Controller: `InquiryController` | Description: `getMyInquiry`
+- `PUT /api/inquiries/{inquiryId}` | Controller: `InquiryController` | Description: `updateMyInquiry`
+- `PATCH /api/inquiries/{inquiryId}/close` | Controller: `InquiryController` | Description: `closeMyInquiry`
+- `GET /api/admin/inquiries` | Controller: `InquiryController` | Description: `getInquiries`
+- `PUT /api/admin/inquiries/{inquiryId}/answer` | Controller: `InquiryController` | Description: `answer`
+- `PATCH /api/admin/inquiries/{inquiryId}/status` | Controller: `InquiryController` | Description: `changeStatus`
 
-## com/popups/pupoo/interest/api/InterestController.java  (base: `/api/interests`)
-- `GET` `/api/interests`
-- `POST` `/api/interests/subscribe`
-- `POST` `/api/interests/unsubscribe`
-- `POST` `/api/interests/mysubscriptions`
+## InterestController (`com/popups/pupoo/interest/api/InterestController.java`)
+- `GET /api/interests` | Controller: `InterestController` | Description: `getAll`
+- `POST /api/interests/subscribe` | Controller: `InterestController` | Description: `subscribe`
+- `POST /api/interests/unsubscribe` | Controller: `InterestController` | Description: `unsubscribe`
+- `POST /api/interests/mysubscriptions` | Controller: `InterestController` | Description: `mySubscriptions`
 
-## com/popups/pupoo/notice/api/AdminNoticeController.java  (base: `/api/admin/notices`)
-- `GET` `/api/admin/notices`
-- `GET` `/api/admin/notices/{id}`
-- `POST` `/api/admin/notices`
-- `PATCH` `/api/admin/notices/{id}`
-- `DELETE` `/api/admin/notices/{id}`
+## AdminNoticeController (`com/popups/pupoo/notice/api/AdminNoticeController.java`)
+- `GET /api/admin/notices` | Controller: `AdminNoticeController` | Description: `list`
+- `GET /api/admin/notices/{id}` | Controller: `AdminNoticeController` | Description: `get`
+- `POST /api/admin/notices` | Controller: `AdminNoticeController` | Description: `create`
+- `PATCH /api/admin/notices/{id}` | Controller: `AdminNoticeController` | Description: `update`
+- `DELETE /api/admin/notices/{id}` | Controller: `AdminNoticeController` | Description: `delete`
 
-## com/popups/pupoo/notice/api/NoticeController.java  (base: `/api/notices`)
-- `GET` `/api/notices`
-- `GET` `/api/notices/{noticeId}`
+## NoticeController (`com/popups/pupoo/notice/api/NoticeController.java`)
+- `GET /api/notices` | Controller: `NoticeController` | Description: `list`
+- `GET /api/notices/{noticeId}` | Controller: `NoticeController` | Description: `get`
 
-## com/popups/pupoo/notification/api/AdminNotificationController.java  (base: `/api/admin/notifications`)
-- `POST` `/api/admin/notifications/event`
+## AdminNotificationController (`com/popups/pupoo/notification/api/AdminNotificationController.java`)
+- `POST /api/admin/notifications/event` | Controller: `AdminNotificationController` | Description: `publishEvent`
 
-## com/popups/pupoo/notification/api/NotificationController.java  (base: `/api/notifications`)
-- `GET` `/api/notifications`
-- `POST` `/api/notifications/{inboxId}/click`
-- `GET` `/api/notifications/settings`
-- `PUT` `/api/notifications/settings`
+## NotificationController (`com/popups/pupoo/notification/api/NotificationController.java`)
+- `GET /api/notifications` | Controller: `NotificationController` | Description: `myInbox`
+- `POST /api/notifications/{inboxId}/click` | Controller: `NotificationController` | Description: `click`
+- `GET /api/notifications/settings` | Controller: `NotificationController` | Description: `getSettings`
+- `PUT /api/notifications/settings` | Controller: `NotificationController` | Description: `updateSettings`
 
-## com/popups/pupoo/payment/api/AdminPaymentsController.java  (base: `/api/admin`)
-- `GET` `/api/admin/payments`
-- `GET` `/api/admin/payments/{id}`
+## AdminPaymentsController (`com/popups/pupoo/payment/api/AdminPaymentsController.java`)
+- `GET /api/admin/payments` | Controller: `AdminPaymentsController` | Description: `payments`
+- `GET /api/admin/payments/{id}` | Controller: `AdminPaymentsController` | Description: `payment`
 
-## com/popups/pupoo/payment/api/PaymentController.java  (base: `/api`)
-- `POST` `/api/events/{eventId}/payments`
-- `GET` `/api/payments/my`
-- `GET` `/api/payments/{paymentId}/approve`
-- `POST` `/api/payments/{paymentId}/cancel`
+## PaymentController (`com/popups/pupoo/payment/api/PaymentController.java`)
+- `POST /api/events/{eventId}/payments` | Controller: `PaymentController` | Description: `requestPayment`
+- `GET /api/payments/my` | Controller: `PaymentController` | Description: `myPayments`
+- `GET /api/payments/{paymentId}/approve` | Controller: `PaymentController` | Description: `approve`
+- `POST /api/payments/{paymentId}/cancel` | Controller: `PaymentController` | Description: `cancel`
 
-## com/popups/pupoo/payment/refund/api/AdminRefundsController.java  (base: `/api/admin`)
-- `GET` `/api/admin/refunds`
-- `GET` `/api/admin/refunds/{id}`
-- `PATCH` `/api/admin/refunds/{refundId}/approve`
-- `PATCH` `/api/admin/refunds/{refundId}/reject`
-- `POST` `/api/admin/refunds/{refundId}/execute`
+## AdminRefundsController (`com/popups/pupoo/payment/refund/api/AdminRefundsController.java`)
+- `GET /api/admin/refunds` | Controller: `AdminRefundsController` | Description: `refunds`
+- `GET /api/admin/refunds/{id}` | Controller: `AdminRefundsController` | Description: `refund`
+- `PATCH /api/admin/refunds/{refundId}/approve` | Controller: `AdminRefundsController` | Description: `approve`
+- `PATCH /api/admin/refunds/{refundId}/reject` | Controller: `AdminRefundsController` | Description: `reject`
+- `POST /api/admin/refunds/{refundId}/execute` | Controller: `AdminRefundsController` | Description: `execute`
 
-## com/popups/pupoo/payment/refund/api/RefundController.java  (base: `/api`)
-- `POST` `/api/refunds`
-- `GET` `/api/refunds/my`
+## RefundController (`com/popups/pupoo/payment/refund/api/RefundController.java`)
+- `POST /api/refunds` | Controller: `RefundController` | Description: `requestRefund`
+- `GET /api/refunds/my` | Controller: `RefundController` | Description: `myRefunds`
 
-## com/popups/pupoo/pet/api/PetController.java  (base: `/api/pets`)
-- `POST` `/api/pets`
-- `GET` `/api/pets/me`
-- `PATCH` `/api/pets/{petId}`
-- `DELETE` `/api/pets/{petId}`
+## PetController (`com/popups/pupoo/pet/api/PetController.java`)
+- `GET /api/pets/me` | Controller: `PetController` | Description: `getMe`
+- `PATCH /api/pets/{petId}` | Controller: `PetController` | Description: `update`
+- `DELETE /api/pets/{petId}` | Controller: `PetController` | Description: `delete`
 
-## com/popups/pupoo/program/api/ProgramController.java  (base: `(none)`)
-- `GET` `/events/{eventId}/programs`
-- `GET` `/programs/{programId}`
+## ProgramController (`com/popups/pupoo/program/api/ProgramController.java`)
+- `GET /events/{eventId}/programs` | Controller: `ProgramController` | Description: `getPrograms`
+- `GET /programs/{programId}` | Controller: `ProgramController` | Description: `getProgramDetail`
 
-## com/popups/pupoo/program/api/ProgramSpeakerController.java  (base: `/api/programs/{programId}/speakers`)
-- `GET` `/api/programs/{programId}/speakers`
-- `GET` `/api/programs/{programId}/speakers/{speakerId}`
+## ProgramSpeakerController (`com/popups/pupoo/program/api/ProgramSpeakerController.java`)
+- `GET /api/programs/{programId}/speakers` | Controller: `ProgramSpeakerController` | Description: `getProgramSpeakers`
+- `GET /api/programs/{programId}/speakers/{speakerId}` | Controller: `ProgramSpeakerController` | Description: `getProgramSpeaker`
 
-## com/popups/pupoo/program/apply/api/ProgramApplyController.java  (base: `/api/program-applies`)
-- `GET` `/api/program-applies/my`
-- `POST` `/api/program-applies`
-- `PATCH` `/api/program-applies/{id}/cancel`
-- `GET` `/api/program-applies/{id}`
+## ProgramApplyController (`com/popups/pupoo/program/apply/api/ProgramApplyController.java`)
+- `GET /api/program-applies/my` | Controller: `ProgramApplyController` | Description: `my`
+- `POST /api/program-applies` | Controller: `ProgramApplyController` | Description: `create`
+- `PATCH /api/program-applies/{id}/cancel` | Controller: `ProgramApplyController` | Description: `cancel`
+- `GET /api/program-applies/{id}` | Controller: `ProgramApplyController` | Description: `get`
 
-## com/popups/pupoo/program/speaker/api/SpeakerAdminController.java  (base: `/api/admin/speakers`)
-- `POST` `/api/admin/speakers`
-- `PATCH` `/api/admin/speakers/{speakerId}`
-- `DELETE` `/api/admin/speakers/{speakerId}`
+## SpeakerAdminController (`com/popups/pupoo/program/speaker/api/SpeakerAdminController.java`)
 
-## com/popups/pupoo/program/speaker/api/SpeakerController.java  (base: `/api/speakers`)
-- `GET` `/api/speakers`
-- `GET` `/api/speakers/{speakerId}`
+## SpeakerController (`com/popups/pupoo/program/speaker/api/SpeakerController.java`)
+- `GET /api/speakers` | Controller: `SpeakerController` | Description: `getSpeakers`
+- `GET /api/speakers/{speakerId}` | Controller: `SpeakerController` | Description: `getSpeaker`
 
-## com/popups/pupoo/qr/api/QrAdminController.java  (base: `/api/admin/operations`)
-- `POST` `/api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-in`
-- `POST` `/api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-out`
+## QrAdminController (`com/popups/pupoo/qr/api/QrAdminController.java`)
+- `POST /api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-in` | Controller: `QrAdminController` | Description: `checkIn`
+- `POST /api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-out` | Controller: `QrAdminController` | Description: `checkOut`
 
-## com/popups/pupoo/qr/api/QrController.java  (base: `/api`)
-- `GET` `/api/qr/me`
-- `GET` `/api/me/booth-visits`
-- `GET` `/api/events/{eventId}/me/booth-visits`
-- `GET` `/api/events/{eventId}/booths/{boothId}/me/visits`
+## QrController (`com/popups/pupoo/qr/api/QrController.java`)
+- `GET /api/qr/me` | Controller: `QrController` | Description: `getMyQr`
+- `GET /api/me/booth-visits` | Controller: `QrController` | Description: `getMyBoothVisitsGroupedByEvent`
+- `GET /api/events/{eventId}/me/booth-visits` | Controller: `QrController` | Description: `getMyBoothVisits`
+- `GET /api/events/{eventId}/booths/{boothId}/me/visits` | Controller: `QrController` | Description: `getMyBoothVisitLogs`
 
-## com/popups/pupoo/reply/api/ReplyController.java  (base: `/api/replies`)
-- `POST` `/api/replies`
-- `GET` `/api/replies`
-- `PATCH` `/api/replies/{replyId}`
-- `DELETE` `/api/replies/{replyId}`
-- `POST` `/api/replies/{targetType}/{replyId}/report`
+## ReplyController (`com/popups/pupoo/reply/api/ReplyController.java`)
+- `POST /api/replies` | Controller: `ReplyController` | Description: `create`
+- `GET /api/replies` | Controller: `ReplyController` | Description: `list`
+- `PATCH /api/replies/{replyId}` | Controller: `ReplyController` | Description: `update`
+- `DELETE /api/replies/{replyId}` | Controller: `ReplyController` | Description: `delete`
+- `POST /api/replies/{targetType}/{replyId}/report` | Controller: `ReplyController` | Description: `report`
 
-## com/popups/pupoo/report/api/AdminReportController.java  (base: `/api/admin/reports`)
-- `GET` `/api/admin/reports`
-- `PATCH` `/api/admin/reports/{reportId}`
+## AdminReportController (`com/popups/pupoo/report/api/AdminReportController.java`)
+- `GET /api/admin/reports` | Controller: `AdminReportController` | Description: `list`
+- `PATCH /api/admin/reports/{reportId}` | Controller: `AdminReportController` | Description: `decide`
 
-## com/popups/pupoo/report/api/ReportReasonController.java  (base: `/api/report-reasons`)
-- `GET` `/api/report-reasons`
+## ReportReasonController (`com/popups/pupoo/report/api/ReportReasonController.java`)
+- `GET /api/report-reasons` | Controller: `ReportReasonController` | Description: `list`
 
-## com/popups/pupoo/storage/api/StorageController.java  (base: `/api/files`)
-- `POST` `/api/files`
-- `POST` `/api/files/admin/notice`
-- `GET` `/api/files/{fileId}`
-- `GET` `/api/files/{fileId}/download`
-- `DELETE` `/api/files/{fileId}`
-- `DELETE` `/api/files/admin/{fileId}`
+## StorageController (`com/popups/pupoo/storage/api/StorageController.java`)
+- `POST /api/files` | Controller: `StorageController` | Description: `upload`
+- `POST /api/files/admin/notice` | Controller: `StorageController` | Description: `uploadNoticeByAdmin`
+- `GET /api/files/{fileId}` | Controller: `StorageController` | Description: `get`
+- `GET /api/files/{fileId}/download` | Controller: `StorageController` | Description: `redirectToStatic`
+- `DELETE /api/files/{fileId}` | Controller: `StorageController` | Description: `delete`
+- `DELETE /api/files/admin/{fileId}` | Controller: `StorageController` | Description: `deleteByAdmin`
 
-## com/popups/pupoo/user/api/AdminUserController.java  (base: `/api/admin/users`)
-- `GET` `/api/admin/users`
-- `GET` `/api/admin/users/{id}`
-- `POST` `/api/admin/users`
-- `PATCH` `/api/admin/users/{id}`
-- `DELETE` `/api/admin/users/{id}`
+## AdminUserController (`com/popups/pupoo/user/api/AdminUserController.java`)
+- `GET /api/admin/users` | Controller: `AdminUserController` | Description: `list`
+- `GET /api/admin/users/{id}` | Controller: `AdminUserController` | Description: `get`
+- `POST /api/admin/users` | Controller: `AdminUserController` | Description: `create`
+- `PATCH /api/admin/users/{id}` | Controller: `AdminUserController` | Description: `update`
+- `DELETE /api/admin/users/{id}` | Controller: `AdminUserController` | Description: `delete`
 
-## com/popups/pupoo/user/api/UserController.java  (base: `/api/users`)
-- `GET` `/api/users/me`
-- `PATCH` `/api/users/me`
-- `DELETE` `/api/users/me`
+## UserController (`com/popups/pupoo/user/api/UserController.java`)
+- `GET /api/users/me` | Controller: `UserController` | Description: `getMe`
+- `PATCH /api/users/me` | Controller: `UserController` | Description: `updateMe`
+- `DELETE /api/users/me` | Controller: `UserController` | Description: `deleteMe`
 
-## com/popups/pupoo/user/social/api/SocialAccountController.java  (base: `(none)`)
-- `GET` `(class-level path only)`
-- `POST` `/link`
-- `DELETE` `/unlink`
+## SocialAccountController (`com/popups/pupoo/user/social/api/SocialAccountController.java`)
+- `GET (class-level path only)` | Controller: `SocialAccountController` | Description: `getMySocialAccounts`
+- `POST /link` | Controller: `SocialAccountController` | Description: `linkSocialAccount`
+- `DELETE /unlink` | Controller: `SocialAccountController` | Description: `unlinkSocialAccount`
