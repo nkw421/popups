@@ -28,8 +28,8 @@ public class QnaController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<QnaResponse>> list(@RequestParam(defaultValue = "0") int page,
-                                                  @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<QnaResponse>> list(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                  @RequestParam(name = "size", defaultValue = "10") int size) {
         return ResponseEntity.ok(qnaService.list(page, size));
     }
 

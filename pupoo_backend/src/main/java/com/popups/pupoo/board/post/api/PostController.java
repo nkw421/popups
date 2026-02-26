@@ -38,10 +38,9 @@ public class PostController {
      * 게시글 목록 조회(공개)
      */
     @GetMapping
-    public ApiResponse<Page<PostResponse>> getPosts(@RequestParam Long boardId,
-                                                    @RequestParam(required = false) String searchType,
-                                                    @RequestParam(required = false) String keyword,
-                                                    Pageable pageable) {
+    public ApiResponse<Page<PostResponse>> getPosts(@RequestParam("boardId") Long boardId,
+                                                    @RequestParam(name = "searchType", required = false) String searchType,
+                                                    @RequestParam(name = "keyword", required = false) String keyword, Pageable pageable) {
         return ApiResponse.success(postService.getPublicPosts(boardId, SearchType.from(searchType), keyword, pageable));
     }
 

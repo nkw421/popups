@@ -1354,10 +1354,7 @@ export default function BoardManage({ subTab = "free" }) {
     if (isQna) {
       setSaving(true);
       try {
-        await adminQnaApi.create({ title: f.title, content: f.content });
-        setPanel(null);
-        showToast(config.toastCreate);
-        fetchQnaList(1);
+        showToast("Q&A 등록은 사용자 화면(/api/qnas)에서만 지원됩니다.", "error");
       } catch (err) {
         console.error("[BoardManage QnA] create error:", err);
         showToast("등록에 실패했습니다.", "error");
@@ -1384,11 +1381,7 @@ export default function BoardManage({ subTab = "free" }) {
     if (isQna) {
       setSaving(true);
       try {
-        const qnaId = f.qnaId ?? f.id;
-        await adminQnaApi.update(qnaId, { title: f.title, content: f.content });
-        setPanel(null);
-        showToast(config.toastUpdate);
-        fetchQnaList(qnaPage);
+        showToast("Q&A 수정은 작성자 전용 API(/api/qnas/{qnaId})입니다.", "error");
       } catch (err) {
         console.error("[BoardManage QnA] update error:", err);
         showToast("수정에 실패했습니다.", "error");
@@ -1408,11 +1401,8 @@ export default function BoardManage({ subTab = "free" }) {
     if (isQna) {
       setSaving(true);
       try {
-        const qnaId = item.qnaId ?? item.id;
-        await adminQnaApi.delete(qnaId);
         setModal(null);
-        showToast(config.toastDelete);
-        fetchQnaList(qnaPage);
+        showToast("Q&A 삭제는 작성자 전용 API(/api/qnas/{qnaId})입니다.", "error");
       } catch (err) {
         console.error("[BoardManage QnA] delete error:", err);
         setModal(null);

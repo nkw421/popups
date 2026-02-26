@@ -42,6 +42,8 @@ public class AuthService {
     private final EmailVerificationService emailVerificationService;
 
     private final boolean refreshCookieSecure;
+    private final String refreshCookieSameSite;
+    private final String refreshCookiePath;
     private final int refreshCookieMaxAgeSeconds;
 
     public AuthService(
@@ -53,6 +55,8 @@ public class AuthService {
             JwtProvider jwtProvider,
             EmailVerificationService emailVerificationService,
             @Value("${auth.refresh.cookie.secure:true}") boolean refreshCookieSecure,
+            @Value("${auth.refresh.cookie.same-site:Lax}") String refreshCookieSameSite,
+            @Value("${auth.refresh.cookie.path:/}") String refreshCookiePath,
             @Value("${auth.refresh.cookie.max-age-seconds:1209600}") int refreshCookieMaxAgeSeconds
     ) {
         this.userRepository = userRepository;
@@ -63,6 +67,8 @@ public class AuthService {
         this.jwtProvider = jwtProvider;
         this.emailVerificationService = emailVerificationService;
         this.refreshCookieSecure = refreshCookieSecure;
+        this.refreshCookieSameSite = refreshCookieSameSite;
+        this.refreshCookiePath = refreshCookiePath;
         this.refreshCookieMaxAgeSeconds = refreshCookieMaxAgeSeconds;
     }
 
@@ -248,8 +254,8 @@ public class AuthService {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, token)
                 .httpOnly(true)
                 .secure(refreshCookieSecure)
-                .path("/api/auth")
-                .sameSite("Lax")
+                .path(refreshCookiePath)
+                .sameSite(refreshCookieSameSite)
                 .maxAge(refreshCookieMaxAgeSeconds)
                 .build();
 
@@ -260,8 +266,8 @@ public class AuthService {
         ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(refreshCookieSecure)
-                .path("/api/auth")
-                .sameSite("Lax")
+                .path(refreshCookiePath)
+                .sameSite(refreshCookieSameSite)
                 .maxAge(0)
                 .build();
 

@@ -31,10 +31,9 @@ public class AdminReportController {
      * 신고 목록(검색/페이징)
      */
     @GetMapping
-    public ApiResponse<Page<ReportResponse>> list(@RequestParam(required = false) ReportStatus status,
-                                                  @RequestParam(required = false) ReportTargetType targetType,
-                                                  @RequestParam(required = false) Long reporterUserId,
-                                                  Pageable pageable) {
+    public ApiResponse<Page<ReportResponse>> list(@RequestParam(name = "status", required = false) ReportStatus status,
+                                                  @RequestParam(name = "targetType", required = false) ReportTargetType targetType,
+                                                  @RequestParam(name = "reporterUserId", required = false) Long reporterUserId, Pageable pageable) {
         Page<com.popups.pupoo.report.domain.model.ContentReport> page = reportRepository.search(status, targetType, reporterUserId, pageable);
 
         // 정책: 누적 임계치(자동 블라인드)는 사용하지 않지만, 카운트는 운영 화면 정렬/정보용으로 제공한다.

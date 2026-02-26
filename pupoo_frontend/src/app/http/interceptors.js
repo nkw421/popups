@@ -1,66 +1,98 @@
 import { tokenStore } from "./tokenStore";
 
-/**
- * JWT payload에서 userId를 추출한다.
- * JWT 구조: header.payload.signature (각각 base64url 인코딩)
- */
-function getUserIdFromToken(token) {
-  try {
-    const payload = token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
-    // 일반적으로 userId, sub, user_id, id 중 하나에 들어있음
-    return (
-      decoded.userId ?? decoded.sub ?? decoded.user_id ?? decoded.id ?? null
-    );
-  } catch {
-    return null;
+const REFRESH_SKIP_PATTERNS = [
+  "/api/auth/login",
+  "/api/auth/refresh",
+  "/api/auth/logout",
+  "/api/auth/signup/",
+];
+
+function isAdminRequest(url = "") {
+  return url.startsWith("/api/admin/");
+}
+
+function shouldSkipRefresh(url = "") {
+  return REFRESH_SKIP_PATTERNS.some((p) => url.includes(p));
+}
+
+function extractAccessToken(res) {
+  return (
+    res?.data?.data?.accessToken ??
+    res?.data?.data?.token ??
+    res?.data?.accessToken ??
+    res?.data?.token ??
+    null
+  );
+}
+
+function assertApiPathInDev(url = "") {
+  if (!import.meta.env.DEV) return;
+  if (!url.startsWith("/api/")) {
+    throw new Error(`[HTTP] Invalid API path (must start with /api/): ${url}`);
   }
 }
 
 export function attachInterceptors(instance) {
-  instance.interceptors.request.use((config) => {
-    const url = config?.url || "";
+  instance.interceptors.request.use(
+    (config) => {
+      const url = config?.url || "";
 
-    // auth 계열은 Authorization 헤더를 붙이지 않는다
-    if (url.includes("/api/auth/")) {
-      return config;
-    }
+      assertApiPathInDev(url);
 
-    const access = tokenStore.getAccess();
-    if (access) {
-      config.headers = config.headers || {};
-      config.headers.Authorization = `Bearer ${access}`;
+      if (!config.headers?.Authorization) {
+        const token = isAdminRequest(url)
+          ? tokenStore.getAdminToken()
+          : tokenStore.getUserToken();
 
-      // X-USER-ID 헤더 추가 (백엔드 컨트롤러에서 요구)
-      const userId = getUserIdFromToken(access);
-      if (userId) {
-        config.headers["X-USER-ID"] = userId;
+        if (token) {
+          config.headers = config.headers || {};
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
-    }
-    return config;
-  });
+
+      return config;
+    },
+    (error) => Promise.reject(error),
+  );
 
   instance.interceptors.response.use(
-    (res) => res,
-    async (err) => {
-      const status = err?.response?.status;
-      const original = err?.config;
-      if (!original) return Promise.reject(err);
+    (response) => response,
+    async (error) => {
+      const original = error?.config;
+      if (!original) return Promise.reject(error);
 
-      const url = original?.url || "";
-      const isAuth = url.includes("/api/auth/");
+      const status = error?.response?.status;
+      const url = original.url || "";
 
-      if (status !== 401 || isAuth) {
-        return Promise.reject(err);
+      if (status !== 401 || shouldSkipRefresh(url) || original._retry) {
+        return Promise.reject(error);
       }
 
-      if (original._retry) {
-        tokenStore.clear();
-        return Promise.reject(err);
-      }
+      original._retry = true;
+      const admin = isAdminRequest(url);
 
-      tokenStore.clear();
-      return Promise.reject(err);
+      try {
+        const refreshRes = await instance.post("/api/auth/refresh", null, {
+          headers: {},
+        });
+
+        const accessToken = extractAccessToken(refreshRes);
+        if (!accessToken) {
+          throw new Error("Refresh succeeded but access token missing");
+        }
+
+        if (admin) tokenStore.setAdminToken(accessToken);
+        else tokenStore.setUserToken(accessToken);
+
+        original.headers = original.headers || {};
+        original.headers.Authorization = `Bearer ${accessToken}`;
+
+        return instance(original);
+      } catch (refreshError) {
+        if (admin) tokenStore.clearAdminToken();
+        else tokenStore.clearUserToken();
+        return Promise.reject(refreshError);
+      }
     },
   );
 }

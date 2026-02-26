@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi, unwrap, setToken } from "../../../api/noticeApi";
+import { authApi, unwrap } from "../../../api/noticeApi";
+import { tokenStore } from "../../../app/http/tokenStore";
 
 export default function AdminLogin() {
   useEffect(() => {
@@ -42,7 +43,7 @@ export default function AdminLogin() {
         setError("토큰을 받지 못했습니다.");
         return;
       }
-      setToken(token);
+      tokenStore.setAdminAccess(token);
       navigate("/admin/dashboard");
     } catch (err) {
       console.error("[Login error]", err);

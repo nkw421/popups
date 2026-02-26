@@ -62,7 +62,7 @@ export default function KakaoCallback() {
           login();
           console.log(
             "AFTER LOGIN isAuthed?",
-            localStorage.getItem("pupoo_access_token"),
+            localStorage.getItem("pupoo_user_token"),
           );
 
           const redirectTo =

@@ -20,9 +20,8 @@ public class FaqController {
 
     @GetMapping
     public ApiResponse<Page<FaqListResponse>> list(
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword,
-            Pageable pageable
+            @RequestParam(name = "searchType", required = false) String searchType,
+            @RequestParam(name = "keyword", required = false) String keyword, Pageable pageable
     ) {
         return ApiResponse.success(faqQueryService.list(SearchType.from(searchType), keyword, pageable));
     }

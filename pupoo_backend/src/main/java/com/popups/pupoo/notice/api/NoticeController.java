@@ -23,10 +23,10 @@ public class NoticeController {
 
     @GetMapping
     public ApiResponse<Page<NoticeResponse>> list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String searchType,
-            @RequestParam(required = false) String keyword
+            @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(name = "searchType", required = false) String searchType,
+            @RequestParam(name = "keyword", required = false) String keyword
     ) {
         return ApiResponse.success(noticeService.list(SearchType.from(searchType), keyword, page, size));
     }

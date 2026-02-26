@@ -86,21 +86,13 @@ export default function PupooBrandIdentity() {
     [],
   );
 
-  const handleDownload = async () => {
-    try {
-      const res = await fetch(`${base}/pupoo_logo.psd`);
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "pupoo_logo.psd";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch {
-      window.open(`${base}/pupoo_logo.psd`, "_blank");
-    }
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    a.href = `${base}/pupoo_logo.psd`;
+    a.download = "pupoo_logo.psd";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const jump = (id) => {

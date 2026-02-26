@@ -1,28 +1,61 @@
-const ACCESS_KEY = "pupoo_access_token";
-const REFRESH_KEY = "pupoo_refresh_token";
+const USER_TOKEN_KEY = "pupoo_user_token";
+const ADMIN_TOKEN_KEY = "pupoo_admin_token";
+
+// backward compatibility for previously stored token
+const LEGACY_ACCESS_KEY = "pupoo_access_token";
 
 export const tokenStore = {
+  getUserToken() {
+    return (
+      localStorage.getItem(USER_TOKEN_KEY) ||
+      localStorage.getItem(LEGACY_ACCESS_KEY)
+    );
+  },
+
+  getAdminToken() {
+    return localStorage.getItem(ADMIN_TOKEN_KEY);
+  },
+
+  setUserToken(token) {
+    if (!token) return;
+    localStorage.setItem(USER_TOKEN_KEY, token);
+  },
+
+  setAdminToken(token) {
+    if (!token) return;
+    localStorage.setItem(ADMIN_TOKEN_KEY, token);
+  },
+
+  clearUserToken() {
+    localStorage.removeItem(USER_TOKEN_KEY);
+    localStorage.removeItem(LEGACY_ACCESS_KEY);
+  },
+
+  clearAdminToken() {
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+  },
+
+  clearAllTokens() {
+    this.clearUserToken();
+    this.clearAdminToken();
+  },
+
+  // compatibility methods for existing UI code
   getAccess() {
-    return localStorage.getItem(ACCESS_KEY);
+    return this.getUserToken();
   },
-  getRefresh() {
-    return localStorage.getItem(REFRESH_KEY);
+  getAdminAccess() {
+    return this.getAdminToken();
   },
-
-  // ✅ 호환용 추가 (기존 코드 유지)
-  setAccess(accessToken) {
-    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
+  setAccess(token) {
+    this.setUserToken(token);
   },
-  setRefresh(refreshToken) {
-    if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken);
-  },
-
-  setTokens({ accessToken, refreshToken }) {
-    if (accessToken) localStorage.setItem(ACCESS_KEY, accessToken);
-    if (refreshToken) localStorage.setItem(REFRESH_KEY, refreshToken);
+  setAdminAccess(token) {
+    this.setAdminToken(token);
   },
   clear() {
-    localStorage.removeItem(ACCESS_KEY);
-    localStorage.removeItem(REFRESH_KEY);
+    this.clearAllTokens();
   },
 };
+
+export { USER_TOKEN_KEY, ADMIN_TOKEN_KEY };
