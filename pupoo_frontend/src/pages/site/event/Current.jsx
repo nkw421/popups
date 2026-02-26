@@ -1,7 +1,7 @@
-import PageHeader from "../components/PageHeader";
+﻿import PageHeader from "../components/PageHeader";
 import EventDetailModal from "./EventDetailModal";
-import { useEffect, useMemo, useState } from "react";
-import { eventApi } from "../../../app/http/eventApi"; // ✅ 추가
+import { useEffect, useState } from "react";
+import { eventApi } from "../../../app/http/eventApi";
 import {
   Play,
   MapPin,
@@ -93,153 +93,69 @@ const styles = `
   .ev-card-btn { height: 32px; padding: 0 14px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; font-size: 12px; font-weight: 600; color: #374151; cursor: pointer; display: flex; align-items: center; gap: 4px; font-family: inherit; white-space: nowrap; transition: all 0.15s; flex-shrink: 0; }
   .ev-card-btn:hover { background: #1a4fd6; color: #fff; border-color: #1a4fd6; }
 
-  .ev-state { margin: 18px 0; padding: 12px 14px; border-radius: 10px; background: #fff; border: 1px solid #e9ecef; color: #374151; font-size: 13px; }
-  .ev-state.err { border-color: #fecaca; background: #fff1f2; color: #b91c1c; }
-
   @media (max-width: 1100px) { .ev-grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 700px) { .ev-grid { grid-template-columns: 1fr; } .ev-stat-grid { grid-template-columns: repeat(3, 1fr); } }
 `;
 
-/** 날짜/시간 유틸 (백엔드 포맷이 ISO 문자열/LocalDateTime 문자열이어도 최대한 안전하게 표시) */
-function safeText(v, fallback = "-") {
-  if (v === null || v === undefined) return fallback;
-  const s = String(v).trim();
-  return s.length ? s : fallback;
-}
-
-function formatDateKorean(dt) {
-  // dt가 "2026-02-23T09:00:00" 또는 "2026-02-23 09:00:00" 등일 수 있음
-  const s = safeText(dt, "");
-  if (!s) return "-";
-  // 날짜만 뽑기
+function formatDate(value) {
+  if (!value) return "일정 미정";
+  const s = String(value);
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (!m) return s;
+  if (!m) return "일정 미정";
   return `${m[1]}.${m[2]}.${m[3]}`;
 }
 
-function formatTimeRange(startAt, endAt) {
-  const a = safeText(startAt, "");
-  const b = safeText(endAt, "");
-  // HH:mm 추출
-  const pickHm = (x) => {
-    const m = x.match(/(\d{2}):(\d{2})/);
+function formatTime(startAt, endAt) {
+  const pick = (v) => {
+    if (!v) return "";
+    const m = String(v).match(/(\d{2}):(\d{2})/);
     return m ? `${m[1]}:${m[2]}` : "";
   };
-  const ahm = pickHm(a);
-  const bhm = pickHm(b);
-  if (ahm && bhm) return `${ahm} ~ ${bhm}`;
-  if (ahm) return `${ahm}`;
-  return "-";
+  const a = pick(startAt);
+  const b = pick(endAt);
+  if (a && b) return `${a} ~ ${b}`;
+  if (a || b) return a || b;
+  return "일정 미정";
 }
 
-/**
- * ✅ 백엔드 이벤트 응답 -> 기존 UI 카드가 기대하는 모양으로 변환
- * - 백엔드 필드는 프로젝트마다 조금씩 달라서 "가능한 후보"를 넓게 잡았음.
- */
-function normalizeEvent(raw) {
-  const eventId = raw?.eventId ?? raw?.id ?? raw?.event_id;
-  const title = raw?.eventName ?? raw?.name ?? raw?.title ?? "행사";
-  const location =
-    raw?.location ??
-    raw?.place ??
-    raw?.address ??
-    raw?.venue ??
-    raw?.eventLocation ??
-    "-";
-
-  const startAt =
-    raw?.startAt ?? raw?.start_at ?? raw?.startedAt ?? raw?.startDateTime;
-  const endAt = raw?.endAt ?? raw?.end_at ?? raw?.endedAt ?? raw?.endDateTime;
-
-  const date = formatDateKorean(startAt);
-  const time = formatTimeRange(startAt, endAt);
-
-  const participants =
-    raw?.participants ??
-    raw?.currentParticipants ??
-    raw?.appliedCount ??
-    raw?.applyCount ??
-    0;
-
-  const capacity =
-    raw?.capacity ??
-    raw?.maxParticipants ??
-    raw?.limitCount ??
-    raw?.maxCount ??
-    100;
-
-  const category =
-    raw?.category ??
-    raw?.eventCategory ??
-    raw?.type ??
-    raw?.eventType ??
-    "행사";
-
-  const image =
-    raw?.imageUrl ??
-    raw?.thumbnailUrl ??
-    raw?.bannerUrl ??
-    raw?.posterUrl ??
-    null;
-
-  const status = raw?.status ?? raw?.eventStatus ?? "ONGOING";
-
-  const fallback = "🐶"; // 프로젝트 컨셉에 맞춰 기본 이모지
+function mapEvent(raw) {
+  const eventId = raw?.eventId ?? raw?.id ?? null;
+  const eventName = raw?.eventName ?? raw?.title ?? "행사";
+  const category = raw?.category ?? raw?.eventCategory ?? "행사";
+  const location = raw?.location ?? raw?.place ?? "장소 미정";
+  const startAt = raw?.startAt ?? raw?.startDateTime ?? raw?.startDate ?? null;
+  const endAt = raw?.endAt ?? raw?.endDateTime ?? raw?.endDate ?? null;
+  const participants = raw?.participants ?? raw?.appliedCount ?? 0;
+  const capacity = raw?.capacity ?? raw?.maxParticipants ?? 1;
 
   return {
-    // ✅ 기존 카드에서 쓰는 필드 유지
-    id: Number(eventId),
-    category: String(category),
-    title: String(title),
-    location: String(location),
-    time,
-    date,
-    participants: Number(participants) || 0,
-    capacity: Number(capacity) || 0,
-    image,
-    fallback,
-    status: String(status),
-    // 모달에서 필요할 수 있는 원본도 붙여둠
-    raw,
+    id: eventId,
+    title: eventName,
+    category,
+    location,
+    time: startAt || endAt ? formatTime(startAt, endAt) : "일정 미정",
+    date: startAt ? formatDate(startAt) : "일정 미정",
+    participants,
+    capacity,
+    fallback: "🐶",
   };
-}
-
-function statusLabel(status) {
-  if (status === "ONGOING") return "진행 중";
-  if (status === "PLANNED") return "예정";
-  if (status === "ENDED") return "종료";
-  if (status === "CANCELLED") return "취소";
-  return "진행";
 }
 
 function EventThumb({ ev }) {
-  const [imgError, setImgError] = useState(false);
-
   return (
     <div className="ev-card-thumb">
-      {ev.image && !imgError ? (
-        <img
-          src={ev.image}
-          alt={ev.title}
-          onError={() => setImgError(true)}
-          loading="lazy"
-        />
-      ) : (
-        <div
-          className="ev-card-thumb-fallback"
-          style={{
-            background: "linear-gradient(135deg, #1a4fd6 0%, #6366f1 100%)",
-          }}
-        >
-          {ev.fallback}
-        </div>
-      )}
-
+      <div
+        className="ev-card-thumb-fallback"
+        style={{
+          background: "linear-gradient(135deg, #1a4fd6 0%, #6366f1 100%)",
+        }}
+      >
+        {ev.fallback}
+      </div>
       <div className="ev-card-thumb-overlay" />
-
       <div className="ev-card-thumb-label">
         <Zap size={10} />
-        {statusLabel(ev.status)}
+        진행 중
       </div>
     </div>
   );
@@ -249,41 +165,30 @@ export default function Current() {
   const [query, setQuery] = useState("");
   const [currentPath, setCurrentPath] = useState("/event/current");
   const [selectedEvent, setSelectedEvent] = useState(null);
-
-  // ✅ 서버 데이터
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // ✅ 최초 로딩 시 현재 진행(ONGOING)만 조회
   useEffect(() => {
     let mounted = true;
 
     const fetchEvents = async () => {
       setLoading(true);
-      setErrorMsg("");
+      setError("");
+
       try {
-        // 백엔드 /api/events
-        // eventApi.getEvents(params) 가 ApiResponse<PageResponse>를 반환하는 구조를 기준으로 처리
         const res = await eventApi.getEvents({
           status: "ONGOING",
           page: 0,
-          size: 50,
+          size: 10,
         });
-
-        const content = res?.data?.data?.content ?? res?.data?.data ?? [];
+        const content = res.data.data.content;
         const list = Array.isArray(content) ? content : [];
-
-        const normalized = list.map(normalizeEvent).filter((e) => !!e.id);
-        if (mounted) setEvents(normalized);
+        if (mounted) setEvents(list.map(mapEvent));
       } catch (e) {
-        const statusCode = e?.response?.status;
         const msg =
-          e?.response?.data?.message ||
-          e?.response?.data?.error ||
-          e?.message ||
-          "행사 목록 조회 실패";
-        if (mounted) setErrorMsg(statusCode ? `[${statusCode}] ${msg}` : msg);
+          e?.response?.data?.message || e?.message || "Failed to load events.";
+        if (mounted) setError(msg);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -295,48 +200,35 @@ export default function Current() {
     };
   }, []);
 
-  // ✅ 검색 필터 (기존 로직 유지 + 대소문자 무시)
-  const filtered = useMemo(() => {
-    const q = (query || "").trim().toLowerCase();
-    if (!q) return events;
-    return events.filter((e) => {
-      const t = (e.title || "").toLowerCase();
-      const c = (e.category || "").toLowerCase();
-      const l = (e.location || "").toLowerCase();
-      return t.includes(q) || c.includes(q) || l.includes(q);
-    });
-  }, [events, query]);
+  const filtered = events.filter(
+    (e) =>
+      e.title.includes(query) ||
+      e.category.includes(query) ||
+      e.location.includes(query),
+  );
 
-  // ✅ 통계 (기존 UI 유지)
-  const stats = useMemo(() => {
-    const totalParticipants = events.reduce(
-      (a, e) => a + (e.participants || 0),
-      0,
-    );
-    const avgRate =
-      events.length === 0
-        ? 0
-        : Math.round(
-            (events.reduce(
-              (a, e) =>
-                a + ((e.capacity ? e.participants / e.capacity : 0) || 0),
-              0,
-            ) /
-              events.length) *
-              100,
-          );
-
-    return {
-      count: events.length,
-      totalParticipants,
-      avgRate,
-    };
-  }, [events]);
+  const totalParticipants = events.reduce(
+    (a, e) => a + (e.participants ?? 0),
+    0,
+  );
+  const avgRate =
+    events.length === 0
+      ? 0
+      : Math.round(
+          (events.reduce(
+            (a, e) =>
+              a +
+              ((e.participants ?? 0) /
+                (e.capacity && e.capacity > 0 ? e.capacity : 1)),
+            0,
+          ) /
+            events.length) *
+            100,
+        );
 
   return (
     <div className="ev-root">
       <style>{styles}</style>
-
       <PageHeader
         title="현재 진행 행사"
         subtitle={SUBTITLE_MAP[currentPath]}
@@ -346,32 +238,34 @@ export default function Current() {
       />
 
       <main className="ev-container">
-        <div className="ev-live-badge">
-          <div className="ev-live-dot" />
-          LIVE · {stats.count}개 행사 진행 중
-        </div>
-
-        {/* 상태 메시지 */}
-        {loading && <div className="ev-state">행사 목록 불러오는 중...</div>}
-        {errorMsg && <div className="ev-state err">에러: {errorMsg}</div>}
+        {loading ? (
+          <div className="ev-live-badge">Loading...</div>
+        ) : error ? (
+          <div className="ev-live-badge">{error}</div>
+        ) : (
+          <div className="ev-live-badge">
+            <div className="ev-live-dot" />
+            LIVE · {events.length}개 행사 진행 중
+          </div>
+        )}
 
         <div className="ev-stat-grid">
           {[
             {
               label: "진행 중 행사",
-              value: `${stats.count}개`,
+              value: `${events.length}개`,
               icon: <Play size={20} color="#1a4fd6" />,
               bg: "#eff4ff",
             },
             {
               label: "총 참가자",
-              value: `${stats.totalParticipants.toLocaleString()}명`,
+              value: `${totalParticipants.toLocaleString()}명`,
               icon: <Users size={20} color="#10b981" />,
               bg: "#ecfdf5",
             },
             {
               label: "평균 참석률",
-              value: `${stats.avgRate}%`,
+              value: `${avgRate}%`,
               icon: <TrendingUp size={20} color="#f59e0b" />,
               bg: "#fffbeb",
             },
@@ -402,14 +296,9 @@ export default function Current() {
 
         <div className="ev-grid">
           {filtered.map((ev) => {
-            const pct =
-              ev.capacity > 0
-                ? Math.min(
-                    100,
-                    Math.round((ev.participants / ev.capacity) * 100),
-                  )
-                : 0;
-
+            const safeCapacity = ev.capacity && ev.capacity > 0 ? ev.capacity : 1;
+            const safeParticipants = ev.participants ?? 0;
+            const pct = Math.round((safeParticipants / safeCapacity) * 100);
             return (
               <div
                 key={ev.id}
@@ -417,33 +306,27 @@ export default function Current() {
                 onClick={() => setSelectedEvent(ev)}
               >
                 <EventThumb ev={ev} />
-
                 <div className="ev-card-body">
                   <div className="ev-card-category">{ev.category}</div>
                   <div className="ev-card-title">{ev.title}</div>
-
                   <div className="ev-card-meta">
                     <div className="ev-card-meta-row">
                       <MapPin size={12} />
-                      {safeText(ev.location)}
+                      {ev.location}
                     </div>
                     <div className="ev-card-meta-row">
                       <Clock size={12} />
-                      {safeText(ev.time)}
+                      {ev.time}
                     </div>
                     <div className="ev-card-meta-row">
                       <Calendar size={12} />
-                      {safeText(ev.date)}
+                      {ev.date}
                     </div>
                   </div>
-
                   <div className="ev-card-footer">
                     <div className="ev-progress-wrap">
                       <div className="ev-progress-label">
-                        <span>
-                          참가자 {Number(ev.participants || 0).toLocaleString()}
-                          명
-                        </span>
+                        <span>참가자 {ev.participants.toLocaleString()}명</span>
                         <span>{pct}%</span>
                       </div>
                       <div className="ev-progress-track">
@@ -453,7 +336,6 @@ export default function Current() {
                         />
                       </div>
                     </div>
-
                     <button
                       className="ev-card-btn"
                       onClick={(e) => {
@@ -474,7 +356,7 @@ export default function Current() {
       {/* Detail Modal */}
       {selectedEvent && (
         <EventDetailModal
-          event={selectedEvent} // ✅ 기존 그대로 (단, now normalized event)
+          event={selectedEvent}
           onClose={() => setSelectedEvent(null)}
         />
       )}
