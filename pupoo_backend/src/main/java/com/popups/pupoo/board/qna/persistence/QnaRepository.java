@@ -32,7 +32,7 @@ public interface QnaRepository extends JpaRepository<Post, Long> {
     """)
     Optional<Post> findQnaById(@Param("postId") Long postId);
 
-
+    // === 추가: 공개(PUBLISHED) 전용 조회 ===
     @Query("""
         select p
         from Post p
@@ -53,6 +53,6 @@ public interface QnaRepository extends JpaRepository<Post, Long> {
           and p.status = :status
           and p.postId = :postId
     """)
-    Optional<Post> findQnaPublishedById(@Param("postId") Long postId, @Param("status") PostStatus status);
-
+    Optional<Post> findQnaPublishedById(@Param("postId") Long postId,
+                                        @Param("status") PostStatus status);
 }

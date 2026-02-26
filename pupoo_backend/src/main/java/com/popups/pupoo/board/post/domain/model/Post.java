@@ -34,6 +34,21 @@ public class Post {
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    /**
+     * QnA 전용: 운영자 답변 내용
+     * - DB: posts.answer_content
+     * - 다른 게시판에서는 NULL 허용
+     */
+    @Column(name = "answer_content", columnDefinition = "TEXT")
+    private String answerContent;
+
+    /**
+     * QnA 전용: 답변 작성/수정 시각
+     * - DB: posts.answered_at
+     */
+    @Column(name = "answered_at")
+    private LocalDateTime answeredAt;
+
     @Column(name = "file_attached", nullable = false, columnDefinition = "ENUM('Y','N')")
     private String fileAttached; // 'Y' 또는 'N'
 
@@ -107,5 +122,14 @@ public class Post {
 
     public void setFileAttached(boolean attached) {
         this.fileAttached = attached ? "Y" : "N";
+    }
+
+    /**
+     * QnA 전용: 운영자 답변 등록/수정
+     * - DB 스키마(v4.5)에는 answer_admin_id가 없으므로 adminId는 저장하지 않는다.
+     */
+    public void writeAnswer(String answerContent) {
+        this.answerContent = answerContent;
+        this.answeredAt = LocalDateTime.now();
     }
 }

@@ -18,6 +18,9 @@ public class QnaResponse {
     private String title;
     private String content;
 
+    private String answerContent;
+    private LocalDateTime answeredAt;
+
     private QnaStatus status;
 
     private int viewCount;

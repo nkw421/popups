@@ -53,4 +53,5 @@ public class QnaController {
         qnaService.close(userId, qnaId);
         return ResponseEntity.ok().build();
     }
+
 }

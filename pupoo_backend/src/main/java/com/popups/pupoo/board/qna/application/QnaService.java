@@ -109,6 +109,27 @@ public class QnaService {
         qnaRepository.save(post);
     }
 
+    /**
+     * 운영자 답변 등록/수정
+     * - DB(v4.5) 기준: posts.answer_content, posts.answered_at만 사용한다.
+     * - answer_admin_id 컬럼이 없으므로 adminId는 저장하지 않고, 접근 제어/감사 용도로만 사용한다.
+     */
+    @Transactional
+    public QnaResponse answer(Long adminId, Long qnaId, QnaAnswerRequest request) {
+        if (adminId == null) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "X-ADMIN-ID 헤더가 필요합니다.");
+        }
+
+        Post post = qnaRepository.findQnaById(qnaId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "QnA가 존재하지 않습니다."));
+
+        // 금칙어 검증(답변에도 적용)
+        bannedWordService.validate(post.getBoard().getBoardId(), null, request.getAnswerContent());
+
+        post.writeAnswer(request.getAnswerContent());
+        return toResponse(qnaRepository.save(post));
+    }
+
     
 
 /**
@@ -131,6 +152,8 @@ private QnaResponse toResponse(Post post) {
                 .userId(post.getUserId())
                 .title(post.getPostTitle())
                 .content(post.getContent())
+                .answerContent(post.getAnswerContent())
+                .answeredAt(post.getAnsweredAt())
                 .status(post.getStatus() == PostStatus.HIDDEN ? QnaStatus.CLOSED : QnaStatus.OPEN)
                 .viewCount(post.getViewCount())
                 .createdAt(post.getCreatedAt())
