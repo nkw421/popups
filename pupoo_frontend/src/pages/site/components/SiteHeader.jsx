@@ -7,12 +7,14 @@ import { LogIn, LogOut, UserPlus, UserCircle } from "lucide-react";
 /* ─────────────────────────────────────────────
    ICONS
 ───────────────────────────────────────────── */
+
 /**
  * IconButtonWithTooltip
  * - to가 있으면 <Link> 렌더링
  * - onClick이 있으면 <button> 렌더링
  * - tooltip은 createPortal로 body에 렌더링
  */
+
 const IconButtonWithTooltip = ({ children, tooltip, to, onClick }) => {
   const [hovered, setHovered] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
@@ -33,10 +35,12 @@ const IconButtonWithTooltip = ({ children, tooltip, to, onClick }) => {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+
     background: "none",
     border: "none",
     cursor: "pointer",
     padding: "4px",
+
     textDecoration: "none",
   };
 
@@ -442,6 +446,7 @@ const NavItem = ({
   isHome,
 }) => {
   const [hovered, setHovered] = useState(false);
+
   const isLight = isHome && !isScrolled && !isMenuOpen;
 
   const baseColor = isLight ? "#ffffff" : "#262626";
@@ -538,7 +543,7 @@ const NavItem = ({
 ───────────────────────────────────────────── */
 export default function PupooHeader() {
   const navigate = useNavigate();
-  const { isAuthed, logoutLocal } = useAuth();
+  const { isAuthed, logout } = useAuth(); // ✅ logoutLocal 제거
   const [activeMenu, setActiveMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef(null);
@@ -665,7 +670,6 @@ export default function PupooHeader() {
               </nav>
             </div>
 
-            {/* Right: Icons */}
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               {!isAuthed ? (
                 <>
@@ -686,6 +690,7 @@ export default function PupooHeader() {
                     tooltip="로그아웃"
                     onClick={() => {
                       logoutLocal();
+
                       navigate("/", { replace: true });
                     }}
                   >
@@ -701,7 +706,6 @@ export default function PupooHeader() {
           </div>
         </header>
 
-        {/* Mega menu panel */}
         {activeMenu && megaMenuData[activeMenu] && (
           <div
             style={{

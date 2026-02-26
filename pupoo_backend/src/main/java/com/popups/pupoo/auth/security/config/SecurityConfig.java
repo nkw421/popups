@@ -76,6 +76,10 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/signup/**").permitAll()
 
+            // OAuth(카카오 등) - 로그인 전 호출되는 엔드포인트
+            .requestMatchers(HttpMethod.POST, "/api/auth/oauth/**").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/auth/oauth/**").permitAll()
+
             // 운영/문서
             .requestMatchers(HttpMethod.GET, "/api/ping").permitAll()
             .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
@@ -95,6 +99,7 @@ public class SecurityConfig {
 
             .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/events/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/events/*/galleries").permitAll()
 
             .requestMatchers(HttpMethod.GET, "/api/programs").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/programs/*").permitAll()
@@ -105,10 +110,23 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/booths").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/booths/*").permitAll()
 
+            .requestMatchers(HttpMethod.GET, "/api/qnas").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/qnas/*").permitAll()
+
+            .requestMatchers(HttpMethod.GET, "/api/galleries").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/galleries/*").permitAll()
+
+            .requestMatchers(HttpMethod.GET, "/api/replies").permitAll()
+
             // ADMIN 전용
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
             // USER 전용
+            .requestMatchers("/api/users/me/**").hasRole("USER")
+            .requestMatchers("/api/payments/**").hasRole("USER")
+            .requestMatchers("/api/refunds/**").hasRole("USER")
+            .requestMatchers("/api/notifications/**").hasRole("USER")
+
             .requestMatchers(HttpMethod.POST, "/api/event-registrations")
                 .hasRole("USER")
             .requestMatchers(HttpMethod.DELETE, "/api/event-registrations/**")
@@ -116,7 +134,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/users/me/event-registrations")
                 .hasRole("USER")
 
-            .anyRequest().authenticated()
+            .anyRequest().hasRole("USER")
         );
 
         http.addFilterBefore(
