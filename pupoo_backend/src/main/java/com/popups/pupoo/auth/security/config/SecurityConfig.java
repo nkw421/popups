@@ -1,5 +1,6 @@
 // file: src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
 package com.popups.pupoo.auth.security.config;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.popups.pupoo.auth.security.authentication.filter.JwtAuthenticationFilter;
 import com.popups.pupoo.auth.security.handler.JwtAccessDeniedHandler;
@@ -29,18 +30,10 @@ public class SecurityConfig {
         this.objectMapper = objectMapper;
     }
 
-    /**
-     *  CORS 설정
-     * - React dev server: http://localhost:5173 허용
-     * - RefreshToken을 쿠키로 쓸 수 있으므로 allowCredentials=true
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-
-        // allowCredentials=true면 "*" 불가 → origin 명시 필요
         config.setAllowedOrigins(List.of("http://localhost:5173"));
-
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("Authorization", "Set-Cookie"));
@@ -53,7 +46,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
@@ -67,10 +59,10 @@ public class SecurityConfig {
         );
 
         http.authorizeHttpRequests(auth -> auth
-            //  CORS Preflight 허용(프론트 연동 시 403 방지)
+            // ✅ CORS Preflight 허용(프론트 연동 시 403 방지)
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-            // 인증/회원가입(인증 기능은 예외적으로 공개)
+            // Auth endpoints
             .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
@@ -80,17 +72,18 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/oauth/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/auth/oauth/**").permitAll()
 
-            // 운영/문서
+            .requestMatchers(HttpMethod.GET, "/api/auth/email/verification/confirm").permitAll()
+
+            // Ops/docs
             .requestMatchers(HttpMethod.GET, "/api/ping").permitAll()
             .requestMatchers(HttpMethod.GET, "/actuator/health").permitAll()
             .requestMatchers("/swagger-ui/**").permitAll()
             .requestMatchers("/v3/api-docs/**").permitAll()
             .requestMatchers("/error").permitAll()
 
-            // PUBLIC(비인증) 허용 범위: 조회(GET)만 (목록/상세로 제한)
+            // Public GET: posts, notices, faq, events, programs, speakers, booths, qnas, galleries, reviews, replies
             .requestMatchers(HttpMethod.GET, "/api/posts").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/posts/*").permitAll()
-
             .requestMatchers(HttpMethod.GET, "/api/notices").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/notices/*").permitAll()
 
@@ -100,9 +93,14 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/events").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/events/*").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/events/*/galleries").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/events/*/programs").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/events/*/booths").permitAll()
 
             .requestMatchers(HttpMethod.GET, "/api/programs").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/programs/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/programs/*/speakers").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/programs/*/speakers/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/programs/*/votes/result").permitAll()
 
             .requestMatchers(HttpMethod.GET, "/api/speakers").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/speakers/*").permitAll()
@@ -119,23 +117,28 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/api/galleries").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/galleries/*").permitAll()
 
+            .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/reviews/*").permitAll()
+
             .requestMatchers(HttpMethod.GET, "/api/replies").permitAll()
 
-            // ADMIN 전용
+            .requestMatchers(HttpMethod.GET, "/api/report-reasons").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/files/*").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/files/*/download").permitAll()
+            .requestMatchers("/uploads/**").permitAll()
+
+            // ADMIN
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-            // USER 전용
+            // USER
             .requestMatchers("/api/users/me/**").hasRole("USER")
             .requestMatchers("/api/payments/**").hasRole("USER")
             .requestMatchers("/api/refunds/**").hasRole("USER")
             .requestMatchers("/api/notifications/**").hasRole("USER")
 
-            .requestMatchers(HttpMethod.POST, "/api/event-registrations")
-                .hasRole("USER")
-            .requestMatchers(HttpMethod.DELETE, "/api/event-registrations/**")
-                .hasRole("USER")
-            .requestMatchers(HttpMethod.GET, "/api/users/me/event-registrations")
-                .hasRole("USER")
+            .requestMatchers(HttpMethod.POST, "/api/event-registrations").hasRole("USER")
+            .requestMatchers(HttpMethod.DELETE, "/api/event-registrations/**").hasRole("USER")
+            .requestMatchers(HttpMethod.GET, "/api/users/me/event-registrations").hasRole("USER")
 
             .anyRequest().hasRole("USER")
         );

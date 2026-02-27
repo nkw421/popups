@@ -16,7 +16,7 @@ import PastEvents from "./pages/admin/past/PastEvents";
 import ZoneManage from "./pages/admin/zone/zoneManage";
 import ContestManage from "./pages/admin/contest/contestManage";
 import SessionManage from "./pages/admin/session/sessionManage";
-import Reviews from "./pages/admin/community/Reviews";
+import Reviews from "./pages/admin/board/reviews";
 import GalleryManage from "./pages/admin/gallery/Gallery";
 import ParticipantList from "./pages/admin/participant/ParticipantList";
 
@@ -28,7 +28,7 @@ import Home from "./pages/site/home/Home";
 
 /* Auth */
 import Login from "./pages/site/auth/Login";
-import Mypage from "./pages/site/auth/Mypage";
+import Mypage from "./pages/site/auth/mypage";
 import JoinSelect from "./pages/site/auth/join/JoinSelect";
 import JoinNormal from "./pages/site/auth/join/JoinNormal";
 import JoinSocial from "./pages/site/auth/join/JoinSocial";
@@ -36,6 +36,7 @@ import JoinSocial from "./pages/site/auth/join/JoinSocial";
 /* Kakao */
 import KakaoCallback from "./pages/site/auth/KakaoCallback";
 import KakaoJoin from "./pages/site/auth/join/KakaoJoin";
+import KakaoOtp from "./pages/site/auth/join/KakaoOtp";
 
 /* Event */
 import Current from "./pages/site/event/Current";
@@ -52,6 +53,10 @@ import Contest from "./pages/site/program/Contest";
 import Schedule from "./pages/site/program/Schedule";
 import VoteResult from "./pages/site/program/VoteResult";
 
+/* Payment */
+import PaymentApprove from "./pages/site/payment/PaymentApprove";
+import PaymentCheckout from "./pages/site/payment/Checkout";
+
 /* Registration */
 import Apply from "./pages/site/registration/Apply";
 import ApplyHistory from "./pages/site/registration/ApplyHistory";
@@ -66,7 +71,7 @@ import RealtimeDashboard from "./pages/site/realtime/Dashboard";
 /* Community */
 import FreeBoard from "./pages/site/community/FreeBoard";
 import Review from "./pages/site/community/Review";
-import Gallery from "./pages/site/community/Gallery";
+
 import QnA from "./pages/site/community/QnA";
 import QnACreate from "./pages/site/community/QnACreate";
 import Notice from "./pages/site/community/Notice";
@@ -156,7 +161,7 @@ export default function App() {
         <Route path="/admin/zone" element={<ZoneManage />} />
         <Route path="/admin/contest" element={<ContestManage />} />
         <Route path="/admin/session" element={<SessionManage />} />
-        <Route path="/admin/community/reviews" element={<Reviews />} />
+        <Route path="/admin/board/reviews" element={<Reviews />} />
         <Route path="/admin/gallery" element={<GalleryManage />} />
 
         <Route path="/admin/participant" element={<ParticipantList />} />
@@ -218,7 +223,14 @@ export default function App() {
               </PublicOnly>
             }
           />
-
+          <Route
+            path="/auth/join/kakao/otp"
+            element={
+              <PublicOnly>
+                <KakaoOtp />
+              </PublicOnly>
+            }
+          />
           {/* Alias (짧은 경로 지원) */}
           <Route path="/join" element={<JoinSelect />} />
           <Route path="/join/select" element={<JoinSelect />} />
@@ -230,6 +242,8 @@ export default function App() {
           <Route path="/event/closed" element={<Closed />} />
           <Route path="/event/preregister" element={<PreRegister />} />
           <Route path="/event/eventschedule" element={<EventSchedule />} />
+		  {/* Payment */}
+		  <Route path="/payment/approve" element={<PaymentApprove />} />
           {/* Program */}
           <Route
             path="/program/experience/:eventId?"
@@ -247,6 +261,7 @@ export default function App() {
             element={<PaymentHistory />}
           />
           <Route path="/registration/qrcheckin" element={<QRCheckin />} />
+		  <Route path="/payment/checkout" element={<PaymentCheckout />} />
           {/* Realtime */}
           <Route
             path="/realtime/dashboard/:eventId?"
@@ -267,7 +282,7 @@ export default function App() {
           {/* Community */}
           <Route path="/community/freeboard" element={<FreeBoard />} />
           <Route path="/community/review" element={<Review />} />
-          <Route path="/community/gallery" element={<Gallery />} />
+
           <Route path="/community/qna" element={<QnA />} />
           <Route path="/community/qna/new" element={<QnACreate />} />
           <Route path="/community/notice" element={<Notice />} />

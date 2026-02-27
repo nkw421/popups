@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+
 /**
  * EventRepository (v2.5 기준)
  *
@@ -77,6 +78,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     /**
      * 시작 전 → PLANNED
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional
@@ -90,6 +92,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     /**
      * 진행 중 → ONGOING
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional
@@ -104,6 +107,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     /**
      * 종료 → ENDED
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional

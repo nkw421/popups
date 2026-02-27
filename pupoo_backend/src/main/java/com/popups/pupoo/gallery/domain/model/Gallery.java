@@ -1,4 +1,3 @@
-// file: src/main/java/com/popups/pupoo/gallery/domain/model/Gallery.java
 package com.popups.pupoo.gallery.domain.model;
 
 import com.popups.pupoo.gallery.domain.enums.GalleryStatus;
@@ -23,11 +22,15 @@ public class Gallery {
     @Column(name = "event_id", nullable = false)
     private Long eventId;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @Column(name = "gallery_title", nullable = false, length = 255)
     private String galleryTitle;
 
+
     @Column(name = "gallery_description", length = 1000)
-    private String description;
+    private String gallery_description;
 
     @Column(name = "view_count")
     private Integer viewCount;
@@ -36,7 +39,11 @@ public class Gallery {
     private Long thumbnailImageId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "gallery_status", nullable = false, columnDefinition = "ENUM('PUBLIC','PRIVATE','BLINDED','DELETED')")
+    @Column(
+        name = "gallery_status",
+        nullable = false,
+        columnDefinition = "ENUM('PUBLIC','PRIVATE','BLINDED','DELETED')"
+    )
     private GalleryStatus galleryStatus;
 
     @Column(name = "created_at", nullable = false)
@@ -44,4 +51,18 @@ public class Gallery {
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    public void blind() {
+        this.galleryStatus = GalleryStatus.BLINDED;
+    }
+
+    public void restore() {
+        this.galleryStatus = GalleryStatus.PUBLIC;
+    }
+
+    public void softDelete() {
+        this.galleryStatus = GalleryStatus.DELETED;
+    }
+
 }
+
