@@ -8,7 +8,6 @@ package com.popups.pupoo.payment.dto;
 public record PaymentReadyRequest(
         String itemName,
         int quantity,
-        java.math.BigDecimal amount,
         int taxFreeAmount
 ) {
 }
