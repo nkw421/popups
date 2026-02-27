@@ -1,9 +1,10 @@
 // src/pages/site/auth/api/authApi.js
 import { axiosInstance } from "../../../../app/http/axiosInstance";
+import { unwrapApiResponse } from "../../../../app/http/apiResponse";
 
 // ApiResponse<T> 래핑 해제
 function unwrap(apiResponse) {
-  return apiResponse?.data ?? apiResponse;
+  return unwrapApiResponse(apiResponse);
 }
 
 /**
@@ -11,8 +12,15 @@ function unwrap(apiResponse) {
  * - signal(AbortController) 지원
  * - 호출별 config merge 정리
  */
+function withCredentialConfig(config = {}) {
+  return {
+    ...config,
+    withCredentials: true,
+  };
+}
+
 async function post(url, payload, config = {}) {
-  const res = await axiosInstance.post(url, payload, config);
+  const res = await axiosInstance.post(url, payload, withCredentialConfig(config));
   return unwrap(res.data);
 }
 
@@ -49,12 +57,12 @@ export const authApi = {
 
   refresh: async (config) => {
     // refresh는 보통 payload 없음
-    const res = await axiosInstance.post("/api/auth/refresh", null, config);
+    const res = await axiosInstance.post("/api/auth/refresh", null, withCredentialConfig(config));
     return unwrap(res.data);
   },
 
   logout: async (config) => {
-    const res = await axiosInstance.post("/api/auth/logout", null, config);
+    const res = await axiosInstance.post("/api/auth/logout", null, withCredentialConfig(config));
     return unwrap(res.data);
   },
 
@@ -64,13 +72,7 @@ export const authApi = {
   },
 
   // ✅ 카카오 로그인(토큰 발급): 기존회원이면 access + refresh쿠키, 신규면 newUser=true
-  // ✅ config로 signal 전달 가능하게 변경
   kakaoLogin: async (payload, config = {}) => {
-    // withCredentials는 axiosInstance에서 이미 true면 굳이 안 넣어도 됨.
-    // 다만 호출별로 강제하고 싶으면 아래처럼 merge:
-    return post("/api/auth/oauth/kakao/login", payload, {
-      withCredentials: true,
-      ...config,
-    });
+    return post("/api/auth/oauth/kakao/login", payload, config);
   },
 };

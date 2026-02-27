@@ -123,6 +123,7 @@ export function attachInterceptors(instance, options = {}) {
   // Request interceptor
   // ============================
   instance.interceptors.request.use((config) => {
+    config.withCredentials = true;
     const url = String(config?.url || "");
 
     // 공개 엔드포인트는 토큰 붙이지 않음 (login/refresh/logout/signup/oauth 등)

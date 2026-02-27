@@ -1,23 +1,31 @@
 // src/api/noticeApi.js
 import { axiosInstance } from "../app/http/axiosInstance";
+import { unwrapApiResponse } from "../app/http/apiResponse";
 
 /* ── 토큰 관리 ── */
-const TOKEN_KEY = "pupoo_admin_token";
-
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
-}
-export function setToken(token) {
-  localStorage.setItem(TOKEN_KEY, token);
-}
-export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
-}
+import {
+  clearToken as clearAdminTokenMemory,
+  getToken as getAdminTokenMemory,
+  setToken as setAdminTokenMemory,
+} from "../app/http/authStore";
 
 /** Authorization 헤더 생성 */
 function authHeaders() {
-  const token = getToken();
+  const token = getAdminTokenMemory();
   return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+
+export function getToken() {
+  return getAdminTokenMemory();
+}
+
+export function setToken(token) {
+  setAdminTokenMemory(token);
+}
+
+export function clearToken() {
+  clearAdminTokenMemory();
 }
 
 /* ── 로그인 API ── */
@@ -78,5 +86,5 @@ export const adminNoticeApi = {
 };
 
 export function unwrap(res) {
-  return res?.data?.data ?? res?.data ?? null;
+  return unwrapApiResponse(res?.data);
 }

@@ -1,12 +1,13 @@
 // src/api/programApi.js
 // ── pupoo 실제 백엔드 기반 프로그램 API ──
 import { axiosInstance } from "../app/http/axiosInstance";
+import { unwrapApiResponse } from "../app/http/apiResponse";
 
 /* ── 관리자 토큰 관리 ── */
-const ADMIN_TOKEN_KEY = "pupoo_admin_token";
+import { getToken } from "../app/http/authStore";
 
 function adminAuthHeaders() {
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  const token = getToken();
   if (!token) return {};
   const headers = { Authorization: `Bearer ${token}` };
   return headers;
@@ -14,7 +15,7 @@ function adminAuthHeaders() {
 
 /* ── 공통 유틸 ── */
 export function unwrap(res) {
-  return res?.data?.data ?? res?.data ?? null;
+  return unwrapApiResponse(res?.data);
 }
 
 /* ══════════════════════════════════════════════
