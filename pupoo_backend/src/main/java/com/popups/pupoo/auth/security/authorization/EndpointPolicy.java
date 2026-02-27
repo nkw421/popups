@@ -45,6 +45,7 @@ public class EndpointPolicy {
             Pattern.compile("^/api/posts(?:/\\d+)?$"),
             Pattern.compile("^/api/qnas(?:/\\d+)?$"),
             Pattern.compile("^/api/notices(?:/\\d+)?$"),
+            Pattern.compile("^/api/reviews(?:/\\d+)?$"),
             Pattern.compile("^/api/events(?:/\\d+)?$"),
             Pattern.compile("^/api/programs(?:/\\d+)?$"),
             Pattern.compile("^/api/speakers(?:/\\d+)?$"),

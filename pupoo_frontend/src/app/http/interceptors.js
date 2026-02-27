@@ -1,11 +1,38 @@
 import { tokenStore } from "./tokenStore";
 
+const PUBLIC_GET_PREFIXES = [
+  "/api/posts",
+  "/api/qnas",
+  "/api/notices",
+  "/api/reviews",
+  "/api/faqs",
+  "/api/events",
+  "/api/programs",
+  "/api/speakers",
+  "/api/booths",
+  "/api/galleries",
+  "/api/replies",
+];
+
+function isPublicGetRequest(config) {
+  const method = (config?.method || "get").toLowerCase();
+  if (method !== "get") return false;
+
+  const url = config?.url || "";
+  return PUBLIC_GET_PREFIXES.some((prefix) => url === prefix || url.startsWith(`${prefix}/`));
+}
+
 export function attachInterceptors(instance) {
   instance.interceptors.request.use((config) => {
     const url = config?.url || "";
 
     // ✅ auth 계열은 Authorization 헤더를 붙이지 않는다
     if (url.includes("/api/auth/")) {
+      return config;
+    }
+
+    // ✅ 공개 GET 엔드포인트는 Authorization 헤더를 생략한다.
+    if (isPublicGetRequest(config)) {
       return config;
     }
 
