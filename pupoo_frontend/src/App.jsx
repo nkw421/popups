@@ -68,6 +68,7 @@ import FreeBoard from "./pages/site/community/FreeBoard";
 import Review from "./pages/site/community/Review";
 import Gallery from "./pages/site/community/Gallery";
 import QnA from "./pages/site/community/QnA";
+import QnACreate from "./pages/site/community/QnACreate";
 import Notice from "./pages/site/community/Notice";
 
 /* Info */
@@ -268,6 +269,7 @@ export default function App() {
           <Route path="/community/review" element={<Review />} />
           <Route path="/community/gallery" element={<Gallery />} />
           <Route path="/community/qna" element={<QnA />} />
+          <Route path="/community/qna/new" element={<QnACreate />} />
           <Route path="/community/notice" element={<Notice />} />
           {/* Info */}
           <Route path="/info/intro" element={<PlatformIntro />} />

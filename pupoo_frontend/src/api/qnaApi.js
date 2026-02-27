@@ -5,6 +5,7 @@ export function unwrap(res) {
 }
 
 export const qnaApi = {
+  create: (payload) => axiosInstance.post("/api/qnas", payload),
   list: (uiPage = 1, size = 10) =>
     axiosInstance.get("/api/qnas", { params: { page: uiPage - 1, size } }),
   get: (qnaId) => axiosInstance.get(`/api/qnas/${qnaId}`),
