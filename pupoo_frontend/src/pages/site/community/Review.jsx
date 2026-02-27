@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import PageHeader from "../components/PageHeader";
-import { ChevronLeft, ChevronRight, ChevronDown, Search } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { ChevronDown, Search, Loader2 } from "lucide-react";
+import { reviewApi, unwrap } from "../../../api/reviewApi";
 
 const SERVICE_CATEGORIES = [
   { label: "자유게시판", path: "/community/freeboard" },
@@ -9,53 +9,48 @@ const SERVICE_CATEGORIES = [
   { label: "행사후기", path: "/community/review" },
   { label: "질문/답변", path: "/community/qna" },
 ];
-const NOTICES = [
-  {
-    id: 1,
-    category: "pupoo",
-    type: "일상공유",
-    title: "체험 프로그램 중심으로 참여한 후기",
-    date: "2026.02.12",
-  },
-  {
-    id: 2,
-    category: "pupoo",
-    type: "일상공유",
-    title: "행사장에서 구매한 간식 후기",
-    date: "2025.10.30",
-  },
-  {
-    id: 3,
-    category: "pupoo",
-    type: "일상공유",
-    title: "2026 봄 반려동물 페스티벌 방문 후기",
-    date: "2025.10.29",
-  },
-];
 
-const FILTER_OPTIONS = [
-  "전체",
-  "자유게시판",
-  "공지사항",
-  "행사후기",
-  "질문답변",
-];
+const FILTER_OPTIONS = ["전체", "내용"];
+
+function fmtDate(dt) {
+  if (!dt) return "-";
+  const d = new Date(dt);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
 
 export default function Notice() {
-  const [currentPath, setCurrentPath] = useState("/");
+  const [currentPath, setCurrentPath] = useState("/community/review");
   const [filter, setFilter] = useState("전체");
   const [search, setSearch] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const filtered = NOTICES.filter((n) => {
-    const matchFilter =
-      filter === "전체" || n.category === filter || n.type === filter;
-    const matchSearch =
-      search === "" ||
-      n.title.includes(search) ||
-      n.category.includes(search) ||
-      n.type.includes(search);
-    return matchFilter && matchSearch;
-  });
+  const fetchReviews = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await reviewApi.list({ uiPage: 1, size: 50 });
+      const data = unwrap(res);
+      setItems(data?.content || []);
+    } catch (e) {
+      console.error("[Review] fetch error", e);
+      setError("행사후기 목록을 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  const filtered = useMemo(() => {
+    return items.filter((n) => {
+      if (!search) return true;
+      return n.content?.includes(search);
+    });
+  }, [search, items]);
 
   return (
     <>
@@ -74,7 +69,6 @@ export default function Notice() {
           fontFamily: "'Noto Sans KR', sans-serif",
         }}
       >
-        {/* 상단 필터/검색 바 */}
         <div
           style={{
             display: "flex",
@@ -90,7 +84,6 @@ export default function Notice() {
           </span>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            {/* 드롭다운 */}
             <div style={{ position: "relative" }}>
               <select
                 value={filter}
@@ -128,7 +121,6 @@ export default function Notice() {
               </span>
             </div>
 
-            {/* 검색창 */}
             <div
               style={{
                 display: "flex",
@@ -167,12 +159,6 @@ export default function Notice() {
                   justifyContent: "center",
                   transition: "background 0.15s ease",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#f5f5f5")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "#fff")
-                }
               >
                 <Search size={16} strokeWidth={2} color="#555" />
               </button>
@@ -180,130 +166,90 @@ export default function Notice() {
           </div>
         </div>
 
-        {/* 공지 목록 */}
-        <div>
-          {filtered.map((notice) => (
-            <div
-              key={notice.id}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "18px 4px",
-                borderBottom: "1px solid #e8e8e8",
-                cursor: "pointer",
-                transition: "background 0.15s",
-                gap: "0",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background = "#f9f9f9")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
-            >
-              <span
+        {loading && (
+          <div style={{ textAlign: "center", padding: "80px 0", color: "#999" }}>
+            <Loader2 size={24} style={{ animation: "spin 1s linear infinite" }} />
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <div style={{ color: "#999", marginBottom: 12 }}>{error}</div>
+            <button onClick={fetchReviews}>다시 시도</button>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <div>
+            {filtered.map((notice) => (
+              <div
+                key={notice.reviewId}
                 style={{
-                  color: "#2d2d2d",
-                  fontWeight: "600",
-                  fontSize: "14px",
-                  minWidth: "64px",
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "18px 4px",
+                  borderBottom: "1px solid #e8e8e8",
+                  gap: "0",
                 }}
               >
-                {notice.category}
-              </span>
-              <span
+                <span
+                  style={{
+                    color: "#2d2d2d",
+                    fontWeight: "600",
+                    fontSize: "14px",
+                    minWidth: "64px",
+                  }}
+                >
+                  pupoo
+                </span>
+                <span
+                  style={{
+                    color: "#565656",
+                    fontWeight: "400",
+                    fontSize: "14px",
+                    minWidth: "80px",
+                  }}
+                >
+                  평점 {notice.rating}
+                </span>
+                <span
+                  style={{
+                    flex: 1,
+                    fontSize: "15px",
+                    color: "#222",
+                    fontWeight: "400",
+                  }}
+                >
+                  {notice.content}
+                </span>
+                <span
+                  style={{
+                    fontSize: "13px",
+                    color: "#999",
+                    marginLeft: "16px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {fmtDate(notice.createdAt)}
+                </span>
+              </div>
+            ))}
+
+            {filtered.length === 0 && (
+              <div
                 style={{
-                  color: "#565656",
-                  fontWeight: "400",
-                  fontSize: "14px",
-                  minWidth: "80px",
-                }}
-              >
-                {notice.type}
-              </span>
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: "15px",
-                  color: "#222",
-                  fontWeight: "400",
-                }}
-              >
-                {notice.title}
-              </span>
-              <span
-                style={{
-                  fontSize: "13px",
+                  textAlign: "center",
+                  padding: "60px 0",
                   color: "#999",
-                  marginLeft: "16px",
-                  whiteSpace: "nowrap",
+                  fontSize: "14px",
                 }}
               >
-                {notice.date}
-              </span>
-            </div>
-          ))}
-
-          {filtered.length === 0 && (
-            <div
-              style={{
-                textAlign: "center",
-                padding: "60px 0",
-                color: "#999",
-                fontSize: "14px",
-              }}
-            >
-              검색 결과가 없습니다.
-            </div>
-          )}
-        </div>
-
-        {/* 페이지네이션 */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "12px",
-            marginTop: "36px",
-          }}
-        >
-          <button
-            style={{
-              background: "none",
-              border: "none",
-              fontSize: "16px",
-              color: "#bbb",
-              cursor: "pointer",
-              padding: "4px 8px",
-            }}
-          >
-            ‹
-          </button>
-          <span
-            style={{
-              fontSize: "14px",
-              color: "#333",
-              fontWeight: "500",
-              minWidth: "20px",
-              textAlign: "center",
-            }}
-          >
-            1
-          </span>
-          <button
-            style={{
-              background: "none",
-              border: "none",
-              fontSize: "16px",
-              color: "#bbb",
-              cursor: "pointer",
-              padding: "4px 8px",
-            }}
-          >
-            ›
-          </button>
-        </div>
+                검색 결과가 없습니다.
+              </div>
+            )}
+          </div>
+        )}
       </main>
     </>
   );
