@@ -67,6 +67,10 @@ public class SecurityConfig {
         );
 
         http.authorizeHttpRequests(auth -> auth
+            // 추가
+            .requestMatchers(HttpMethod.GET, "/api/events/*/programs").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/programs/**").permitAll()
+
             //  CORS Preflight 허용(프론트 연동 시 403 방지)
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

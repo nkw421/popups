@@ -46,6 +46,12 @@ public class Program {
 	@Column(name = "booth_id")
 	private Long boothId;
 
+	/**
+	 * 세션 이미지 (base64 또는 URL)
+	 */
+	@Column(name = "image_url", columnDefinition = "LONGTEXT")
+	private String imageUrl;
+
 	@Column(name = "created_at", updatable = false)
 	private LocalDateTime createdAt;
 
@@ -71,4 +77,16 @@ public class Program {
 		LocalDateTime cutoff = this.startAt.minusHours(1);
 		return !LocalDateTime.now().isAfter(cutoff); // now <= cutoff
 	}
+
+	/*
+	 * ========================= 업데이트 메서드 =========================
+	 */
+
+	public void updateCategory(ProgramCategory category) { this.category = category; }
+	public void updateProgramTitle(String programTitle) { this.programTitle = programTitle; }
+	public void updateDescription(String description) { this.description = description; }
+	public void updateStartAt(LocalDateTime startAt) { this.startAt = startAt; }
+	public void updateEndAt(LocalDateTime endAt) { this.endAt = endAt; }
+	public void updateBoothId(Long boothId) { this.boothId = boothId; }
+	public void updateImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 }

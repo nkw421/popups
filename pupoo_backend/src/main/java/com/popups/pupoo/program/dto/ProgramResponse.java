@@ -21,6 +21,11 @@ public class ProgramResponse {
     //  placeName 제거
     private Long boothId;
 
+    /**
+     * 세션 이미지 (base64 또는 URL)
+     */
+    private String imageUrl;
+
     private LocalDateTime startAt;
     private LocalDateTime endAt;
 
@@ -45,7 +50,8 @@ public class ProgramResponse {
                 .category(p.getCategory())
                 .programTitle(p.getProgramTitle())
                 .description(p.getDescription())
-                .boothId(p.getBoothId())  //  변경
+                .boothId(p.getBoothId())
+                .imageUrl(p.getImageUrl())
                 .startAt(p.getStartAt())
                 .endAt(p.getEndAt())
                 .ongoing(p.isOngoing())

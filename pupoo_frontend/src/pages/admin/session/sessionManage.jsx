@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
   X,
@@ -11,10 +11,99 @@ import {
   MapPin,
   AlertTriangle,
   Check,
+  Loader2,
+  Upload,
+  ImageIcon,
 } from "lucide-react";
 import ds, { statusMap } from "../shared/designTokens";
 import { Pill } from "../shared/Components";
-import DATA from "../shared/data";
+import { adminSessionApi, unwrap } from "../../../api/sessionApi";
+
+/* ═══════════════════════════════════════════
+   API → 프론트 매핑 함수
+   ═══════════════════════════════════════════ */
+function mapSessionFromApi(p, speakers = []) {
+  const startAt = p.startAt ? new Date(p.startAt) : null;
+  const endAt = p.endAt ? new Date(p.endAt) : null;
+
+  const date = startAt
+    ? `${startAt.getFullYear()}-${String(startAt.getMonth() + 1).padStart(2, "0")}-${String(startAt.getDate()).padStart(2, "0")}`
+    : "";
+
+  const time = startAt
+    ? `${String(startAt.getHours()).padStart(2, "0")}:${String(startAt.getMinutes()).padStart(2, "0")}`
+    : "";
+
+  const endTime = endAt
+    ? `${String(endAt.getHours()).padStart(2, "0")}:${String(endAt.getMinutes()).padStart(2, "0")}`
+    : "";
+
+  const duration = startAt && endAt ? Math.round((endAt - startAt) / 60000) : 0;
+
+  let status = "pending";
+  if (p.ongoing) status = "active";
+  else if (p.ended) status = "ended";
+  else if (p.upcoming) status = "pending";
+
+  const speakerName =
+    speakers.length > 0 ? speakers.map((s) => s.speakerName).join(", ") : "-";
+
+  return {
+    id: `SS-${String(p.programId).padStart(3, "0")}`,
+    programId: p.programId,
+    eventId: p.eventId,
+    boothId: p.boothId,
+    name: p.programTitle || "",
+    speaker: speakerName,
+    speakers,
+    date,
+    time,
+    endTime,
+    duration,
+    location: p.boothId ? `부스 #${p.boothId}` : "-",
+    enrolled: 0,
+    capacity: 50,
+    status,
+    description: p.description || "",
+    imageUrl: p.imageUrl || null,
+    _visible: true,
+  };
+}
+
+function mapSessionToCreateApi(form, eventId = 1) {
+  const dateStr = form.date || "";
+  const startAt = dateStr && form.time ? `${dateStr}T${form.time}:00` : null;
+  const endAt =
+    dateStr && form.endTime ? `${dateStr}T${form.endTime}:00` : null;
+
+  return {
+    eventId: form.eventId || eventId,
+    category: "SESSION",
+    programTitle: form.name,
+    description: form.description || "",
+    startAt,
+    endAt,
+    boothId: form.boothId || null,
+    imageUrl: form.imageUrl || null,
+  };
+}
+
+function mapSessionToUpdateApi(form) {
+  const dateStr = form.date || "";
+  const startAt = dateStr && form.time ? `${dateStr}T${form.time}:00` : null;
+  const endAt =
+    dateStr && form.endTime ? `${dateStr}T${form.endTime}:00` : null;
+
+  return {
+    category: "SESSION",
+    programTitle: form.name,
+    description: form.description || "",
+    startAt,
+    endAt,
+    boothId: form.boothId || null,
+    imageUrl: form.imageUrl || null,
+  };
+}
 
 /* ═══════════════════════════════════════════
    전역 스타일
@@ -25,11 +114,17 @@ const styles = `
 @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
 @keyframes rowFadeOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .row-removing{animation:rowFadeOut .3s ease forwards}
+input[type="date"],input[type="time"]{position:relative;cursor:pointer}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:0.5;padding:2px}
+input[type="date"]::-webkit-calendar-picker-indicator:hover,
+input[type="time"]::-webkit-calendar-picker-indicator:hover{opacity:1}
 `;
 
 /* ═══════════════════════════════════════════
-   체크박스
+   공통 UI 컴포넌트
    ═══════════════════════════════════════════ */
 function Checkbox({ checked, onChange, size = 18 }) {
   return (
@@ -57,9 +152,6 @@ function Checkbox({ checked, onChange, size = 18 }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   미니 프로그레스 바
-   ═══════════════════════════════════════════ */
 function MiniProgress({ value, max }) {
   const pct = max > 0 ? Math.min(Math.round((value / max) * 100), 100) : 0;
   const color = pct >= 90 ? "#EF4444" : pct >= 70 ? "#F59E0B" : ds.brand;
@@ -101,9 +193,6 @@ function MiniProgress({ value, max }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   토스트
-   ═══════════════════════════════════════════ */
 function Toast({ msg, type = "success", onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2200);
@@ -137,9 +226,6 @@ function Toast({ msg, type = "success", onDone }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   오버레이 / 확인 모달
-   ═══════════════════════════════════════════ */
 function Overlay({ children, onClose }) {
   return (
     <div
@@ -255,12 +341,9 @@ function ConfirmModal({ title, msg, onConfirm, onCancel }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   입력 필드
-   ═══════════════════════════════════════════ */
 function Field({ label, children, required }) {
   return (
-    <div style={{ marginBottom: 20 }}>
+    <div style={{ marginBottom: 18 }}>
       <label
         style={{
           fontSize: 12,
@@ -277,6 +360,7 @@ function Field({ label, children, required }) {
     </div>
   );
 }
+
 const inputStyle = {
   width: "100%",
   padding: "10px 14px",
@@ -300,6 +384,152 @@ const inputBlur = (e) => {
 };
 
 /* ═══════════════════════════════════════════
+   이미지 업로드 컴포넌트
+   ═══════════════════════════════════════════ */
+function ImageUploader({ value, onChange }) {
+  const fileRef = useRef(null);
+  const [preview, setPreview] = useState(value || null);
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPreview(reader.result);
+      onChange?.(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemove = () => {
+    setPreview(null);
+    onChange?.(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  return (
+    <div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFile}
+        style={{ display: "none" }}
+      />
+      {preview ? (
+        <div
+          style={{
+            position: "relative",
+            borderRadius: 10,
+            overflow: "hidden",
+            border: "1.5px solid #E2E8F0",
+          }}
+        >
+          <img
+            src={preview}
+            alt="세션 이미지"
+            style={{
+              width: "100%",
+              height: 140,
+              objectFit: "cover",
+              display: "block",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              display: "flex",
+              gap: 4,
+            }}
+          >
+            <button
+              onClick={() => fileRef.current?.click()}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 7,
+                border: "none",
+                background: "rgba(255,255,255,0.9)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+              }}
+            >
+              <Upload size={12} color="#64748B" />
+            </button>
+            <button
+              onClick={handleRemove}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 7,
+                border: "none",
+                background: "rgba(255,255,255,0.9)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.1)",
+              }}
+            >
+              <X size={12} color="#EF4444" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          onClick={() => fileRef.current?.click()}
+          style={{
+            border: "1.5px dashed #CBD5E1",
+            borderRadius: 10,
+            padding: "24px 16px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 8,
+            cursor: "pointer",
+            transition: "all .15s",
+            background: "#FAFBFC",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = ds.brand;
+            e.currentTarget.style.background = `${ds.brand}05`;
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = "#CBD5E1";
+            e.currentTarget.style.background = "#FAFBFC";
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 9,
+              background: "#F1F5F9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <ImageIcon size={16} color="#94A3B8" />
+          </div>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#94A3B8" }}>
+            이미지 업로드
+          </span>
+          <span style={{ fontSize: 10.5, color: "#CBD5E1" }}>
+            JPG, PNG (권장 800×400)
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    슬라이드 패널 (등록 / 수정)
    ═══════════════════════════════════════════ */
 function SlidePanel({ item, onSave, onClose, isEdit }) {
@@ -309,23 +539,50 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
       speaker: "",
       date: "",
       time: "10:00",
-      duration: 60,
+      endTime: "11:00",
       location: "",
-      enrolled: 0,
-      capacity: 50,
       status: "pending",
       description: "",
+      imageUrl: null,
     },
   );
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
   const [err, setErr] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
-    if (!form.name || !form.speaker || !form.date) {
-      setErr("강연명, 강연자, 일시는 필수입니다.");
+  const handleSave = async () => {
+    if (!form.name || !form.date) {
+      setErr("강연명, 일시는 필수입니다.");
       return;
     }
-    onSave(form);
+    if (!form.time || !form.endTime) {
+      setErr("시작 시간과 종료 시간을 입력해주세요.");
+      return;
+    }
+    if (form.time >= form.endTime) {
+      setErr("종료 시간은 시작 시간 이후여야 합니다.");
+      return;
+    }
+    setSaving(true);
+    setErr("");
+    try {
+      await onSave(form);
+    } catch (e) {
+      setErr(
+        e?.response?.data?.message || e?.message || "저장에 실패했습니다.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 소요시간 자동 계산
+  const calcDuration = () => {
+    if (!form.time || !form.endTime) return "-";
+    const [sh, sm] = form.time.split(":").map(Number);
+    const [eh, em] = form.endTime.split(":").map(Number);
+    const diff = eh * 60 + em - (sh * 60 + sm);
+    return diff > 0 ? `${diff}분` : "-";
   };
 
   return (
@@ -347,7 +604,7 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
           right: 0,
           bottom: 0,
           zIndex: 5000,
-          width: 440,
+          width: 460,
           background: "#fff",
           boxShadow: "-4px 0 30px rgba(0,0,0,0.08)",
           display: "flex",
@@ -355,6 +612,7 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
           animation: "slideIn .25s cubic-bezier(.22,1,.36,1)",
         }}
       >
+        {/* 헤더 */}
         <div
           style={{
             padding: "20px 24px",
@@ -397,6 +655,8 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
             <X size={14} color="#94A3B8" />
           </button>
         </div>
+
+        {/* 폼 */}
         <div style={{ flex: 1, overflow: "auto", padding: "24px" }}>
           {err && (
             <div
@@ -418,6 +678,15 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
             </div>
           )}
 
+          {/* 세션 이미지 */}
+          <Field label="세션 이미지">
+            <ImageUploader
+              value={form.imageUrl}
+              onChange={(v) => set("imageUrl", v)}
+            />
+          </Field>
+
+          {/* 강연명 */}
           <Field label="강연명" required>
             <input
               style={inputStyle}
@@ -428,10 +697,12 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
               placeholder="예: 반려견 행동학 기초"
             />
           </Field>
+
+          {/* 강연자 + 장소 */}
           <div
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
           >
-            <Field label="강연자" required>
+            <Field label="강연자">
               <input
                 style={inputStyle}
                 value={form.speaker}
@@ -452,101 +723,89 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
               />
             </Field>
           </div>
+
+          {/* 일시 + 시간 (2열) */}
           <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 12,
-            }}
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
           >
             <Field label="일시" required>
               <input
-                style={inputStyle}
+                type="date"
+                style={{ ...inputStyle, cursor: "pointer" }}
                 value={form.date}
                 onChange={(e) => set("date", e.target.value)}
                 onFocus={inputFocus}
                 onBlur={inputBlur}
-                placeholder="2026.03.15"
               />
             </Field>
-            <Field label="시작 시간">
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: 7,
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: "#64748B",
+                    letterSpacing: 0.2,
+                  }}
+                >
+                  소요 시간
+                </label>
+                <span
+                  style={{ fontSize: 12, fontWeight: 700, color: ds.brand }}
+                >
+                  {calcDuration()}
+                </span>
+              </div>
+              <div
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 9,
+                  border: "1.5px solid #F1F5F9",
+                  background: "#F8FAFC",
+                  fontSize: 13.5,
+                  color: "#94A3B8",
+                  textAlign: "center",
+                }}
+              >
+                자동 계산
+              </div>
+            </div>
+          </div>
+
+          {/* 시작시간 + 종료시간 (2열) */}
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+          >
+            <Field label="시작 시간" required>
               <input
-                style={inputStyle}
+                type="time"
+                style={{ ...inputStyle, cursor: "pointer" }}
                 value={form.time}
                 onChange={(e) => set("time", e.target.value)}
                 onFocus={inputFocus}
                 onBlur={inputBlur}
-                placeholder="10:00"
               />
             </Field>
-            <Field label="소요 시간(분)">
+            <Field label="종료 시간" required>
               <input
-                type="number"
-                style={inputStyle}
-                value={form.duration}
-                onChange={(e) => set("duration", +e.target.value)}
+                type="time"
+                style={{ ...inputStyle, cursor: "pointer" }}
+                value={form.endTime}
+                onChange={(e) => set("endTime", e.target.value)}
                 onFocus={inputFocus}
                 onBlur={inputBlur}
               />
             </Field>
           </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 12,
-            }}
-          >
-            <Field label="등록 인원">
-              <input
-                type="number"
-                style={inputStyle}
-                value={form.enrolled}
-                onChange={(e) => set("enrolled", +e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-              />
-            </Field>
-            <Field label="정원">
-              <input
-                type="number"
-                style={inputStyle}
-                value={form.capacity}
-                onChange={(e) => set("capacity", +e.target.value)}
-                onFocus={inputFocus}
-                onBlur={inputBlur}
-              />
-            </Field>
-            <Field label="상태">
-              <div style={{ position: "relative" }}>
-                <select
-                  value={form.status}
-                  onChange={(e) => set("status", e.target.value)}
-                  style={{
-                    ...inputStyle,
-                    appearance: "none",
-                    paddingRight: 32,
-                    cursor: "pointer",
-                  }}
-                >
-                  <option value="pending">대기</option>
-                  <option value="active">진행중</option>
-                  <option value="ended">종료</option>
-                </select>
-                <ChevronDown
-                  size={14}
-                  color="#94A3B8"
-                  style={{
-                    position: "absolute",
-                    right: 12,
-                    top: "50%",
-                    transform: "translateY(-50%)",
-                    pointerEvents: "none",
-                  }}
-                />
-              </div>
-            </Field>
-          </div>
+
+          {/* 설명 */}
           <Field label="설명">
             <textarea
               rows={3}
@@ -555,10 +814,12 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
               onChange={(e) => set("description", e.target.value)}
               onFocus={inputFocus}
               onBlur={inputBlur}
-              placeholder="세션 설명"
+              placeholder="세션 설명을 입력하세요"
             />
           </Field>
         </div>
+
+        {/* 하단 버튼 */}
         <div
           style={{
             padding: "14px 24px",
@@ -570,6 +831,7 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
         >
           <button
             onClick={onClose}
+            disabled={saving}
             style={{
               flex: 1,
               padding: "11px 0",
@@ -587,19 +849,30 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
           </button>
           <button
             onClick={handleSave}
+            disabled={saving}
             style={{
               flex: 1,
               padding: "11px 0",
               borderRadius: 9,
               border: "none",
-              background: ds.brand,
+              background: saving ? "#94A3B8" : ds.brand,
               color: "#fff",
               fontSize: 13.5,
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: saving ? "not-allowed" : "pointer",
               fontFamily: ds.ff,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
             }}
           >
+            {saving && (
+              <Loader2
+                size={14}
+                style={{ animation: "spin 1s linear infinite" }}
+              />
+            )}
             {isEdit ? "수정 완료" : "등록하기"}
           </button>
         </div>
@@ -613,7 +886,6 @@ function SlidePanel({ item, onSave, onClose, isEdit }) {
    ═══════════════════════════════════════════ */
 function DetailModal({ item, onClose, onEdit, onDelete }) {
   const st = statusMap[item.status];
-  const pct = Math.round((item.enrolled / item.capacity) * 100);
   return (
     <Overlay onClose={onClose}>
       <div style={{ padding: "28px" }}>
@@ -647,6 +919,25 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
             <X size={14} color="#94A3B8" />
           </button>
         </div>
+
+        {/* 이미지 */}
+        {item.imageUrl && (
+          <div
+            style={{ borderRadius: 12, overflow: "hidden", marginBottom: 16 }}
+          >
+            <img
+              src={item.imageUrl}
+              alt={item.name}
+              style={{
+                width: "100%",
+                height: 180,
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+          </div>
+        )}
+
         <div
           style={{
             background: "#F8FAFC",
@@ -689,13 +980,12 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
           </h4>
           {[
             { l: "강연자", v: item.speaker },
-            { l: "일시", v: `${item.date} ${item.time}` },
+            {
+              l: "일시",
+              v: `${(item.date || "").replace(/-/g, ".")} ${item.time} ~ ${item.endTime}`,
+            },
             { l: "소요 시간", v: `${item.duration}분` },
             { l: "장소", v: item.location },
-            {
-              l: "등록/정원",
-              v: `${item.enrolled}/${item.capacity}명 (${pct}%)`,
-            },
           ].map((r) => (
             <div
               key={r.l}
@@ -714,46 +1004,6 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
               </span>
             </div>
           ))}
-          <div style={{ marginTop: 14 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginBottom: 6,
-              }}
-            >
-              <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>
-                등록률
-              </span>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: pct >= 90 ? "#EF4444" : ds.brand,
-                }}
-              >
-                {pct}%
-              </span>
-            </div>
-            <div
-              style={{
-                height: 6,
-                borderRadius: 3,
-                background: "#F1F5F9",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: `${pct}%`,
-                  height: "100%",
-                  borderRadius: 3,
-                  background: pct >= 90 ? "#EF4444" : ds.brand,
-                  transition: "width .3s ease",
-                }}
-              />
-            </div>
-          </div>
           {item.description && (
             <div style={{ marginTop: 14 }}>
               <span style={{ fontSize: 12, color: "#94A3B8", fontWeight: 600 }}>
@@ -824,7 +1074,7 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
 }
 
 /* ═══════════════════════════════════════════
-   요약 통계 카드
+   통계 / 로딩 / 에러
    ═══════════════════════════════════════════ */
 function StatCard({ icon: Icon, label, value, color }) {
   return (
@@ -879,29 +1129,131 @@ function StatCard({ icon: Icon, label, value, color }) {
   );
 }
 
+function LoadingSpinner() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "80px 20px",
+        flexDirection: "column",
+        gap: 12,
+      }}
+    >
+      <Loader2
+        size={32}
+        color={ds.brand}
+        style={{ animation: "spin 1s linear infinite" }}
+      />
+      <span style={{ fontSize: 13, color: "#94A3B8", fontWeight: 500 }}>
+        세션 데이터를 불러오는 중...
+      </span>
+    </div>
+  );
+}
+
+function ErrorBanner({ message, onRetry }) {
+  return (
+    <div
+      style={{
+        background: "#FEF2F2",
+        border: "1px solid #FECACA",
+        borderRadius: 12,
+        padding: "20px 24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <AlertTriangle size={18} color="#EF4444" />
+        <span style={{ fontSize: 13.5, color: "#DC2626", fontWeight: 600 }}>
+          {message}
+        </span>
+      </div>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          style={{
+            padding: "6px 14px",
+            borderRadius: 7,
+            border: "1px solid #FECACA",
+            background: "#fff",
+            fontSize: 12,
+            fontWeight: 600,
+            color: "#DC2626",
+            cursor: "pointer",
+            fontFamily: ds.ff,
+          }}
+        >
+          다시 시도
+        </button>
+      )}
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════
    메인 컴포넌트
    ═══════════════════════════════════════════ */
+const DEFAULT_EVENT_ID = 1;
+
 export default function SessionManage() {
-  const [items, setItems] = useState(() =>
-    DATA.sessionManage.map((e) => ({ ...e, _visible: true })),
-  );
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modal, setModal] = useState(null);
   const [panel, setPanel] = useState(null);
   const [toast, setToast] = useState(null);
   const [removing, setRemoving] = useState(null);
   const [selected, setSelected] = useState(new Set());
 
-  const rows = items.filter((e) => e._visible);
   const showToast = (msg, type = "success") => setToast({ msg, type });
 
-  /* 통계 */
+  const fetchSessions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await adminSessionApi.list(DEFAULT_EVENT_ID, 1, 100);
+      const raw = unwrap(res);
+      const list = Array.isArray(raw) ? raw : (raw?.content ?? []);
+      const sessions = list.filter(
+        (p) => (p.category || "").toUpperCase() === "SESSION",
+      );
+      const mapped = await Promise.all(
+        sessions.map(async (p) => {
+          let speakers = [];
+          try {
+            const spkRes = await adminSessionApi.getSpeakers(p.programId);
+            const d = unwrap(spkRes);
+            speakers = Array.isArray(d) ? d : [];
+          } catch {}
+          return mapSessionFromApi(p, speakers);
+        }),
+      );
+      setItems(mapped);
+    } catch (e) {
+      setError(
+        e?.response?.data?.message ||
+          e?.message ||
+          "세션 목록을 불러오지 못했습니다.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSessions();
+  }, [fetchSessions]);
+
+  const rows = items.filter((e) => e._visible);
   const totalSessions = rows.length;
   const activeSessions = rows.filter((e) => e.status === "active").length;
   const totalEnrolled = rows.reduce((a, b) => a + b.enrolled, 0);
   const totalCapacity = rows.reduce((a, b) => a + b.capacity, 0);
 
-  /* 선택 */
   const isAllSelected =
     rows.length > 0 && rows.every((r) => selected.has(r.id));
   const hasSelected = selected.size > 0;
@@ -911,73 +1263,89 @@ export default function SessionManage() {
   };
   const toggleOne = (id) => {
     setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
     });
   };
 
-  /* CRUD */
-  const handleCreate = (f) => {
-    setItems((p) => [
-      {
-        ...f,
-        id: `SS-${String(p.length + 1).padStart(3, "0")}`,
-        enrolled: 0,
-        _visible: true,
-      },
-      ...p,
-    ]);
+  const handleCreate = async (form) => {
+    const payload = mapSessionToCreateApi(form, DEFAULT_EVENT_ID);
+    await adminSessionApi.create(payload);
     setPanel(null);
     showToast("새 세션이 등록되었습니다.");
+    fetchSessions();
   };
-  const handleUpdate = (f) => {
-    setItems((p) => p.map((e) => (e.id === f.id ? { ...e, ...f } : e)));
+  const handleUpdate = async (form) => {
+    const payload = mapSessionToUpdateApi(form);
+    await adminSessionApi.update(form.programId, payload);
     setPanel(null);
     showToast("세션이 수정되었습니다.");
+    fetchSessions();
   };
-  const handleDelete = () => {
-    const id = modal.item.id;
+  const handleDelete = async () => {
+    const item = modal.item;
     setModal(null);
-    setRemoving(id);
-    setTimeout(() => {
-      setItems((p) =>
-        p.map((e) => (e.id === id ? { ...e, _visible: false } : e)),
+    try {
+      await adminSessionApi.delete(item.programId);
+      setRemoving(item.id);
+      setTimeout(() => {
+        setItems((p) =>
+          p.map((e) => (e.id === item.id ? { ...e, _visible: false } : e)),
+        );
+        setRemoving(null);
+        setSelected((prev) => {
+          const n = new Set(prev);
+          n.delete(item.id);
+          return n;
+        });
+        showToast("세션이 삭제되었습니다.");
+      }, 300);
+    } catch (e) {
+      showToast(e?.response?.data?.message || "삭제에 실패했습니다.", "error");
+    }
+  };
+  const handleBulkDelete = async () => {
+    const ids = [...selected];
+    setModal(null);
+    try {
+      const targets = items.filter((i) => ids.includes(i.id));
+      await Promise.all(
+        targets.map((t) => adminSessionApi.delete(t.programId)),
       );
-      setRemoving(null);
-      setSelected((prev) => {
-        const n = new Set(prev);
-        n.delete(id);
-        return n;
-      });
-      showToast("세션이 삭제되었습니다.");
-    }, 300);
+      setItems((p) =>
+        p.map((e) => (ids.includes(e.id) ? { ...e, _visible: false } : e)),
+      );
+      setSelected(new Set());
+      showToast(`${ids.length}건의 세션이 삭제되었습니다.`);
+    } catch {
+      showToast("일부 삭제에 실패했습니다.", "error");
+    }
   };
-  const handleBulkDelete = () => {
-    const ids = new Set(selected);
+  const handleDeleteAll = async () => {
+    const allRows = [...rows];
     setModal(null);
-    setItems((p) =>
-      p.map((e) => (ids.has(e.id) ? { ...e, _visible: false } : e)),
-    );
-    setSelected(new Set());
-    showToast(`${ids.size}건의 세션이 삭제되었습니다.`);
-  };
-  const handleDeleteAll = () => {
-    setModal(null);
-    const ids = new Set(rows.map((r) => r.id));
-    setItems((p) =>
-      p.map((e) => (ids.has(e.id) ? { ...e, _visible: false } : e)),
-    );
-    setSelected(new Set());
-    showToast(`${ids.size}건의 세션이 삭제되었습니다.`);
+    try {
+      await Promise.all(
+        allRows.map((t) => adminSessionApi.delete(t.programId)),
+      );
+      setItems((p) =>
+        p.map((e) =>
+          allRows.some((r) => r.id === e.id) ? { ...e, _visible: false } : e,
+        ),
+      );
+      setSelected(new Set());
+      showToast(`${allRows.length}건의 세션이 삭제되었습니다.`);
+    } catch {
+      showToast("일부 삭제에 실패했습니다.", "error");
+    }
   };
 
   return (
     <div>
       <style>{styles}</style>
 
-      {/* ── 상단 통계 ── */}
       <div
         style={{
           display: "grid",
@@ -1012,7 +1380,12 @@ export default function SessionManage() {
         />
       </div>
 
-      {/* ── 테이블 카드 ── */}
+      {error && (
+        <div style={{ marginBottom: 16 }}>
+          <ErrorBanner message={error} onRetry={fetchSessions} />
+        </div>
+      )}
+
       <div
         style={{
           background: "#fff",
@@ -1021,7 +1394,6 @@ export default function SessionManage() {
           overflow: "hidden",
         }}
       >
-        {/* 헤더 바 */}
         <div
           style={{
             padding: "12px 18px",
@@ -1080,7 +1452,6 @@ export default function SessionManage() {
                   color: "#DC2626",
                   cursor: "pointer",
                   fontFamily: ds.ff,
-                  animation: "fadeIn .15s ease",
                 }}
               >
                 <Trash2 size={12} /> 선택 삭제 ({selected.size})
@@ -1102,17 +1473,6 @@ export default function SessionManage() {
                   color: "#64748B",
                   cursor: "pointer",
                   fontFamily: ds.ff,
-                  transition: "all .1s",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "#FECACA";
-                  e.currentTarget.style.color = "#DC2626";
-                  e.currentTarget.style.background = "#FEF2F2";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "#E2E8F0";
-                  e.currentTarget.style.color = "#64748B";
-                  e.currentTarget.style.background = "#fff";
                 }}
               >
                 <Trash2 size={12} /> 전체 삭제
@@ -1133,263 +1493,257 @@ export default function SessionManage() {
                 fontWeight: 700,
                 cursor: "pointer",
                 fontFamily: ds.ff,
-                transition: "transform .1s",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.transform = "translateY(-1px)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.transform = "translateY(0)")
-              }
             >
               <Plus size={13} strokeWidth={2.5} /> 세션 등록
             </button>
           </div>
         </div>
 
-        {/* 테이블 */}
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ borderBottom: "1px solid #F1F5F9" }}>
-              <th style={{ width: 44, padding: "10px 14px" }}>
-                <Checkbox checked={isAllSelected} onChange={toggleAll} />
-              </th>
-              {[
-                { label: "강연명", w: "22%" },
-                { label: "강연자", w: 110 },
-                { label: "일시", w: 100 },
-                { label: "시간", w: 100 },
-                { label: "장소", w: 100 },
-                { label: "등록률", w: 120, align: "center" },
-                { label: "상태", w: 72 },
-                { label: "", w: 150 },
-              ].map((c, i) => (
-                <th
-                  key={i}
-                  style={{
-                    padding: "10px 14px",
-                    fontSize: 11.5,
-                    fontWeight: 700,
-                    color: "#94A3B8",
-                    textAlign: c.align || "left",
-                    letterSpacing: 0.3,
-                    ...(c.w ? { width: c.w } : {}),
-                  }}
-                >
-                  {c.label}
+        {loading && <LoadingSpinner />}
+
+        {!loading && (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ borderBottom: "1px solid #F1F5F9" }}>
+                <th style={{ width: 44, padding: "10px 14px" }}>
+                  <Checkbox checked={isAllSelected} onChange={toggleAll} />
                 </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => {
-              const st = statusMap[r.status];
-              const isRemoving = removing === r.id;
-              const isChecked = selected.has(r.id);
-              return (
-                <tr
-                  key={r.id}
-                  className={isRemoving ? "row-removing" : ""}
-                  onClick={() => setModal({ type: "detail", item: r })}
-                  style={{
-                    borderBottom: "1px solid #F8FAFC",
-                    cursor: "pointer",
-                    transition: "background .1s",
-                    background: isChecked ? `${ds.brand}06` : "transparent",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = isChecked
-                      ? `${ds.brand}0A`
-                      : "#F4F6F8")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = isChecked
-                      ? `${ds.brand}06`
-                      : "transparent")
-                  }
-                >
-                  <td style={{ width: 44, padding: "11px 14px" }}>
-                    <Checkbox
-                      checked={isChecked}
-                      onChange={() => toggleOne(r.id)}
-                    />
-                  </td>
-                  <td style={{ padding: "11px 14px" }}>
-                    <div
-                      style={{ fontSize: 13, fontWeight: 700, color: ds.ink }}
-                    >
-                      {r.name}
-                    </div>
-                    <div
+                {[
+                  { label: "강연명", w: "25%" },
+                  { label: "강연자", w: 120 },
+                  { label: "일시", w: 100 },
+                  { label: "시간", w: 120 },
+                  { label: "장소", w: 100 },
+                  { label: "상태", w: 72 },
+                  { label: "", w: 150 },
+                ].map((c, i) => (
+                  <th
+                    key={i}
+                    style={{
+                      padding: "10px 14px",
+                      fontSize: 11.5,
+                      fontWeight: 700,
+                      color: "#94A3B8",
+                      textAlign: "left",
+                      letterSpacing: 0.3,
+                      ...(c.w ? { width: c.w } : {}),
+                    }}
+                  >
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r) => {
+                const st = statusMap[r.status];
+                return (
+                  <tr
+                    key={r.id}
+                    className={removing === r.id ? "row-removing" : ""}
+                    onClick={() => setModal({ type: "detail", item: r })}
+                    style={{
+                      borderBottom: "1px solid #F8FAFC",
+                      cursor: "pointer",
+                      transition: "background .1s",
+                      background: selected.has(r.id)
+                        ? `${ds.brand}06`
+                        : "transparent",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = selected.has(r.id)
+                        ? `${ds.brand}0A`
+                        : "#F4F6F8")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = selected.has(r.id)
+                        ? `${ds.brand}06`
+                        : "transparent")
+                    }
+                  >
+                    <td style={{ width: 44, padding: "11px 14px" }}>
+                      <Checkbox
+                        checked={selected.has(r.id)}
+                        onChange={() => toggleOne(r.id)}
+                      />
+                    </td>
+                    <td style={{ padding: "11px 14px" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                        }}
+                      >
+                        {r.imageUrl && (
+                          <img
+                            src={r.imageUrl}
+                            alt=""
+                            style={{
+                              width: 36,
+                              height: 36,
+                              borderRadius: 7,
+                              objectFit: "cover",
+                              flexShrink: 0,
+                            }}
+                          />
+                        )}
+                        <div>
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 700,
+                              color: ds.ink,
+                            }}
+                          >
+                            {r.name}
+                          </div>
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#94A3B8",
+                              fontFamily: "monospace",
+                              marginTop: 1,
+                            }}
+                          >
+                            {r.id}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "11px 14px" }}>
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
+                          fontSize: 13,
+                          color: "#475569",
+                        }}
+                      >
+                        <Mic size={12} color="#8B5CF6" /> {r.speaker}
+                      </span>
+                    </td>
+                    <td
                       style={{
-                        fontSize: 11,
-                        color: "#94A3B8",
-                        fontFamily: "monospace",
-                        marginTop: 1,
-                      }}
-                    >
-                      {r.id}
-                    </div>
-                  </td>
-                  <td style={{ padding: "11px 14px" }}>
-                    <span
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
+                        padding: "11px 14px",
                         fontSize: 13,
                         color: "#475569",
                       }}
                     >
-                      <Mic size={12} color="#8B5CF6" /> {r.speaker}
-                    </span>
-                  </td>
-                  <td
-                    style={{
-                      padding: "11px 14px",
-                      fontSize: 13,
-                      color: "#475569",
-                    }}
-                  >
-                    {r.date}
-                  </td>
-                  <td
-                    style={{
-                      padding: "11px 14px",
-                      fontSize: 13,
-                      color: "#475569",
-                    }}
-                  >
-                    {r.time} ({r.duration}분)
-                  </td>
-                  <td
-                    style={{
-                      padding: "11px 14px",
-                      fontSize: 13,
-                      color: "#64748B",
-                    }}
-                  >
-                    <span
+                      {(r.date || "").replace(/-/g, ".")}
+                    </td>
+                    <td
                       style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 4,
+                        padding: "11px 14px",
+                        fontSize: 13,
+                        color: "#475569",
                       }}
                     >
-                      <MapPin size={12} color="#94A3B8" /> {r.location}
-                    </span>
-                  </td>
-                  <td style={{ padding: "11px 14px" }}>
-                    <MiniProgress value={r.enrolled} max={r.capacity} />
-                  </td>
-                  <td style={{ padding: "11px 14px" }}>
-                    <Pill color={st.c} bg={st.bg}>
-                      {st.l}
-                    </Pill>
-                  </td>
-                  <td style={{ padding: "11px 10px" }}>
-                    <div
-                      style={{ display: "flex", alignItems: "center", gap: 3 }}
+                      {r.time} ~ {r.endTime}
+                    </td>
+                    <td
+                      style={{
+                        padding: "11px 14px",
+                        fontSize: 13,
+                        color: "#64748B",
+                      }}
                     >
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setModal({ type: "detail", item: r });
-                        }}
+                      <span
                         style={{
-                          padding: "4px 9px",
-                          borderRadius: 6,
-                          border: "1px solid #E2E8F0",
-                          background: "#fff",
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: "#64748B",
-                          cursor: "pointer",
-                          fontFamily: ds.ff,
-                          transition: "all .12s",
-                          lineHeight: 1.2,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "#F1F5F9";
-                          e.currentTarget.style.borderColor = "#CBD5E1";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "#fff";
-                          e.currentTarget.style.borderColor = "#E2E8F0";
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 4,
                         }}
                       >
-                        상세
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPanel({ type: "edit", item: r });
-                        }}
+                        <MapPin size={12} color="#94A3B8" /> {r.location}
+                      </span>
+                    </td>
+                    <td style={{ padding: "11px 14px" }}>
+                      <Pill color={st.c} bg={st.bg}>
+                        {st.l}
+                      </Pill>
+                    </td>
+                    <td style={{ padding: "11px 10px" }}>
+                      <div
                         style={{
-                          padding: "4px 9px",
-                          borderRadius: 6,
-                          border: `1px solid ${ds.brand}25`,
-                          background: `${ds.brand}06`,
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: ds.brand,
-                          cursor: "pointer",
-                          fontFamily: ds.ff,
-                          transition: "all .12s",
-                          lineHeight: 1.2,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `${ds.brand}12`;
-                          e.currentTarget.style.borderColor = `${ds.brand}40`;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = `${ds.brand}06`;
-                          e.currentTarget.style.borderColor = `${ds.brand}25`;
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 3,
                         }}
                       >
-                        수정
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setModal({ type: "delete", item: r });
-                        }}
-                        style={{
-                          padding: "4px 9px",
-                          borderRadius: 6,
-                          border: "1px solid #FECACA50",
-                          background: "#FEF2F208",
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: "#EF4444",
-                          cursor: "pointer",
-                          fontFamily: ds.ff,
-                          transition: "all .12s",
-                          lineHeight: 1.2,
-                          opacity: 0.7,
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "#FEF2F2";
-                          e.currentTarget.style.borderColor = "#FECACA";
-                          e.currentTarget.style.opacity = "1";
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = "#FEF2F208";
-                          e.currentTarget.style.borderColor = "#FECACA50";
-                          e.currentTarget.style.opacity = "0.7";
-                        }}
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModal({ type: "detail", item: r });
+                          }}
+                          style={{
+                            padding: "4px 9px",
+                            borderRadius: 6,
+                            border: "1px solid #E2E8F0",
+                            background: "#fff",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: "#64748B",
+                            cursor: "pointer",
+                            fontFamily: ds.ff,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          상세
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPanel({ type: "edit", item: r });
+                          }}
+                          style={{
+                            padding: "4px 9px",
+                            borderRadius: 6,
+                            border: `1px solid ${ds.brand}25`,
+                            background: `${ds.brand}06`,
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: ds.brand,
+                            cursor: "pointer",
+                            fontFamily: ds.ff,
+                            lineHeight: 1.2,
+                          }}
+                        >
+                          수정
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModal({ type: "delete", item: r });
+                          }}
+                          style={{
+                            padding: "4px 9px",
+                            borderRadius: 6,
+                            border: "1px solid #FECACA50",
+                            background: "#FEF2F208",
+                            fontSize: 11,
+                            fontWeight: 600,
+                            color: "#EF4444",
+                            cursor: "pointer",
+                            fontFamily: ds.ff,
+                            lineHeight: 1.2,
+                            opacity: 0.7,
+                          }}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
 
-        {rows.length === 0 && (
+        {!loading && rows.length === 0 && !error && (
           <div style={{ textAlign: "center", padding: "60px 20px" }}>
             <Mic size={36} color="#CBD5E1" style={{ marginBottom: 12 }} />
             <div
@@ -1409,7 +1763,6 @@ export default function SessionManage() {
         )}
       </div>
 
-      {/* 슬라이드 패널 */}
       {panel?.type === "create" && (
         <SlidePanel onSave={handleCreate} onClose={() => setPanel(null)} />
       )}
@@ -1421,8 +1774,6 @@ export default function SessionManage() {
           onClose={() => setPanel(null)}
         />
       )}
-
-      {/* 모달 */}
       {modal?.type === "detail" && (
         <DetailModal
           item={modal.item}
@@ -1458,7 +1809,6 @@ export default function SessionManage() {
           onCancel={() => setModal(null)}
         />
       )}
-
       {toast && (
         <Toast
           msg={toast.msg}
