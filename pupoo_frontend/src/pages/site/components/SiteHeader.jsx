@@ -1,13 +1,24 @@
+// SiteHeader.jsx (FINAL MERGED)
+// - A의 메뉴/레이아웃/동작 유지
+// - B의 개선점 추가: IconButtonWithTooltip(to/onClick 통합), LogOut 아이콘, logout() 사용, 버튼 type 지정
+// - AuthProvider 기준: useAuth() -> { isAuthed, logout }
+
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
-import { LogIn, UserPlus, UserCircle } from "lucide-react";
+import { LogIn, LogOut, UserPlus, UserCircle } from "lucide-react";
 
 /* ─────────────────────────────────────────────
    ICONS
 ───────────────────────────────────────────── */
-const IconButtonWithTooltip = ({ children, tooltip, to }) => {
+/**
+ * IconButtonWithTooltip
+ * - to가 있으면 <Link> 렌더링
+ * - onClick이 있으면 <button type="button"> 렌더링
+ * - tooltip은 createPortal로 body에 렌더링 (stacking context 회피)
+ */
+const IconButtonWithTooltip = ({ children, tooltip, to, onClick }) => {
   const [hovered, setHovered] = useState(false);
   const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const btnRef = useRef(null);
@@ -23,26 +34,43 @@ const IconButtonWithTooltip = ({ children, tooltip, to }) => {
     }
   };
 
+  const commonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    padding: "4px",
+
+    textDecoration: "none",
+  };
+
+  const trigger = to ? (
+    <Link to={to} className="pupoo-icon-btn" style={commonStyle}>
+      {children}
+    </Link>
+  ) : (
+    <button
+      type="button"
+      className="pupoo-icon-btn"
+      onClick={onClick}
+      style={commonStyle}
+    >
+      {children}
+    </button>
+  );
+
   return (
     <div
       ref={btnRef}
       style={{ position: "relative", display: "inline-block" }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setHovered(false)}
+      title={tooltip} // 접근성/폴백
     >
-      <Link to={to} style={{ display: "inline-block" }}>
-        <button
-          className="pupoo-icon-btn"
-          style={{
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            padding: "4px",
-          }}
-        >
-          {children}
-        </button>
-      </Link>
+      {trigger}
 
       {/* Tooltip — createPortal로 body에 직접 렌더링 (header stacking context 밖) */}
       {hovered &&
@@ -135,7 +163,7 @@ const ArrowRight = ({ color = "#1c69d4" }) => (
 );
 
 /* ─────────────────────────────────────────────
-   NAV DATA  (categories & routes from Code 1)
+   NAV DATA
 ───────────────────────────────────────────── */
 const megaMenuData = {
   행사: {
@@ -242,13 +270,14 @@ const megaMenuData = {
   },
 };
 
-/* Top-level nav items (from Code 1) */
+/* Top-level nav items */
 const navItems = [
   { label: "행사", hasDropdown: true, menuKey: "행사" },
   { label: "커뮤니티", hasDropdown: true, menuKey: "커뮤니티" },
   { label: "참가신청", hasDropdown: true, menuKey: "참가신청" },
   { label: "실시간현황", hasDropdown: true, menuKey: "실시간현황" },
 ];
+
 /* ─────────────────────────────────────────────
    MEGA MENU ITEM
 ───────────────────────────────────────────── */
@@ -376,8 +405,7 @@ const MegaMenu = ({ menuData }) => {
               style={{
                 margin: "16px 0 12px",
                 fontSize: "15px",
-                fontFamily:
-                  "'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif",
+                fontFamily: "'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif",
                 fontWeight: "400",
                 color: "#262626",
                 lineHeight: "1.5",
@@ -393,8 +421,7 @@ const MegaMenu = ({ menuData }) => {
                 alignItems: "center",
                 color: "#1c69d4",
                 fontSize: "14px",
-                fontFamily:
-                  "'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif",
+                fontFamily: "'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif",
                 fontWeight: "700",
                 textDecoration: "none",
                 letterSpacing: "0.01em",
@@ -425,9 +452,7 @@ const NavItem = ({
 }) => {
   const [hovered, setHovered] = useState(false);
 
-  /* Decide text colour:
-     - When header is transparent (top + no open menu): white
-     - When header has background (scrolled OR menu open): dark, active → blue */
+  // Header transparent(top) + menu closed + home => light mode(white text)
   const isLight = isHome && !isScrolled && !isMenuOpen;
 
   const baseColor = isLight ? "#ffffff" : "#262626";
@@ -477,6 +502,7 @@ const NavItem = ({
 
   return (
     <button
+      type="button"
       onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -521,9 +547,9 @@ const NavItem = ({
 /* ─────────────────────────────────────────────
    MAIN HEADER
 ───────────────────────────────────────────── */
-export default function pupooHeader() {
+export default function PupooHeader() {
   const navigate = useNavigate();
-  const { isAuthed, logoutLocal } = useAuth();
+  const { isAuthed, logout } = useAuth(); // ✅ AuthProvider 기준(서버 로그아웃 + 로컬 정리)
   const [activeMenu, setActiveMenu] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef(null);
@@ -552,7 +578,7 @@ export default function pupooHeader() {
     setActiveMenu((prev) => (prev === menuKey ? null : menuKey));
   };
 
-  /* Header is "white mode" when scrolled OR a mega menu is open */
+  /* Header is "white mode" when scrolled OR a mega menu is open OR not home */
   const isWhiteMode = !isHome || scrolled || activeMenu !== null;
 
   /* Icon colour follows header mode */
@@ -568,7 +594,6 @@ export default function pupooHeader() {
         .pupoo-header-root {
           font-family: 'Noto Sans KR', 'Helvetica Neue', Arial, sans-serif;
         }
-
       `}</style>
 
       <div
@@ -587,7 +612,6 @@ export default function pupooHeader() {
             display: "flex",
             alignItems: "stretch",
             zIndex: 1000,
-            /* Smooth background + shadow transition */
             backgroundColor: isWhiteMode
               ? "rgba(255,255,255,0.97)"
               : "transparent",
@@ -610,9 +634,7 @@ export default function pupooHeader() {
             }}
           >
             {/* Left: Logo + Nav */}
-            <div
-              style={{ display: "flex", alignItems: "stretch", gap: "32px" }}
-            >
+            <div style={{ display: "flex", alignItems: "stretch", gap: "32px" }}>
               {/* 로고 */}
               <Link
                 to="/"
@@ -641,18 +663,14 @@ export default function pupooHeader() {
               </Link>
 
               {/* Nav items */}
-              <nav
-                style={{ display: "flex", alignItems: "stretch", gap: "28px" }}
-              >
+              <nav style={{ display: "flex", alignItems: "stretch", gap: "28px" }}>
                 {navItems.map((item) => (
                   <NavItem
                     key={item.label}
                     label={item.label}
                     hasDropdown={item.hasDropdown}
                     isActive={activeMenu === item.menuKey}
-                    onClick={() =>
-                      item.hasDropdown && handleNavClick(item.menuKey)
-                    }
+                    onClick={() => item.hasDropdown && handleNavClick(item.menuKey)}
                     href={item.href}
                     isScrolled={scrolled}
                     isMenuOpen={activeMenu !== null}
@@ -670,35 +688,21 @@ export default function pupooHeader() {
                     <LogIn size={23} color={iconColor} strokeWidth={1.5} />
                   </IconButtonWithTooltip>
 
-                  <IconButtonWithTooltip
-                    to="/auth/join/joinselect"
-                    tooltip="회원가입"
-                  >
+                  <IconButtonWithTooltip to="/auth/join/joinselect" tooltip="회원가입">
                     <UserPlus size={23} color={iconColor} strokeWidth={1.5} />
                   </IconButtonWithTooltip>
                 </>
               ) : (
                 <>
-                  {/* ✅ 로그아웃: Link로 하면 GET 이동이라 비추. 버튼으로 처리 */}
-                  <div style={{ display: "inline-block" }}>
-                    <button
-                      className="pupoo-icon-btn"
-                      onClick={() => {
-                        logoutLocal(); // 토큰 제거 + isAuthed false
-                        navigate("/", { replace: true });
-                      }}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        padding: "4px",
-                      }}
-                      title="로그아웃"
-                    >
-                      {/* LogIn 아이콘을 로그아웃처럼 쓰기 싫으면 lucide의 LogOut import 추천 */}
-                      <LogIn size={23} color={iconColor} strokeWidth={1.5} />
-                    </button>
-                  </div>
+                  <IconButtonWithTooltip
+                    tooltip="로그아웃"
+                    onClick={async () => {
+                      await logout();
+                      navigate("/", { replace: true });
+                    }}
+                  >
+                    <LogOut size={23} color={iconColor} strokeWidth={1.5} />
+                  </IconButtonWithTooltip>
 
                   <IconButtonWithTooltip to="/mypage" tooltip="마이페이지">
                     <UserCircle size={23} color={iconColor} strokeWidth={1.5} />

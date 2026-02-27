@@ -53,6 +53,10 @@ import Contest from "./pages/site/program/Contest";
 import Schedule from "./pages/site/program/Schedule";
 import VoteResult from "./pages/site/program/VoteResult";
 
+/* Payment */
+import PaymentApprove from "./pages/site/payment/PaymentApprove";
+import PaymentCheckout from "./pages/site/payment/Checkout";
+
 /* Registration */
 import Apply from "./pages/site/registration/Apply";
 import ApplyHistory from "./pages/site/registration/ApplyHistory";
@@ -236,6 +240,8 @@ export default function App() {
           <Route path="/event/closed" element={<Closed />} />
           <Route path="/event/preregister" element={<PreRegister />} />
           <Route path="/event/eventschedule" element={<EventSchedule />} />
+		  {/* Payment */}
+		  <Route path="/payment/approve" element={<PaymentApprove />} />
           {/* Program */}
           <Route
             path="/program/experience/:eventId?"
@@ -253,6 +259,7 @@ export default function App() {
             element={<PaymentHistory />}
           />
           <Route path="/registration/qrcheckin" element={<QRCheckin />} />
+		  <Route path="/payment/checkout" element={<PaymentCheckout />} />
           {/* Realtime */}
           <Route
             path="/realtime/dashboard/:eventId?"

@@ -1,9 +1,6 @@
 // file: src/main/java/com/popups/pupoo/event/persistence/EventRepository.java
 package com.popups.pupoo.event.persistence;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.popups.pupoo.event.domain.enums.EventStatus;
 import com.popups.pupoo.event.domain.model.Event;
 import org.springframework.data.domain.Page;
@@ -15,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+
 /**
  * EventRepository (v2.5 기준)
  *
@@ -76,41 +74,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("fromAt") LocalDateTime fromAt,
             @Param("toAt") LocalDateTime toAt,
             Pageable pageable
-<<<<<<< Updated upstream
     );
-=======
-    );       
-      @Modifying
-    @Transactional
-    @Query("""
-        UPDATE Event e
-        SET e.status = com.popups.pupoo.event.domain.enums.EventStatus.PLANNED
-        WHERE e.startAt > CURRENT_TIMESTAMP
-    """)
-    void syncToPlanned();
-
-    @Modifying
-    @Transactional
-    @Query("""
-        UPDATE Event e
-        SET e.status = com.popups.pupoo.event.domain.enums.EventStatus.ONGOING
-        WHERE e.startAt <= CURRENT_TIMESTAMP
-          AND e.endAt >= CURRENT_TIMESTAMP
-    """)
-    void syncToOngoing();
-
-    @Modifying
-    @Transactional
-    @Query("""
-        UPDATE Event e
-        SET e.status = com.popups.pupoo.event.domain.enums.EventStatus.ENDED
-        WHERE e.endAt < CURRENT_TIMESTAMP
-    """)
-    void syncToEnded();
->>>>>>> Stashed changes
 
     /**
      * 시작 전 → PLANNED
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional
@@ -124,6 +92,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     /**
      * 진행 중 → ONGOING
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional
@@ -138,6 +107,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     /**
      * 종료 → ENDED
+     * @return 업데이트된 row 수
      */
     @Modifying
     @Transactional

@@ -6,23 +6,22 @@ import com.popups.pupoo.event.domain.model.EventRegistration;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
  * event_apply 접근 Repository (엔티티명은 EventRegistration)
  */
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
-<<<<<<< Updated upstream
 
     long countByEventIdAndStatus(Long eventId, RegistrationStatus status);
 
-=======
-    
->>>>>>> Stashed changes
     boolean existsByEventIdAndUserIdAndStatus(Long eventId, Long userId, RegistrationStatus status);
 
     Page<EventRegistration> findByUserId(Long userId, Pageable pageable);
@@ -50,7 +49,7 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
     );
 
     /**
-     *  결제 승인 시 자동 승인용: APPLIED 상태 row를 락으로 잡고 가져오기
+     * 결제 승인 시 자동 승인용: APPLIED 상태 row를 락으로 잡고 가져오기
      */
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
@@ -67,7 +66,7 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
     );
 
     /**
-     *  환불 완료 시 자동 취소용:
+     * 환불 완료 시 자동 취소용:
      * APPLIED/APPROVED 상태를 락으로 잡고 1건 가져오기
      * (CANCELLED/REJECTED는 대상 아님 → 멱등)
      */
@@ -104,7 +103,8 @@ public interface EventRegistrationRepository extends JpaRepository<EventRegistra
         where er.eventId = :eventId
           and er.status = :status
     """)
-    java.util.List<Long> findDistinctUserIdsByEventIdAndStatus(@Param("eventId") Long eventId,
-                                                             @Param("status") RegistrationStatus status);
-    long countByEventIdAndStatus(Long eventId, RegistrationStatus status);
-                                                            }
+    List<Long> findDistinctUserIdsByEventIdAndStatus(
+            @Param("eventId") Long eventId,
+            @Param("status") RegistrationStatus status
+    );
+}

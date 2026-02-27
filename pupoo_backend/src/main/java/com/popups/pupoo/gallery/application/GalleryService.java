@@ -1,14 +1,6 @@
 // file: src/main/java/com/popups/pupoo/gallery/application/GalleryService.java
 package com.popups.pupoo.gallery.application;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.popups.pupoo.gallery.domain.enums.GalleryStatus;
 import com.popups.pupoo.gallery.domain.model.Gallery;
 import com.popups.pupoo.gallery.domain.model.GalleryImage;
@@ -18,8 +10,14 @@ import com.popups.pupoo.gallery.dto.GalleryResponse;
 import com.popups.pupoo.gallery.persistence.GalleryImageRepository;
 import com.popups.pupoo.gallery.persistence.GalleryLikeRepository;
 import com.popups.pupoo.gallery.persistence.GalleryRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +28,7 @@ public class GalleryService {
     private final GalleryImageRepository galleryImageRepository;
     private final GalleryLikeRepository galleryLikeRepository;
 
-    @Transactional(readOnly = false)
+    @Transactional
     public GalleryResponse get(Long galleryId) {
         Gallery g = galleryRepository.findByGalleryIdAndGalleryStatus(galleryId, GalleryStatus.PUBLIC)
                 .orElseThrow(() -> new IllegalArgumentException("갤러리가 존재하지 않습니다."));
@@ -41,7 +39,9 @@ public class GalleryService {
                 .build());
 
         List<String> urls = galleryImageRepository.findAllByGallery_GalleryIdOrderByImageOrderAsc(galleryId)
-                .stream().map(GalleryImage::getOriginalUrl).toList();
+                .stream()
+                .map(GalleryImage::getOriginalUrl)
+                .toList();
 
         long likeCount = galleryLikeRepository.countByGallery_GalleryId(galleryId);
 
@@ -50,7 +50,8 @@ public class GalleryService {
                 .eventId(updated.getEventId())
                 .userId(updated.getUserId())
                 .title(updated.getGalleryTitle())
-                .description(updated.getDescription())
+                // ✅ description은 gallery_description 기준
+                .description(updated.getGallery_description())
                 .viewCount(updated.getViewCount())
                 .likeCount(likeCount)
                 .thumbnailImageId(updated.getThumbnailImageId())
@@ -64,15 +65,21 @@ public class GalleryService {
     public Page<GalleryResponse> list(int page, int size) {
         return galleryRepository.findByGalleryStatus(GalleryStatus.PUBLIC, PageRequest.of(page, size))
                 .map(g -> {
-                    List<String> urls = galleryImageRepository.findAllByGallery_GalleryIdOrderByImageOrderAsc(g.getGalleryId())
-                            .stream().map(GalleryImage::getOriginalUrl).toList();
+                    List<String> urls = galleryImageRepository
+                            .findAllByGallery_GalleryIdOrderByImageOrderAsc(g.getGalleryId())
+                            .stream()
+                            .map(GalleryImage::getOriginalUrl)
+                            .toList();
+
                     long likeCount = galleryLikeRepository.countByGallery_GalleryId(g.getGalleryId());
+
                     return GalleryResponse.builder()
                             .galleryId(g.getGalleryId())
                             .eventId(g.getEventId())
                             .userId(g.getUserId())
                             .title(g.getGalleryTitle())
-                            .description(g.getDescription())
+                            // ✅ description은 gallery_description 기준
+                            .description(g.getGallery_description())
                             .viewCount(g.getViewCount())
                             .likeCount(likeCount)
                             .thumbnailImageId(g.getThumbnailImageId())
@@ -87,15 +94,21 @@ public class GalleryService {
     public Page<GalleryResponse> listByEventId(Long eventId, int page, int size) {
         return galleryRepository.findByEventIdAndGalleryStatus(eventId, GalleryStatus.PUBLIC, PageRequest.of(page, size))
                 .map(g -> {
-                    List<String> urls = galleryImageRepository.findAllByGallery_GalleryIdOrderByImageOrderAsc(g.getGalleryId())
-                            .stream().map(GalleryImage::getOriginalUrl).toList();
+                    List<String> urls = galleryImageRepository
+                            .findAllByGallery_GalleryIdOrderByImageOrderAsc(g.getGalleryId())
+                            .stream()
+                            .map(GalleryImage::getOriginalUrl)
+                            .toList();
+
                     long likeCount = galleryLikeRepository.countByGallery_GalleryId(g.getGalleryId());
+
                     return GalleryResponse.builder()
                             .galleryId(g.getGalleryId())
                             .eventId(g.getEventId())
                             .userId(g.getUserId())
                             .title(g.getGalleryTitle())
-                            .description(g.getDescription())
+                            // ✅ description은 gallery_description 기준
+                            .description(g.getGallery_description())
                             .viewCount(g.getViewCount())
                             .likeCount(likeCount)
                             .thumbnailImageId(g.getThumbnailImageId())
@@ -105,7 +118,8 @@ public class GalleryService {
                             .updatedAt(g.getUpdatedAt())
                             .build();
                 });
-        }
+    }
+
     @Transactional
     public GalleryLikeResponse like(Long userId, Long galleryId) {
         Gallery g = galleryRepository.findByGalleryIdAndGalleryStatus(galleryId, GalleryStatus.PUBLIC)
@@ -126,10 +140,12 @@ public class GalleryService {
                 .createdAt(like.getCreatedAt())
                 .build();
     }
+
     @Transactional
     public void unlike(Long userId, Long galleryId) {
         galleryRepository.findByGalleryIdAndGalleryStatus(galleryId, GalleryStatus.PUBLIC)
                 .orElseThrow(() -> new IllegalArgumentException("갤러리가 존재하지 않습니다."));
+
         galleryLikeRepository.deleteByGallery_GalleryIdAndUserId(galleryId, userId);
     }
 }
