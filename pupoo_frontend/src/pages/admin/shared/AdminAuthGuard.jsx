@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { authApi, unwrap, setToken } from "../../../api/noticeApi";
+import { authApi, clearToken, getToken, unwrap, setToken } from "../../../api/noticeApi";
 import ds from "./designTokens";
-
-const TOKEN_KEY = "pupoo_admin_token";
 
 /* ── 테스트용 기본 계정 (Tab 키로 자동입력) ── */
 const DEFAULT_ID = "admin@pupoo.com";
@@ -17,12 +15,12 @@ const DEFAULT_PW = "admin1234";
  * - 기존 로그인 페이지(AdminLogin)로 들어왔으면 안 뜸
  */
 export default function AdminAuthGuard({ children }) {
-  const [authed, setAuthed] = useState(() => !!localStorage.getItem(TOKEN_KEY));
+  const [authed, setAuthed] = useState(() => !!getToken());
 
   /* 401 이벤트 수신 — interceptor에서 dispatch */
   useEffect(() => {
     const handler = () => {
-      localStorage.removeItem(TOKEN_KEY);
+      clearToken();
       setAuthed(false);
     };
     window.addEventListener("auth:required", handler);

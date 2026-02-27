@@ -1,7 +1,8 @@
 import { axiosInstance } from "../app/http/axiosInstance";
+import { unwrapApiResponse } from "../app/http/apiResponse";
 
 export function unwrap(res) {
-  return res?.data?.data ?? res?.data ?? null;
+  return unwrapApiResponse(res?.data);
 }
 
 export const postApi = {

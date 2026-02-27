@@ -4,6 +4,9 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import "./styles.css";
 import { AuthProvider } from "./pages/site/auth/AuthProvider";
+import { runDevApiSmokeTest } from "./app/http/devSmokeTest";
+
+runDevApiSmokeTest();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

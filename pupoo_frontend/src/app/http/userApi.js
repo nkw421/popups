@@ -1,9 +1,9 @@
 // src/app/http/userApi.js
 import { axiosInstance } from "./axiosInstance";
+import { unwrapApiResponse } from "./apiResponse";
 
 function unwrap(res) {
-  const body = res?.data;
-  return body?.data ?? body;
+  return unwrapApiResponse(res?.data);
 }
 
 export const userApi = {

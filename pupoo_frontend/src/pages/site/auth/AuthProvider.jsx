@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { tokenStore } from "../../../app/http/tokenStore";
 import { authApi } from "./api/authApi";
+import { onAuthExpired } from "../../../app/http/interceptors";
 
 const AuthContext = createContext(null);
 
@@ -31,7 +32,7 @@ export function AuthProvider({ children }) {
     const bootstrap = async () => {
       try {
         if (!tokenStore.getAccess()) {
-          const data = await authApi.refresh({ withCredentials: true });
+          const data = await authApi.refresh();
           const accessToken = data?.accessToken;
           if (accessToken) {
             tokenStore.setAccess(accessToken);
@@ -63,31 +64,18 @@ export function AuthProvider({ children }) {
       if (document.visibilityState === "visible") sync("visibility");
     };
 
-    const onStorage = (e) => {
-      if (e.key === "pupoo_access_token" || e.key === "pupoo_refresh_token") {
-        if (DEBUG_AUTH) {
-          console.log("[AuthProvider] storage event", {
-            key: e.key,
-            oldValueHead: e.oldValue
-              ? String(e.oldValue).slice(0, 10) + "..."
-              : null,
-            newValueHead: e.newValue
-              ? String(e.newValue).slice(0, 10) + "..."
-              : null,
-          });
-        }
-        sync("storage");
-      }
-    };
+    const offAuthExpired = onAuthExpired(() => {
+      tokenStore.clear();
+      setIsAuthed(false);
+    });
 
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
-    window.addEventListener("storage", onStorage);
 
     return () => {
+      offAuthExpired();
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
-      window.removeEventListener("storage", onStorage);
       if (DEBUG_AUTH) console.log("[AuthProvider] UNMOUNT");
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
