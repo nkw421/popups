@@ -1,5 +1,4 @@
 ﻿import { useState, useEffect, useRef } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { eventApi } from "../../../app/http/eventApi";
 import { axiosInstance } from "../../../app/http/axiosInstance";
 import { tokenStore } from "../../../app/http/tokenStore";
@@ -353,15 +352,7 @@ function formatTime(startAt, endAt) {
   return "시간 미정";
 }
 
-function normalizeFee(value) {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
-}
-
-
 export default function EventDetailModal({ event, onClose }) {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [detailLoading, setDetailLoading] = useState(true);
@@ -492,8 +483,9 @@ export default function EventDetailModal({ event, onClose }) {
 
   const desc = detail?.description || "설명 없음";
   const loc = detail?.location || "장소 미정";
-  const rawFee = detail?.baseFee ?? event?.baseFee;
-  const fee = normalizeFee(rawFee);
+  const rawFee = detail?.baseFee;
+  const fee =
+    rawFee !== undefined && rawFee !== null ? Number(rawFee) : null;
   const dateLabel = detail?.startAt ? formatDate(detail.startAt) : "일정 미정";
   const timeLabel =
     detail?.startAt || detail?.endAt
@@ -536,17 +528,31 @@ export default function EventDetailModal({ event, onClose }) {
         await fetchMyRegistrations();
       }
       if (fee > 0) {
-        const params = new URLSearchParams({
-          eventId: String(modalEventId),
-          amount: String(fee),
-          title: detail?.eventName || event?.title || "",
-          returnUrl: location?.pathname || "/",
-        });
-        navigate(`/payment/checkout?${params.toString()}`);
+        try {
+          const payRes = await axiosInstance.post(
+            `/api/events/${modalEventId}/payments`,
+            { amount: detail?.baseFee ?? 0, paymentMethod: "KAKAOPAY" },
+          );
+          const payData = payRes.data.data;
+          const redirectPcUrl = payData?.redirectPcUrl;
+          if (redirectPcUrl) {
+            window.location.href = redirectPcUrl;
+          } else {
+            setRegError("결제 준비에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+          }
+        } catch (e) {
+          if (e?.response?.status === 401) {
+            setRegError("로그인이 필요합니다.");
+            alertLoginRequired();
+          } else {
+            console.error(e);
+            setRegError("결제 준비에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+          }
+        }
       }
     } catch (e) {
       if (e?.response?.status === 409) {
-        setRegError("이미 신청이 완료되었습니다.");
+        setRegError("이미 신청된 행사입니다.");
         setRegStatus(RegistrationStatus.APPLIED);
         if (hasToken) {
           try {
@@ -558,21 +564,12 @@ export default function EventDetailModal({ event, onClose }) {
             }
           }
         }
-        if (fee > 0) {
-          const params = new URLSearchParams({
-            eventId: String(modalEventId),
-            amount: String(fee),
-            title: detail?.eventName || event?.title || "",
-            returnUrl: location?.pathname || "/",
-          });
-          navigate(`/payment/checkout?${params.toString()}`);
-        }
       } else if (e?.response?.status === 401) {
         setRegError("로그인이 필요합니다.");
         alertLoginRequired();
       } else {
         console.error(e);
-        setRegError("참가 신청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        setRegError("신청에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }
     } finally {
       setRegLoading(false);
