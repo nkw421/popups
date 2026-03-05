@@ -188,8 +188,13 @@ export default function SessionDetail() {
   const st = statusInfo(program);
   const catRaw = String(program?.category ?? program?.programCategory ?? "").toUpperCase();
   const catLabel = CATEGORY_MAP[catRaw] || "프로그램";
+<<<<<<< HEAD
   const heroImg = program?.imageUrl ?? program?.image_url ?? program?.posterUrl ?? program?.thumbnail ?? eventInfo?.imageUrl ?? dogImg(programId);
   const eventImg = eventInfo?.imageUrl ?? eventInfo?.posterUrl ?? dogImg(program?.eventId);
+=======
+  const heroImg = program?.imageUrl || dogImg(programId);
+  const eventImg = eventInfo?.imageUrl || dogImg(program?.eventId);
+>>>>>>> origin/develop
 
   return (
     <div className="sd-root">

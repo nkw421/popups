@@ -9,7 +9,10 @@ import com.popups.pupoo.qr.dto.QrHistoryResponse;
 import com.popups.pupoo.qr.dto.QrIssueResponse;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -39,6 +42,27 @@ public class QrController {
         Long userId = securityUtil.currentUserId();
         qrService.sendMyQrSms(userId, eventId);
         return ApiResponse.success(new MessageResponse("SMS_SENT"));
+    }
+
+    /**
+     * 내 QR 문자 발송 테스트(로컬 시뮬레이션)
+     * POST /api/qr/me/sms-test
+     */
+    @PostMapping("/qr/me/sms-test")
+    public ApiResponse<Map<String, Object>> sendMyQrSmsTest(
+            @RequestBody QrSmsTestRequest request
+    ) {
+        Long userId = securityUtil.currentUserId();
+        QrIssueResponse qr = qrService.getMyQrOrIssue(userId, request.getEventId());
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("status", "SIMULATED");
+        result.put("eventId", request.getEventId());
+        result.put("qrId", qr.getQrId());
+        result.put("phone", request.getPhone());
+        result.put("message", request.getMessage());
+        result.put("requestedAt", LocalDateTime.now());
+        return ApiResponse.success(result);
     }
 
     /**
@@ -77,5 +101,35 @@ public class QrController {
 
         Long userId = securityUtil.currentUserId();
         return ApiResponse.success(qrService.getMyBoothVisitLogs(userId, eventId, boothId));
+    }
+
+    public static class QrSmsTestRequest {
+        private Long eventId;
+        private String phone;
+        private String message;
+
+        public Long getEventId() {
+            return eventId;
+        }
+
+        public void setEventId(Long eventId) {
+            this.eventId = eventId;
+        }
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 }

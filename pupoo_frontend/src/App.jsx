@@ -28,9 +28,11 @@ import Home from "./pages/site/home/Home";
 
 /* Auth */
 import Login from "./pages/site/auth/Login";
+import FindPassword from "./pages/site/auth/FindPassword";
 import Mypage from "./pages/site/auth/mypage";
 import MypageQr from "./pages/site/auth/MypageQr";
 import MypageProfileEdit from "./pages/site/auth/MypageProfileEdit";
+import MypagePetEditor from "./pages/site/auth/MypagePetEditor";
 import JoinSelect from "./pages/site/auth/join/JoinSelect";
 import JoinNormal from "./pages/site/auth/join/JoinNormal";
 import JoinSocial from "./pages/site/auth/join/JoinSocial";
@@ -97,7 +99,6 @@ import EFTTerms from "./pages/site/policy/EFTTerms";
 
 /* gallery */
 import EventGallery from "./pages/site/gallery/eventgallery";
-import EventSketch from "./pages/site/gallery/eventsketch";
 
 /* guide */
 import Operation from "./pages/site/guide/Operation";
@@ -226,14 +227,19 @@ export default function App() {
         <Route element={<SiteLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/auth/login" element={<PublicOnly><Login /></PublicOnly>} />
+          <Route path="/auth/find-password" element={<PublicOnly><FindPassword /></PublicOnly>} />
           <Route path="/auth/mypage" element={<Mypage />} />
           <Route path="/auth/mypage/qr" element={<MypageQr />} />
           <Route path="/auth/mypage/profile" element={<MypageProfileEdit />} />
           <Route path="/auth/mypage/pjrofile" element={<MypageProfileEdit />} />
+          <Route path="/auth/mypage/pets/new" element={<MypagePetEditor />} />
+          <Route path="/auth/mypage/pets/:petId/edit" element={<MypagePetEditor />} />
           <Route path="/mypage" element={<Mypage />} />
           <Route path="/mypage/qr" element={<MypageQr />} />
           <Route path="/mypage/profile" element={<MypageProfileEdit />} />
           <Route path="/mypage/pjrofile" element={<MypageProfileEdit />} />
+          <Route path="/mypage/pets/new" element={<MypagePetEditor />} />
+          <Route path="/mypage/pets/:petId/edit" element={<MypagePetEditor />} />
           <Route path="/auth/join/joinselect" element={<PublicOnly><JoinSelect /></PublicOnly>} />
           <Route path="/auth/join/joinnormal" element={<PublicOnly><JoinNormal /></PublicOnly>} />
           <Route path="/auth/join/joinsocial" element={<PublicOnly><JoinSocial /></PublicOnly>} />
@@ -241,6 +247,7 @@ export default function App() {
           <Route path="/auth/join/kakao" element={<PublicOnly><KakaoJoin /></PublicOnly>} />
           <Route path="/auth/join/kakao/otp" element={<PublicOnly><KakaoOtp /></PublicOnly>} />
           <Route path="/join" element={<JoinSelect />} />
+          <Route path="/find-password" element={<FindPassword />} />
           <Route path="/join/select" element={<JoinSelect />} />
           <Route path="/join/normal" element={<JoinNormal />} />
           <Route path="/join/social" element={<JoinSocial />} />
@@ -283,7 +290,6 @@ export default function App() {
           <Route path="/policy/termsofservice" element={<TermsOfService />} />
           <Route path="/policy/eftterms" element={<EFTTerms />} />
           <Route path="/gallery/eventgallery" element={<EventGallery />} />
-          <Route path="/gallery/eventsketch" element={<EventSketch />} />
           <Route path="/guide/location" element={<LocationPage />} />
           <Route path="/guide/operation" element={<Operation />} />
           <Route path="/guide/timetable" element={<Timetable />} />

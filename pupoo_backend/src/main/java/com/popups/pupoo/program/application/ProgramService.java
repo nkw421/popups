@@ -47,6 +47,7 @@ public class ProgramService {
                 .category(base.getCategory())
                 .programTitle(base.getProgramTitle())
                 .description(base.getDescription())
+                .imageUrl(base.getImageUrl())
                 .boothId(base.getBoothId())
                 .startAt(base.getStartAt())
                 .endAt(base.getEndAt())

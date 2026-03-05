@@ -46,7 +46,7 @@ const modalStyles = `
 
   /* Modal body */
   .evm-modal {
-    width: 100%; max-width: 780px;
+    width: 100%; max-width: 1040px;
     background: #fff; border-radius: 18px;
     box-shadow: 0 24px 80px rgba(0,0,0,0.18);
     transform: translateY(24px) scale(0.97);
@@ -55,11 +55,79 @@ const modalStyles = `
     margin: auto 0;
     max-height: calc(100vh - 64px);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
   }
   .evm-overlay.open .evm-modal {
     transform: translateY(0) scale(1);
   }
+
+  /* Left poster panel */
+  .evm-poster-panel {
+    width: 400px;
+    flex-shrink: 0;
+    background: #f3f4f6;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+  .evm-poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .evm-poster-fallback {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1a4fd6 0%, #6366f1 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 80px;
+  }
+  .evm-poster-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+    padding: 24px 20px 20px;
+  }
+  .evm-poster-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(239,68,68,0.9); color: #fff;
+    padding: 3px 10px; border-radius: 100px;
+    font-size: 11px; font-weight: 700;
+    margin-bottom: 6px; backdrop-filter: blur(4px);
+  }
+  .evm-poster-badge .ev-live-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #fff;
+    animation: ev-pulse 1.4s ease-in-out infinite;
+  }
+  .evm-poster-category {
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85);
+    margin-bottom: 2px;
+  }
+
+  /* Right content panel */
+  .evm-right-panel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 64px);
+  }
+  .evm-right-header {
+    padding: 20px 28px 0;
+    flex-shrink: 0;
+  }
+  .evm-right-title {
+    font-size: 22px; font-weight: 800; color: #111827;
+    line-height: 1.3; margin: 0 0 4px;
+  }
+  .evm-right-sub {
+    font-size: 12px; color: #9ca3af; font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .evm-topbar-right {
+    position: absolute; top: 14px; right: 14px;
+    display: flex; gap: 8px; z-index: 2;
+  }
+
   .evm-body-scroll {
     flex: 1;
     min-height: 0;
@@ -67,53 +135,17 @@ const modalStyles = `
     overscroll-behavior: contain;
   }
 
-  /* Hero */
-  .evm-hero { position: relative; height: 260px; overflow: hidden; }
-  .evm-hero img { width: 100%; height: 100%; object-fit: cover; }
-  .evm-hero-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.65) 100%);
-  }
-  .evm-hero-content {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 24px 28px;
-  }
-  .evm-hero-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(239,68,68,0.9); color: #fff;
-    padding: 3px 10px; border-radius: 100px;
-    font-size: 11px; font-weight: 700;
-    margin-bottom: 8px; backdrop-filter: blur(4px);
-  }
-  .evm-hero-badge .ev-live-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: #fff;
-    animation: ev-pulse 1.4s ease-in-out infinite;
-  }
-  .evm-hero-category {
-    font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85);
-    margin-bottom: 4px;
-  }
-  .evm-hero-title {
-    font-size: 24px; font-weight: 800; color: #fff;
-    line-height: 1.3; text-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  }
-
-  /* Top bar controls */
-  .evm-topbar {
-    position: absolute; top: 14px; right: 14px;
-    display: flex; gap: 8px; z-index: 2;
-  }
   .evm-icon-btn {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff; display: flex; align-items: center; justify-content: center;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    color: #6b7280; display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: all 0.15s;
   }
-  .evm-icon-btn:hover { background: rgba(255,255,255,0.3); }
+  .evm-icon-btn:hover { background: #e5e7eb; color: #111827; }
 
   /* Content */
-  .evm-content { padding: 24px 28px 32px; }
+  .evm-content { padding: 20px 28px 32px; }
 
   /* Quick info bar */
   .evm-quick-info {
@@ -285,6 +317,15 @@ const modalStyles = `
     gap: 10px;
     background: #fff;
   }
+  .evm-guide-program-item.clickable {
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  }
+  .evm-guide-program-item.clickable:hover {
+    border-color: #90b3ff;
+    background: #f8fbff;
+    box-shadow: 0 2px 10px rgba(26,79,214,0.1);
+  }
   .evm-guide-program-dot {
     width: 10px;
     height: 10px;
@@ -403,6 +444,37 @@ const modalStyles = `
     font-size: 13.5px; color: #374151; font-weight: 600;
     margin-bottom: 14px;
   }
+  .evm-map-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .evm-map-link {
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #dbe1ea;
+    background: #fff;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+  }
+  .evm-map-link:hover {
+    border-color: #1a4fd6;
+    color: #1a4fd6;
+    background: #f8fbff;
+  }
+  .evm-map-organizer {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 14px;
+  }
   .evm-transport { display: flex; flex-direction: column; gap: 8px; }
   .evm-transport-row {
     display: flex; align-items: flex-start; gap: 10px;
@@ -480,13 +552,14 @@ const modalStyles = `
   }
 
   /* Responsive */
-  @media (max-width: 700px) {
-    .evm-modal { max-height: calc(100vh - 24px); }
+  @media (max-width: 860px) {
+    .evm-modal { flex-direction: column; max-width: 780px; max-height: calc(100vh - 24px); }
+    .evm-poster-panel { width: 100%; height: 260px; }
+    .evm-right-panel { max-height: none; }
     .evm-quick-info { grid-template-columns: 1fr; }
     .evm-speakers { grid-template-columns: 1fr; }
     .evm-contact-grid { grid-template-columns: 1fr; }
-    .evm-hero { height: 210px; }
-    .evm-hero-title { font-size: 20px; }
+    .evm-right-title { font-size: 20px; }
     .evm-content { padding: 20px 18px 28px; }
     .evm-cta-bar { padding: 14px 18px; }
     .evm-guide-grid { grid-template-columns: 1fr; }
@@ -548,8 +621,10 @@ function buildDateKeys(startAt, endAt, scheduleList) {
   const startKey = toDateKey(startAt);
   const endKey = toDateKey(endAt);
   const bySchedule = (Array.isArray(scheduleList) ? scheduleList : [])
-    .map((item) => toDateKey(item?.startAt ?? item?.date ?? item?.day))
+    .map((item) => toDateKey(item?.dateKey ?? item?.startAt ?? item?.date ?? item?.day))
     .filter(Boolean);
+
+  if (bySchedule.length > 0) return [...new Set(bySchedule)].sort();
 
   if (startKey && endKey) {
     const result = [];
@@ -567,7 +642,6 @@ function buildDateKeys(startAt, endAt, scheduleList) {
     }
   }
 
-  if (bySchedule.length > 0) return [...new Set(bySchedule)].sort();
   if (startKey) return [startKey];
   return [];
 }
@@ -575,11 +649,14 @@ function buildDateKeys(startAt, endAt, scheduleList) {
 function normalizeScheduleItem(item, idx, fallbackDateKey) {
   const startAt = item?.startAt ?? item?.startDateTime ?? null;
   const endAt = item?.endAt ?? item?.endDateTime ?? null;
+  const rawProgramId = item?.programId ?? item?.id ?? item?.program_id;
+  const programId = Number(rawProgramId);
   const timeText =
     item?.time ??
     (startAt || endAt ? formatTime(startAt, endAt) : "시간 미정");
   const dateKey = toDateKey(startAt ?? item?.date ?? item?.day) ?? fallbackDateKey;
-  const title = item?.title ?? item?.name ?? item?.programName ?? `프로그램 ${idx + 1}`;
+  const title =
+    item?.programTitle ?? item?.programName ?? item?.title ?? item?.name ?? `프로그램 ${idx + 1}`;
   const place =
     item?.location ??
     item?.place ??
@@ -602,13 +679,140 @@ function normalizeScheduleItem(item, idx, fallbackDateKey) {
     minutes === null ? "오후" : minutes < 12 * 60 ? "오전" : minutes < 18 * 60 ? "오후" : "저녁";
 
   return {
-    id: item?.id ?? item?.programId ?? `${title}-${idx}`,
+    id: Number.isFinite(programId) ? programId : `${title}-${idx}`,
+    programId: Number.isFinite(programId) ? programId : null,
     dateKey,
     title,
     timeText,
     place,
     status,
     period,
+  };
+}
+
+
+/* ── 샘플 강아지 이미지 (외부 무료 이미지) ── */
+const DOG_SAMPLES = [
+  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1552053831-71594a27632d?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=600&h=900&fit=crop",
+  "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=600&h=900&fit=crop",
+];
+function getDogImage(eventId) {
+  const idx = typeof eventId === "number" ? eventId : 0;
+  return DOG_SAMPLES[Math.abs(idx) % DOG_SAMPLES.length];
+}
+
+const TRANSPORT_LINE_CANDIDATES = [
+  "1호선",
+  "2호선",
+  "3호선",
+  "4호선",
+  "5호선",
+  "6호선",
+  "7호선",
+  "8호선",
+  "9호선",
+  "신분당선",
+  "수인분당선",
+  "경의중앙선",
+];
+
+const LOCATION_TRANSPORT_PRESETS = [
+  {
+    keywords: ["코엑스", "영동대로"],
+    subway: "2호선 삼성역 5번 출구 도보 100m",
+    bus: "코엑스 동문 정류소: 143, 146, 301, 341, 360",
+    car: "코엑스 주차장 (서울 강남구 영동대로 513) / 기본 30분 2,400원, 1일 최대 60,000원",
+  },
+  {
+    keywords: ["킨텍스"],
+    subway: "GTX-A 킨텍스역 1번 출구 도보 100m",
+    bus: "킨텍스 제1전시장 정류소: 039, 082, 9700, M7646",
+    car: "킨텍스 제1전시장 주차장 (경기 고양시 일산서구 킨텍스로 217-60) / 기본 20분 1,200원",
+  },
+  {
+    keywords: ["대전컨벤션센터", "도룡동"],
+    subway: "대전 1호선 정부청사역 도보 100m",
+    bus: "대전컨벤션센터 정류소: 705, 911, 918",
+    car: "대전컨벤션센터 주차장 (대전 유성구 엑스포로 107) / 기본 30분 1,000원",
+  },
+];
+
+function hashLocationText(text) {
+  const source = String(text || "");
+  let hash = 0;
+  for (let i = 0; i < source.length; i += 1) {
+    hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function cleanAddressToken(token) {
+  return String(token || "")
+    .replace(/[()]/g, "")
+    .replace(/[0-9-]/g, "")
+    .replace(/(특별자치도|특별자치시|특별시|광역시|자치시|도|시|군|구|읍|면|동|리|대로|로|길)$/g, "")
+    .trim();
+}
+
+function pickAddressAnchor(locationText) {
+  const text = String(locationText || "").trim();
+  if (!text || text === "장소 미정") return "행사장";
+
+  const parts = text.split(/\s+/).filter(Boolean);
+  const reversed = [...parts].reverse();
+  const placeToken = reversed.find(
+    (part) => /[가-힣A-Za-z]/.test(part) && !/^[0-9-]+$/.test(part),
+  );
+  const areaToken = parts.find((part) => /(구|군|시|읍|면|동)$/.test(part));
+  const anchor = cleanAddressToken(placeToken) || cleanAddressToken(areaToken) || "행사장";
+  return anchor.length > 10 ? anchor.slice(0, 10) : anchor;
+}
+
+function buildTransportGuideFromLocation(locationText) {
+  const location = String(locationText || "").trim();
+  if (!location || location === "장소 미정") {
+    return {
+      subway: "정보 없음",
+      bus: "정보 없음",
+      car: "정보 없음",
+    };
+  }
+
+  const preset = LOCATION_TRANSPORT_PRESETS.find((item) =>
+    item.keywords.some((keyword) => location.includes(keyword)),
+  );
+  if (preset) {
+    return {
+      subway: preset.subway,
+      bus: preset.bus,
+      car: preset.car,
+    };
+  }
+
+  const seed = hashLocationText(location);
+  const anchor = pickAddressAnchor(location);
+  const line = TRANSPORT_LINE_CANDIDATES[seed % TRANSPORT_LINE_CANDIDATES.length];
+  const stationName = anchor.endsWith("역") ? anchor : `${anchor}역`;
+  const stopName = `${anchor}입구 정류소`;
+  const busNumbers = [
+    String(100 + (seed % 700)),
+    String(200 + ((seed * 3) % 600)),
+    String(300 + ((seed * 7) % 500)),
+  ];
+  const parkingName = `${anchor} 공영주차장`;
+  const baseFee = 2000 + (seed % 4) * 500;
+  const addFee = 500 + (seed % 3) * 100;
+
+  return {
+    subway: `${line} ${stationName} 도보 100m`,
+    bus: `${stopName}: ${busNumbers.join(", ")}`,
+    car: `${parkingName} (${location}) / 기본 30분 ${baseFee.toLocaleString()}원, 추가 10분 ${addFee.toLocaleString()}원`,
   };
 }
 
@@ -677,7 +881,7 @@ export default function EventDetailModal({ event, onClose }) {
             const filtered = programRes.filter(
               (item) => Number(item?.eventId) === modalEventId,
             );
-            setProgramList(filtered);
+            setProgramList(filtered.length > 0 ? filtered : programRes);
           }
         } catch (programError) {
           console.error(programError);
@@ -764,6 +968,26 @@ export default function EventDetailModal({ event, onClose }) {
 
   const desc = detail?.description || "설명 없음";
   const loc = detail?.location || "장소 미정";
+  const organizerName = detail?.organizer || event?.organizer || "정보 없음";
+  const organizerPhone =
+    detail?.organizerPhone || event?.organizerPhone || detail?.contact?.phone || "정보 없음";
+  const organizerEmail =
+    detail?.organizerEmail || event?.organizerEmail || detail?.contact?.email || "정보 없음";
+  const transportGuide = buildTransportGuideFromLocation(loc);
+  const subwayGuide = transportGuide?.subway || detail?.transport?.subway || "정보 없음";
+  const busGuide = transportGuide?.bus || detail?.transport?.bus || "정보 없음";
+  const carGuide = transportGuide?.car || detail?.transport?.car || "정보 없음";
+  const hasValidLocation = Boolean(loc && loc !== "장소 미정");
+  const encodedLocation = hasValidLocation ? encodeURIComponent(loc) : "";
+  const mapEmbedUrl = hasValidLocation
+    ? `https://maps.google.com/maps?q=${encodedLocation}&z=15&output=embed`
+    : "";
+  const kakaoMapUrl = hasValidLocation
+    ? `https://map.kakao.com/?q=${encodedLocation}`
+    : "";
+  const naverMapUrl = hasValidLocation
+    ? `https://map.naver.com/v5/search/${encodedLocation}`
+    : "";
   const rawFee = detail?.baseFee ?? event?.baseFee;
   const fee = normalizeFee(rawFee);
   const dateLabel = detail?.startAt ? formatDate(detail.startAt) : "일정 미정";
@@ -806,7 +1030,7 @@ export default function EventDetailModal({ event, onClose }) {
   const effectiveDateKey =
     (selectedDateKey && dayList.some((d) => d.key === selectedDateKey)
       ? selectedDateKey
-      : dayList[0]?.key) || "";
+      : dayList.find((d) => d.count > 0)?.key || dayList[0]?.key) || "";
   const selectedPrograms = normalizedPrograms.filter(
     (item) => item.dateKey === effectiveDateKey,
   );
@@ -822,6 +1046,43 @@ export default function EventDetailModal({ event, onClose }) {
       ? `/program/all/${modalEventId}`
       : "/program/all";
     navigate(target);
+  };
+
+  const handleViewProgramDetail = (programId) => {
+    if (!Number.isFinite(Number(programId))) return;
+    navigate(`/program/detail?programId=${Number(programId)}`);
+  };
+
+  const copyTextFallback = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    let copied = false;
+    try {
+      copied = document.execCommand("copy");
+    } catch {
+      copied = false;
+    }
+    textarea.remove();
+    return copied;
+  };
+
+  const handleShare = async () => {
+    const currentUrl = window.location.href;
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(currentUrl);
+      } else {
+        copyTextFallback(currentUrl);
+      }
+    } catch {
+      copyTextFallback(currentUrl);
+    }
+    window.alert("현재 url이 복사되었습니다");
   };
 
   const handleApply = async () => {
@@ -937,55 +1198,62 @@ export default function EventDetailModal({ event, onClose }) {
         onClick={handleOverlayClick}
       >
         <div className="evm-modal">
-          {/* Hero */}
-          <div className="evm-hero">
-            {!imgError ? (
-              <img
-                src={event.image}
-                alt={event.title}
-                onError={() => setImgError(true)}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  background:
-                    "linear-gradient(135deg, #1a4fd6 0%, #6366f1 100%)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "64px",
-                }}
-              >
-                {event.fallback}
-              </div>
-            )}
-            <div className="evm-hero-overlay" />
-            <div className="evm-hero-content">
-              <div className="evm-hero-badge">
-                <div className="ev-live-dot" />
-                LIVE
-              </div>
-              <div className="evm-hero-category">{event.category}</div>
-              <div className="evm-hero-title">{detail?.eventName}</div>
+          {/* Left — poster */}
+          <div className="evm-poster-panel">
+            <img
+              className="evm-poster-img"
+              src={event.image || detail?.imageUrl || getDogImage(modalEventId)}
+              alt={event.title}
+              onError={(e) => { e.target.onerror = null; e.target.src = getDogImage(modalEventId ?? 0); }}
+            />
+            <div className="evm-poster-overlay">
+              {statusLabel === "ONGOING" ? (
+                <div className="evm-poster-badge">
+                  <div className="ev-live-dot" />
+                  LIVE
+                </div>
+              ) : statusLabel === "UPCOMING" ? (
+                <div className="evm-poster-badge" style={{ background: "rgba(26,79,214,0.9)" }}>
+                  UPCOMING
+                </div>
+              ) : statusLabel === "ENDED" || statusLabel === "CLOSED" ? (
+                <div className="evm-poster-badge" style={{ background: "rgba(107,114,128,0.9)" }}>
+                  종료
+                </div>
+              ) : (
+                <div className="evm-poster-badge">
+                  <div className="ev-live-dot" />
+                  LIVE
+                </div>
+              )}
+              <div className="evm-poster-category">{event.category}</div>
             </div>
-            <div className="evm-topbar">
-              <button className="evm-icon-btn" title="공유">
-                <Share2 size={16} />
+          </div>
+
+          {/* Right — content */}
+          <div className="evm-right-panel" style={{ position: "relative" }}>
+            <div className="evm-topbar-right">
+              <button className="evm-icon-btn" title="공유" onClick={handleShare}>
+                <Share2 size={15} />
               </button>
               <button className="evm-icon-btn" title="북마크">
-                <Bookmark size={16} />
+                <Bookmark size={15} />
               </button>
               <button
                 className="evm-icon-btn"
                 onClick={handleClose}
                 title="닫기"
               >
-                <X size={18} />
+                <X size={17} />
               </button>
             </div>
-          </div>
+
+            <div className="evm-right-header">
+              <h2 className="evm-right-title">{detail?.eventName || event.title}</h2>
+              <div className="evm-right-sub">
+                {dateLabel} · {timeLabel} · {loc}
+              </div>
+            </div>
 
           <div className="evm-body-scroll">
           {/* Body */}
@@ -1121,7 +1389,27 @@ export default function EventDetailModal({ event, onClose }) {
                           {group.items.length > 0 && (
                             <div className="evm-guide-program-list">
                               {group.items.map((item) => (
-                                <div key={item.id} className="evm-guide-program-item">
+                                <div
+                                  key={item.id}
+                                  className={`evm-guide-program-item${item.programId ? " clickable" : ""}`}
+                                  role={item.programId ? "button" : undefined}
+                                  tabIndex={item.programId ? 0 : undefined}
+                                  onClick={
+                                    item.programId
+                                      ? () => handleViewProgramDetail(item.programId)
+                                      : undefined
+                                  }
+                                  onKeyDown={
+                                    item.programId
+                                      ? (e) => {
+                                          if (e.key === "Enter" || e.key === " ") {
+                                            e.preventDefault();
+                                            handleViewProgramDetail(item.programId);
+                                          }
+                                        }
+                                      : undefined
+                                  }
+                                >
                                   <div className={`evm-guide-program-dot ${item.status}`} />
                                   <div className="evm-guide-program-body">
                                     <div className="evm-guide-program-name">{item.title}</div>
@@ -1234,15 +1522,49 @@ export default function EventDetailModal({ event, onClose }) {
               </div>
 
               <div className="evm-map-placeholder">
-                <div className="evm-map-placeholder-inner">
-                  <MapPin size={28} />
-                  지도 영역 (카카오 / 구글 연동)
-                </div>
+                {hasValidLocation ? (
+                  <iframe
+                    title="행사 위치 지도"
+                    src={mapEmbedUrl}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                ) : (
+                  <div className="evm-map-placeholder-inner">
+                    <MapPin size={28} />
+                    주소 정보가 없습니다.
+                  </div>
+                )}
               </div>
 
               <div className="evm-address">
                 <MapPin size={14} color="#1a4fd6" />
                 {loc}
+              </div>
+              {hasValidLocation && (
+                <div className="evm-map-links">
+                  <a
+                    className="evm-map-link"
+                    href={kakaoMapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    카카오맵
+                    <ExternalLink size={12} />
+                  </a>
+                  <a
+                    className="evm-map-link"
+                    href={naverMapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    네이버맵
+                    <ExternalLink size={12} />
+                  </a>
+                </div>
+              )}
+              <div className="evm-map-organizer">
+                주최: <strong>{organizerName}</strong>
               </div>
 
               <div className="evm-transport">
@@ -1256,7 +1578,7 @@ export default function EventDetailModal({ event, onClose }) {
                   <div>
                     <strong style={{ fontSize: "12px" }}>지하철</strong>
                     <br />
-                    {detail?.transport?.subway || "정보 없음"}
+                    {subwayGuide}
                   </div>
                 </div>
                 <div className="evm-transport-row">
@@ -1269,7 +1591,7 @@ export default function EventDetailModal({ event, onClose }) {
                   <div>
                     <strong style={{ fontSize: "12px" }}>버스</strong>
                     <br />
-                    {detail?.transport?.bus || "정보 없음"}
+                    {busGuide}
                   </div>
                 </div>
                 <div className="evm-transport-row">
@@ -1280,9 +1602,9 @@ export default function EventDetailModal({ event, onClose }) {
                     <Car size={14} color="#f59e0b" />
                   </div>
                   <div>
-                    <strong style={{ fontSize: "12px" }}>자가용</strong>
+                    <strong style={{ fontSize: "12px" }}>자동차</strong>
                     <br />
-                    {detail?.transport?.car || "정보 없음"}
+                    {carGuide}
                   </div>
                 </div>
               </div>
@@ -1330,7 +1652,7 @@ export default function EventDetailModal({ event, onClose }) {
                   marginBottom: "12px",
                 }}
               >
-                주최: <strong>{detail?.organizer || "정보 없음"}</strong>
+                주최: <strong>{organizerName}</strong>
               </div>
               <div className="evm-contact-grid">
                 <div className="evm-contact-item">
@@ -1340,7 +1662,7 @@ export default function EventDetailModal({ event, onClose }) {
                   <div>
                     <div className="evm-contact-label">전화</div>
                     <div className="evm-contact-value">
-                      {detail?.contact?.phone || "정보 없음"}
+                      {organizerPhone}
                     </div>
                   </div>
                 </div>
@@ -1351,7 +1673,7 @@ export default function EventDetailModal({ event, onClose }) {
                   <div>
                     <div className="evm-contact-label">이메일</div>
                     <div className="evm-contact-value">
-                      {detail?.contact?.email || "정보 없음"}
+                      {organizerEmail}
                     </div>
                   </div>
                 </div>
@@ -1378,7 +1700,7 @@ export default function EventDetailModal({ event, onClose }) {
               )}
             </div>
             <div className="evm-cta-actions">
-              <button className="evm-btn-secondary">
+              <button className="evm-btn-secondary" onClick={handleShare}>
                 <ExternalLink size={14} />
                 공유
               </button>
@@ -1414,8 +1736,14 @@ export default function EventDetailModal({ event, onClose }) {
               ) : null}
             </div>
           </div>
+          {/* /evm-cta-bar */}
+
+          </div>
+          {/* /evm-right-panel */}
         </div>
+        {/* /evm-modal */}
       </div>
+      {/* /evm-overlay */}
     </>
   );
 }

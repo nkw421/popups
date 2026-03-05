@@ -509,9 +509,7 @@ function DetailModal({
                   borderBottom: `1px solid ${ds.line}`,
                 }}
               >
-                <span
-                  style={{ fontSize: 13, color: ds.ink3, fontWeight: 500 }}
-                >
+                <span style={{ fontSize: 13, color: ds.ink3, fontWeight: 500 }}>
                   {r.l}
                 </span>
                 {r.render ? (
@@ -655,9 +653,7 @@ function DetailModal({
                 >
                   <MessageCircle size={10} color="#fff" />
                 </div>
-                <span
-                  style={{ fontSize: 12, fontWeight: 700, color: ds.ink3 }}
-                >
+                <span style={{ fontSize: 12, fontWeight: 700, color: ds.ink3 }}>
                   {hasReply ? "답변 수정" : "운영자 답변 작성"}
                 </span>
               </div>
@@ -1005,9 +1001,7 @@ function SlidePanel({
                     <Check size={12} color="#fff" strokeWidth={3} />
                   )}
                 </div>
-                <span style={{ fontSize: 13, color: ds.ink3 }}>
-                  상단 고정
-                </span>
+                <span style={{ fontSize: 13, color: ds.ink3 }}>상단 고정</span>
               </div>
             </Field>
           )}
@@ -1192,9 +1186,7 @@ function BoardRow({
         background: checked ? `${ds.brand}06` : "transparent",
       }}
       onMouseEnter={(e) =>
-        (e.currentTarget.style.background = checked
-          ? `${ds.brand}0A`
-          : ds.bg)
+        (e.currentTarget.style.background = checked ? `${ds.brand}0A` : ds.bg)
       }
       onMouseLeave={(e) =>
         (e.currentTarget.style.background = checked
@@ -1478,11 +1470,16 @@ export default function BoardManage({ subTab = "free" }) {
 
           if (!bId) {
             try {
-              const bRes = await axiosInstance.get("/api/boards?activeOnly=true", {
-                headers: authHeaders(),
-              });
+              const bRes = await axiosInstance.get(
+                "/api/boards?activeOnly=true",
+                {
+                  headers: authHeaders(),
+                },
+              );
               const boards = bRes.data?.data || bRes.data || [];
-              const targetBoard = boards.find((b) => b.boardType === boardTypeCode);
+              const targetBoard = boards.find(
+                (b) => b.boardType === boardTypeCode,
+              );
               bId = targetBoard?.boardId || null;
               if (type === "info") {
                 setInfoBoardId(bId);
@@ -1727,11 +1724,16 @@ export default function BoardManage({ subTab = "free" }) {
 
           if (!bId) {
             try {
-              const bRes = await axiosInstance.get("/api/boards?activeOnly=true", {
-                headers: authHeaders(),
-              });
+              const bRes = await axiosInstance.get(
+                "/api/boards?activeOnly=true",
+                {
+                  headers: authHeaders(),
+                },
+              );
               const boards = bRes.data?.data || bRes.data || [];
-              const targetBoard = boards.find((b) => b.boardType === boardTypeCode);
+              const targetBoard = boards.find(
+                (b) => b.boardType === boardTypeCode,
+              );
               bId = targetBoard?.boardId || null;
               if (boardType === "info") {
                 setInfoBoardId(bId);

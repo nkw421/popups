@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
@@ -41,6 +42,51 @@ const QR_MATRIX = [
   [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1],
 ];
 
+=======
+﻿import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import PageHeader from "../components/PageHeader";
+import {
+  Smartphone,
+  Calendar,
+  MapPin,
+  ShieldCheck,
+  MessageSquare,
+  Download,
+  CheckCircle2,
+  Info,
+  Clock,
+  RefreshCw,
+} from "lucide-react";
+import { axiosInstance } from "../../../app/http/axiosInstance";
+import { eventApi } from "../../../app/http/eventApi";
+import { tokenStore } from "../../../app/http/tokenStore";
+
+const QR_MATRIX = [
+  [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+  [1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+  [0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0],
+  [1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1],
+  [0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+  [1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+  [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0],
+  [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1],
+  [1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+  [1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0],
+  [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 1],
+];
+
+>>>>>>> origin/develop
 const SERVICE_CATEGORIES = [
   { label: "행사 참가 신청", path: "/registration/apply" },
   { label: "신청 내역 조회", path: "/registration/applyhistory" },
@@ -50,13 +96,22 @@ const SERVICE_CATEGORIES = [
 
 const SUBTITLE_MAP = {
   "/registration/apply": "행사에 참가 신청하세요",
+<<<<<<< HEAD
   "/registration/applyhistory": "나의 행사 참가 신청 이력을 확인하세요",
   "/registration/paymenthistory": "결제 완료된 내역을 확인하세요",
+=======
+  "/registration/applyhistory": "신청한 행사 참가 내역을 확인하세요",
+  "/registration/paymenthistory": "결제 완료 내역을 확인하세요",
+>>>>>>> origin/develop
   "/registration/qrcheckin": "내 QR 코드를 확인하세요",
 };
 
 const STATUS_META = {
+<<<<<<< HEAD
   ISSUED: { label: "발급됨(비활성)", color: "#B45309", bg: "#FEF3C7", canEnter: false },
+=======
+  ISSUED: { label: "발급됨 (비활성)", color: "#B45309", bg: "#FEF3C7", canEnter: false },
+>>>>>>> origin/develop
   ACTIVE: { label: "활성", color: "#15803D", bg: "#DCFCE7", canEnter: true },
   EXPIRED: { label: "만료", color: "#6B7280", bg: "#F3F4F6", canEnter: false },
 };
@@ -175,7 +230,7 @@ function formatDateTime(value) {
 }
 
 function formatDateRange(startAt, endAt) {
-  if (!startAt && !endAt) return "일정 정보 없음";
+  if (!startAt && !endAt) return "?쇱젙 ?뺣낫 ?놁쓬";
   const start = formatDateTime(startAt);
   const end = formatDateTime(endAt);
   return `${start} ~ ${end}`;
@@ -196,11 +251,13 @@ export default function QRCheckin() {
   const [registrations, setRegistrations] = useState([]);
   const [selectedEventId, setSelectedEventId] = useState(null);
   const [eventDetail, setEventDetail] = useState(null);
+  const [eventNameById, setEventNameById] = useState({});
   const [qrInfo, setQrInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingQr, setLoadingQr] = useState(false);
   const [error, setError] = useState("");
   const [smsSent, setSmsSent] = useState(false);
+  const [smsSending, setSmsSending] = useState(false);
   const [useImage, setUseImage] = useState(true);
 
   const registrationMap = useMemo(() => {
@@ -238,6 +295,7 @@ export default function QRCheckin() {
           const status = String(r?.status || "").toUpperCase();
           return status === "APPROVED" || status === "승인완료";
         });
+<<<<<<< HEAD
 
         if (!mounted) return;
         setRegistrations(approvedOnly);
@@ -248,6 +306,18 @@ export default function QRCheckin() {
           : fallback?.eventId ?? null;
 
         setSelectedEventId(selected);
+=======
+
+        if (!mounted) return;
+        setRegistrations(approvedOnly);
+
+        const fallback = approvedOnly[0] || null;
+        const selected = Number.isFinite(queryEventId) && approvedOnly.some((r) => r.eventId === queryEventId)
+          ? queryEventId
+          : fallback?.eventId ?? null;
+
+        setSelectedEventId(selected);
+>>>>>>> origin/develop
       } catch (e) {
         if (!mounted) return;
         const message = e?.response?.data?.error?.message || "신청 이벤트 목록을 불러오지 못했습니다.";
@@ -262,6 +332,37 @@ export default function QRCheckin() {
       mounted = false;
     };
   }, [navigate, queryEventId]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchEventNames = async () => {
+      if (!registrations.length) {
+        setEventNameById({});
+        return;
+      }
+
+      const entries = await Promise.all(
+        registrations.map(async (item) => {
+          try {
+            const eventRes = await eventApi.getEventDetail(item.eventId);
+            return [item.eventId, eventRes?.data?.data?.eventName || `이벤트 #${item.eventId}`];
+          } catch {
+            return [item.eventId, `이벤트 #${item.eventId}`];
+          }
+        }),
+      );
+
+      if (mounted) {
+        setEventNameById(Object.fromEntries(entries));
+      }
+    };
+
+    fetchEventNames();
+    return () => {
+      mounted = false;
+    };
+  }, [registrations]);
 
   const loadQr = async (eventId) => {
     if (!eventId) return;
@@ -304,35 +405,68 @@ export default function QRCheckin() {
 
   const selectedRegistration = selectedEventId ? registrationMap.get(selectedEventId) : null;
 
-  const handleSendSMS = () => {
+  const handleSendSMS = async () => {
     if (!qrInfo || !eventDetail) return;
 
-    const msg = encodeURIComponent(
+    const smsMessage =
       `[${eventDetail.eventName || "이벤트"}]\n` +
-        `QR 번호: QR-${qrInfo.qrId}\n` +
-        `행사일: ${formatDateRange(eventDetail.startAt, eventDetail.endAt)}\n` +
-        `장소: ${eventDetail.location || "-"}\n` +
-        `상태: ${statusMeta.label}`,
-    );
+      `QR 번호: QR-${qrInfo.qrId}\n` +
+      `행사일: ${formatDateRange(eventDetail.startAt, eventDetail.endAt)}\n` +
+      `장소: ${eventDetail.location || "-"}\n` +
+      `상태: ${statusMeta.label}`;
 
-    window.location.href = `sms:${/iPhone|iPad|iPod/i.test(navigator.userAgent) ? "&" : "?"}body=${msg}`;
-    setSmsSent(true);
-    setTimeout(() => setSmsSent(false), 3000);
+    setSmsSending(true);
+    setError("");
+    try {
+      const res = await axiosInstance.post("/api/qr/me/sms-test", {
+        eventId: selectedEventId,
+        phone: "LOCAL-TEST",
+        message: smsMessage,
+      });
+      console.info("[QR SMS TEST]", res?.data?.data);
+      setSmsSent(true);
+      setTimeout(() => setSmsSent(false), 3000);
+    } catch (e) {
+      const message = e?.response?.data?.error?.message || "문자 테스트 요청에 실패했습니다.";
+      setError(message);
+    } finally {
+      setSmsSending(false);
+    }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!qrInfo?.originalUrl) return;
-    const a = document.createElement("a");
-    a.href = qrInfo.originalUrl;
-    a.target = "_blank";
-    a.rel = "noreferrer";
-    a.click();
+    const filename = `qr-${qrInfo?.qrId ?? "code"}.png`;
+    try {
+      const imgRes = await fetch(qrInfo.originalUrl);
+      if (!imgRes.ok) throw new Error("download failed");
+      const blob = await imgRes.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      const a = document.createElement("a");
+      a.href = qrInfo.originalUrl;
+      a.download = filename;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.click();
+    }
   };
 
   const notices = [
     "QR 코드는 행사 시작 1시간 전부터 활성화됩니다.",
     "이벤트별로 1인 1QR 정책이 적용됩니다.",
+<<<<<<< HEAD
     "행사 종료 시 QR은 자동 만료됩니다.",
+=======
+    "행사 종료 후 QR은 자동 만료됩니다.",
+>>>>>>> origin/develop
     "문제 발생 시 운영팀에 문의해 주세요.",
   ];
 
@@ -352,12 +486,12 @@ export default function QRCheckin() {
 
         <div className="qr-grid">
           <div className="qr-card">
-            <div className="qr-card-title">
-              <div className="qr-card-title-icon">
-                <Smartphone size={14} />
+              <div className="qr-card-title">
+                <div className="qr-card-title-icon">
+                  <Smartphone size={14} />
+                </div>
+                내 QR 정보
               </div>
-              내 QR 정보
-            </div>
 
             <div className="qr-display-wrap">
               <div className="qr-box">
@@ -414,9 +548,12 @@ export default function QRCheckin() {
             </div>
 
             <div className="qr-btn-row">
-              <button className="qr-btn qr-btn-outline" onClick={handleSendSMS} disabled={!qrInfo}>
+              <button className="qr-btn qr-btn-outline" onClick={handleSendSMS} disabled={!qrInfo || smsSending}>
                 <MessageSquare size={13} />
-                {smsSent ? "발송됨" : "문자 받기"}
+                {smsSending ? "요청 중..."
+                  : smsSent
+                    ? "발송됨"
+                    : "문자 받기"}
               </button>
               <button className="qr-btn qr-btn-primary" onClick={handleDownload} disabled={!qrInfo?.originalUrl}>
                 <Download size={13} />
@@ -426,12 +563,12 @@ export default function QRCheckin() {
           </div>
 
           <div className="qr-card">
-            <div className="qr-card-title">
-              <div className="qr-card-title-icon">
-                <RefreshCw size={14} />
+              <div className="qr-card-title">
+                <div className="qr-card-title-icon">
+                  <RefreshCw size={14} />
+                </div>
+                이벤트 선택
               </div>
-              이벤트 선택
-            </div>
 
             <div className="qr-field">
               <label className="qr-label">신청한 이벤트</label>
@@ -446,7 +583,11 @@ export default function QRCheckin() {
                 ) : (
                   registrations.map((item) => (
                     <option key={item.applyId ?? item.eventId} value={item.eventId}>
+<<<<<<< HEAD
                       이벤트 #{item.eventId} ({formatRegistrationStatus(item.status)})
+=======
+                      {(eventNameById[item.eventId] || `이벤트 #${item.eventId}`)} ({formatRegistrationStatus(item.status)})
+>>>>>>> origin/develop
                     </option>
                   ))
                 )}
@@ -465,7 +606,7 @@ export default function QRCheckin() {
 
             {selectedRegistration && (
               <div className="qr-result-ok">
-                <div className="qr-result-title">
+              <div className="qr-result-title">
                   <CheckCircle2 size={16} /> 신청 상태: {formatRegistrationStatus(selectedRegistration.status)}
                 </div>
                 <div className="qr-result-body">
@@ -495,3 +636,4 @@ export default function QRCheckin() {
     </div>
   );
 }
+

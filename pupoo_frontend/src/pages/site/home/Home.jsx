@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { noticeApi, unwrap } from "../../../api/noticeApi";
 import { reviewApi } from "../../../app/http/reviewApi";
 import { eventApi } from "../../../app/http/eventApi";
+<<<<<<< HEAD
 import { programApi } from "../../../app/http/programApi";
+=======
+>>>>>>> origin/develop
 
 /* ── 이미지 폴백 ── */
 const DOG_IMGS = [
@@ -23,14 +26,23 @@ function fmtEventDate(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d)) return "";
+<<<<<<< HEAD
   const week = ["일", "월", "화", "수", "목", "금", "토"];
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}(${week[d.getDay()]})`;
+=======
+  const week = ["일","월","화","수","목","금","토"];
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}(${week[d.getDay()]})`;
+>>>>>>> origin/develop
 }
 function fmtTime(iso) {
   if (!iso) return "";
   const d = new Date(iso);
   if (isNaN(d)) return "";
+<<<<<<< HEAD
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+=======
+  return `${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+>>>>>>> origin/develop
 }
 function mapApiEvent(raw) {
   const id = raw?.eventId ?? raw?.id;
@@ -48,6 +60,7 @@ function mapApiEvent(raw) {
     status: raw?.status ?? "",
   };
 }
+<<<<<<< HEAD
 
 /* ── 세션 매핑 ── */
 function mapSession(raw, eventMap) {
@@ -69,6 +82,8 @@ function mapSession(raw, eventMap) {
   };
 }
 
+=======
+>>>>>>> origin/develop
 // ================= 스크롤 reveal 훅 =================
 function useScrollReveal(options = {}) {
   const { threshold = 0.15, rootMargin = "0px 0px -60px 0px" } = options;
@@ -109,15 +124,23 @@ function RevealSection({ children, className = "", delay = 0 }) {
   );
 }
 
+<<<<<<< HEAD
 // ================= EVENT SECTION (DB 연동 — 좌3 우3 고정) =================
+=======
+// ================= EVENT SECTION (DB 연동) =================
+>>>>>>> origin/develop
 function EventSection() {
   const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
+<<<<<<< HEAD
     eventApi
       .getEvents({ page: 0, size: 6 })
+=======
+    eventApi.getEvents({ status: "ONGOING", page: 0, size: 10 })
+>>>>>>> origin/develop
       .then((res) => {
         const list = res.data?.data?.content || res.data?.data || [];
         setEvents(list.map(mapApiEvent));
@@ -125,6 +148,7 @@ function EventSection() {
       .catch(() => setEvents([]));
   }, []);
 
+<<<<<<< HEAD
   // 좌 3개 / 우 3개 분배
   const leftItems = events.slice(0, 3);
   const rightItems = events.length > 3 ? events.slice(3, 6) : events.slice(0, Math.min(3, events.length));
@@ -136,15 +160,44 @@ function EventSection() {
     const first = items.find((e) => e.startAt);
     return first ? fmtEventDate(first.startAt) : "일정 미정";
   };
+=======
+  // 날짜별 그룹핑
+  const grouped = {};
+  events.forEach((ev) => {
+    const key = fmtEventDate(ev.startAt) || "일정 미정";
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(ev);
+  });
+  const dateKeys = Object.keys(grouped).slice(0, 2);
+  const colors = [
+    { bg: "bg-gradient-to-r from-blue-50 to-blue-100/50", text: "text-blue-700" },
+    { bg: "bg-gradient-to-r from-emerald-50 to-teal-100/50", text: "text-teal-700" },
+  ];
+>>>>>>> origin/develop
 
   return (
     <section className="w-full bg-gradient-to-b from-gray-50 to-white py-16 px-6">
       <div className="max-w-[1400px] mx-auto px-6">
         <RevealSection>
           <div className="text-center mb-10">
+<<<<<<< HEAD
             <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">진행 중인 행사 안내</p>
             <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">현재 진행 중인 프로그램</h2>
             <button onClick={() => navigate("/event/current")} className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300">자세히 보기</button>
+=======
+            <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">
+              진행 중인 행사 안내
+            </p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              현재 진행 중인 반려견 행사
+            </h2>
+            <button
+              onClick={() => navigate("/event/current")}
+              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300"
+            >
+              자세히 보기
+            </button>
+>>>>>>> origin/develop
           </div>
         </RevealSection>
         <RevealSection delay={0.15}>
@@ -155,6 +208,7 @@ function EventSection() {
               <div className="hidden lg:block absolute left-1/2 top-6 bottom-0 -translate-x-1/2">
                 <div className="w-px h-full" style={{ backgroundImage: "radial-gradient(circle, #d1d5db 1px, transparent 1px)", backgroundSize: "1px 5px" }} />
               </div>
+<<<<<<< HEAD
               {sides.map((side, si) => (
                 <div key={si} className="space-y-4">
                   <div className={`${side.color.bg} ${side.color.text} text-center py-3 rounded-xl font-semibold text-sm`}>{groupDate(side.items)}</div>
@@ -162,6 +216,17 @@ function EventSection() {
                     {side.items.map((ev, idx) => (
                       <EventCard
                         key={ev.id || idx}
+=======
+              {dateKeys.length > 0 ? dateKeys.map((key, si) => (
+                <div key={key} className="space-y-4">
+                  <div className={`${colors[si % 2].bg} ${colors[si % 2].text} text-center py-3 rounded-xl font-semibold text-sm`}>
+                    {key}
+                  </div>
+                  <div className="space-y-4">
+                    {grouped[key].slice(0, 3).map((ev, idx) => (
+                      <EventCard
+                        key={ev.id}
+>>>>>>> origin/develop
                         event={{ title: ev.title, time: ev.startAt && ev.endAt ? `${fmtTime(ev.startAt)} ~ ${fmtTime(ev.endAt)}` : "시간 미정", location: ev.location }}
                         isHovered={hoveredCard === `${si}-${idx}`}
                         onHover={() => setHoveredCard(`${si}-${idx}`)}
@@ -170,7 +235,23 @@ function EventSection() {
                     ))}
                   </div>
                 </div>
+<<<<<<< HEAD
               ))}
+=======
+              )) : (
+                <div className="col-span-2 space-y-4">
+                  {events.slice(0, 6).map((ev, idx) => (
+                    <EventCard
+                      key={ev.id}
+                      event={{ title: ev.title, time: ev.startAt && ev.endAt ? `${fmtTime(ev.startAt)} ~ ${fmtTime(ev.endAt)}` : "시간 미정", location: ev.location }}
+                      isHovered={hoveredCard === `all-${idx}`}
+                      onHover={() => setHoveredCard(`all-${idx}`)}
+                      onLeave={() => setHoveredCard(null)}
+                    />
+                  ))}
+                </div>
+              )}
+>>>>>>> origin/develop
             </div>
           )}
         </RevealSection>
@@ -226,6 +307,7 @@ function useInfiniteSlider(itemCount, slideSize) {
   return { index, realIndex, offset, transition, next, prev, goTo, setIndex, setTransition, CLONES };
 }
 
+<<<<<<< HEAD
 // ================= SESSION LINEUP (세션 DB 연동) =================
 function SessionLineup() {
   const navigate = useNavigate();
@@ -255,6 +337,22 @@ function SessionLineup() {
   }, []);
 
   const items = sessions.slice(0, 10);
+=======
+// ================= SPEAKER LINEUP (DB 연동) =================
+function SpeakerLineup() {
+  const navigate = useNavigate();
+  const [events, setEvents] = useState([]);
+  useEffect(() => {
+    eventApi.getEvents({ page: 0, size: 10 })
+      .then((res) => {
+        const list = res.data?.data?.content || res.data?.data || [];
+        setEvents(list.map(mapApiEvent));
+      })
+      .catch(() => setEvents([]));
+  }, []);
+
+  const items = events.length > 0 ? events : [];
+>>>>>>> origin/develop
   const GAP = 20;
   const VISIBLE = 4;
   const PEEK = 0.35;
@@ -265,7 +363,14 @@ function SessionLineup() {
   const [hovered, setHovered] = useState(null);
   const dragRef = useRef({ startX: 0, currentX: 0, dragging: false });
   const trackRef = useRef(null);
+<<<<<<< HEAD
   const onPointerDown = (e) => { dragRef.current = { startX: e.clientX, currentX: e.clientX, dragging: true }; slider.setTransition(false); };
+=======
+  const onPointerDown = (e) => {
+    dragRef.current = { startX: e.clientX, currentX: e.clientX, dragging: true };
+    slider.setTransition(false);
+  };
+>>>>>>> origin/develop
   const onPointerMove = (e) => {
     if (!dragRef.current.dragging) return;
     dragRef.current.currentX = e.clientX;
@@ -280,6 +385,7 @@ function SessionLineup() {
     if (delta < -50) slider.next();
     else if (delta > 50) slider.prev();
   };
+<<<<<<< HEAD
 
   const catLabel = (c) => {
     const raw = String(c).toUpperCase();
@@ -287,6 +393,12 @@ function SessionLineup() {
     if (raw.includes("EXPERIENCE")) return "체험";
     if (raw.includes("CONTEST")) return "콘테스트";
     return "프로그램";
+=======
+  const statusColor = {
+    ONGOING: { bg: "bg-red-500", text: "text-white", label: "진행중" },
+    UPCOMING: { bg: "bg-blue-600", text: "text-white", label: "예정" },
+    ENDED: { bg: "bg-gray-500", text: "text-white", label: "종료" },
+>>>>>>> origin/develop
   };
 
   return (
@@ -294,13 +406,29 @@ function SessionLineup() {
       <div className="max-w-[1400px] mx-auto px-6">
         <RevealSection>
           <div className="text-center mb-10">
+<<<<<<< HEAD
             <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">PuPoo Session</p>
             <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">현재 진행 중인 세션 · 강연</h2>
             <button onClick={() => navigate("/program/schedule")} className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300">전체 세션 보기</button>
+=======
+            <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">
+              PuPoo Events
+            </p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+              등록된 반려견 행사
+            </h2>
+            <button
+              onClick={() => navigate("/event/current")}
+              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300"
+            >
+              전체 행사 보기
+            </button>
+>>>>>>> origin/develop
           </div>
         </RevealSection>
         <RevealSection delay={0.12}>
           {items.length === 0 ? (
+<<<<<<< HEAD
             <div className="text-center text-gray-400 py-12">등록된 세션이 없습니다.</div>
           ) : (
             <>
@@ -331,6 +459,62 @@ function SessionLineup() {
                         <div className="mt-3">
                           <span className="inline-block text-[11px] font-bold bg-blue-600 text-white px-2.5 py-1 rounded-md">{catLabel(s.category)}</span>
                           <span className="inline-block text-[11px] font-medium bg-gray-200 text-gray-600 px-2.5 py-1 rounded-md ml-1.5">{s.eventName}</span>
+=======
+            <div className="text-center text-gray-400 py-12">등록된 행사가 없습니다.</div>
+          ) : (
+            <>
+              <div
+                className="overflow-hidden cursor-grab active:cursor-grabbing"
+                onPointerDown={onPointerDown}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                onPointerLeave={onPointerUp}
+                style={{ userSelect: "none" }}
+              >
+                <div
+                  ref={trackRef}
+                  className="flex"
+                  style={{
+                    gap: GAP,
+                    transform: `translate3d(-${slider.offset}px, 0, 0)`,
+                    transition: slider.transition ? "transform 600ms cubic-bezier(0.16,1,0.3,1)" : "none",
+                    willChange: "transform",
+                  }}
+                >
+                  {extended.map((ev, i) => {
+                    const isH = hovered === i;
+                    const sc = statusColor[ev.status] || statusColor.ONGOING;
+                    return (
+                      <div
+                        key={i}
+                        style={{ width: CARD_W }}
+                        className="shrink-0"
+                        onMouseEnter={() => setHovered(i)}
+                        onMouseLeave={() => setHovered(null)}
+                      >
+                        <div className="relative overflow-hidden rounded-2xl bg-gray-100 aspect-[3/4]">
+                          <img
+                            src={ev.image}
+                            alt={ev.title}
+                            className={`w-full h-full object-cover transition-all duration-700 ease-out ${isH ? "scale-105 grayscale-0" : "scale-100 grayscale"}`}
+                            draggable={false}
+                            onError={(e) => { e.target.onerror = null; e.target.src = dogImg(ev.id); }}
+                          />
+                          <div className="absolute inset-x-0 bottom-0 h-2/5" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)" }} />
+                          <div className="absolute bottom-0 left-0 right-0 p-5">
+                            <p className="text-white font-bold text-lg leading-snug">{ev.title}</p>
+                            <p className="text-white/60 text-sm mt-0.5">{ev.location}</p>
+                            {ev.startAt && <p className="text-white/50 text-xs mt-1">{fmtEventDate(ev.startAt)}</p>}
+                          </div>
+                        </div>
+                        <div className="mt-3">
+                          <span className={`inline-block text-[11px] font-bold ${sc.bg} ${sc.text} px-2.5 py-1 rounded-md`}>
+                            {sc.label}
+                          </span>
+                          <span className="inline-block text-[11px] font-medium bg-gray-200 text-gray-600 px-2.5 py-1 rounded-md ml-1.5">
+                            {ev.category}
+                          </span>
+>>>>>>> origin/develop
                         </div>
                       </div>
                     );
@@ -346,7 +530,15 @@ function SessionLineup() {
                   </span>
                   <div className="flex gap-1.5">
                     {items.map((_, i) => (
+<<<<<<< HEAD
                       <button key={i} onClick={() => slider.goTo(i)} className={`h-[3px] rounded-full transition-all duration-500 ${i === slider.realIndex ? "w-8 bg-gray-900" : "w-3 bg-gray-300 hover:bg-gray-400"}`} />
+=======
+                      <button
+                        key={i}
+                        onClick={() => slider.goTo(i)}
+                        className={`h-[3px] rounded-full transition-all duration-500 ${i === slider.realIndex ? "w-8 bg-gray-900" : "w-3 bg-gray-300 hover:bg-gray-400"}`}
+                      />
+>>>>>>> origin/develop
                     ))}
                   </div>
                 </div>
@@ -388,7 +580,14 @@ function RecommendCarousel() {
   const extended = items.length > 0 ? Array.from({ length: slider.CLONES }, () => items).flat() : [];
   const dragRef = useRef({ startX: 0, currentX: 0, dragging: false });
   const trackRef = useRef(null);
+<<<<<<< HEAD
   const onPointerDown = (e) => { dragRef.current = { startX: e.clientX, currentX: e.clientX, dragging: true }; slider.setTransition(false); };
+=======
+  const onPointerDown = (e) => {
+    dragRef.current = { startX: e.clientX, currentX: e.clientX, dragging: true };
+    slider.setTransition(false);
+  };
+>>>>>>> origin/develop
   const onPointerMove = (e) => {
     if (!dragRef.current.dragging) return;
     dragRef.current.currentX = e.clientX;
@@ -404,25 +603,70 @@ function RecommendCarousel() {
     else if (delta > 50) slider.prev();
   };
 
+<<<<<<< HEAD
   if (items.length === 0) return <div className="text-center text-gray-400 py-12">추천 행사를 불러오는 중...</div>;
+=======
+  if (items.length === 0) {
+    return <div className="text-center text-gray-400 py-12">추천 행사를 불러오는 중...</div>;
+  }
+>>>>>>> origin/develop
 
   return (
     <div className="relative w-full">
       <RevealSection>
+<<<<<<< HEAD
         <div className="overflow-hidden cursor-grab active:cursor-grabbing" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerLeave={onPointerUp} style={{ userSelect: "none" }}>
           <div ref={trackRef} className="flex" style={{ gap: GAP, transform: `translate3d(-${slider.offset}px, 0, 0)`, transition: slider.transition ? "transform 600ms cubic-bezier(0.16,1,0.3,1)" : "none", willChange: "transform" }}>
             {extended.map((ev, i) => (
               <div key={i} style={{ width: CARD_W }} className="shrink-0 group">
                 <div className="relative overflow-hidden rounded-2xl">
                   <img src={ev.image} alt={ev.title} draggable={false} className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = dogImg(ev.id); }} />
+=======
+        <div
+          className="overflow-hidden cursor-grab active:cursor-grabbing"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          style={{ userSelect: "none" }}
+        >
+          <div
+            ref={trackRef}
+            className="flex"
+            style={{
+              gap: GAP,
+              transform: `translate3d(-${slider.offset}px, 0, 0)`,
+              transition: slider.transition ? "transform 600ms cubic-bezier(0.16,1,0.3,1)" : "none",
+              willChange: "transform",
+            }}
+          >
+            {extended.map((ev, i) => (
+              <div key={i} style={{ width: CARD_W }} className="shrink-0 group">
+                <div className="relative overflow-hidden rounded-2xl">
+                  <img
+                    src={ev.image}
+                    alt={ev.title}
+                    draggable={false}
+                    className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    onError={(e) => { e.target.onerror = null; e.target.src = dogImg(ev.id); }}
+                  />
+>>>>>>> origin/develop
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
                 <div className="mt-4">
                   <div className="text-[17px] font-bold text-gray-900">{ev.title}</div>
                   <div className="text-sm text-gray-500 mt-1.5">
+<<<<<<< HEAD
                     {ev.description ? (ev.description.length > 40 ? ev.description.slice(0, 40) + "..." : ev.description) : ev.startAt ? fmtEventDate(ev.startAt) : "상세 정보 보기"}
                   </div>
                   <span className="inline-block mt-3 text-xs font-medium bg-gray-200 text-gray-600 px-3 py-1 rounded-md">{ev.location}</span>
+=======
+                    {ev.description ? (ev.description.length > 40 ? ev.description.slice(0, 40) + "..." : ev.description) : (ev.startAt ? fmtEventDate(ev.startAt) : "상세 정보 보기")}
+                  </div>
+                  <span className="inline-block mt-3 text-xs font-medium bg-gray-200 text-gray-600 px-3 py-1 rounded-md">
+                    {ev.location}
+                  </span>
+>>>>>>> origin/develop
                 </div>
               </div>
             ))}

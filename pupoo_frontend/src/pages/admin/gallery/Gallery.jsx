@@ -360,9 +360,16 @@ const inputStyle = {
   fontFamily: ds.ff,
   color: ds.ink,
   outline: "none",
+<<<<<<< HEAD
   background: ds.bg,
   boxSizing: "border-box",
   transition: "border-color .15s, box-shadow .15s",
+=======
+                  background: ds.bg,
+  boxSizing: "border-box",
+  transition: "border-color .15s, box-shadow .15s",
+  background: ds.bg,
+>>>>>>> origin/develop
 };
 const inputFocus = (e) => {
   e.target.style.borderColor = ds.brand;

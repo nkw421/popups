@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+﻿import { useState, useEffect, useCallback } from "react";
 import {
   Plus,
   X,
@@ -37,6 +37,11 @@ function fmtDate(dt) {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
 }
 
+function isGlobalScope(scope) {
+  const normalized = String(scope || "").toUpperCase();
+  return normalized === "GLOBAL" || normalized === "ALL";
+}
+
 function Toast({ msg, type = "success", onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 2200);
@@ -65,7 +70,7 @@ function Toast({ msg, type = "success", onDone }) {
         gap: 8,
       }}
     >
-      {type === "success" ? "✓" : "✕"} {msg}
+      {type === "success" ? "OK" : "ERR"} {msg}
     </div>
   );
 }
@@ -259,7 +264,7 @@ function Spinner({ size = 20 }) {
   );
 }
 
-/* ── 상세 모달 ── */
+/* 상세 모달 */
 function DetailModal({ item, onClose, onEdit, onDelete }) {
   return (
     <Overlay onClose={onClose}>
@@ -333,11 +338,11 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
             </h4>
           </div>
           {[
-            { l: "범위", v: item.scope === "ALL" ? "전체" : "이벤트" },
+            { l: "범위", v: isGlobalScope(item.scope) ? "전체" : "이벤트" },
             { l: "상태", v: item.status || "-" },
             { l: "작성일", v: fmtDate(item.createdAt) },
             { l: "수정일", v: fmtDate(item.updatedAt) },
-            { l: "고정공지", v: item.pinned ? "예" : "아니오" },
+            { l: "고정공지", v: item.pinned ? "Y" : "N" },
           ].map((r) => (
             <div
               key={r.l}
@@ -396,7 +401,7 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
               gap: 6,
             }}
           >
-            <Trash2 size={13} /> 삭제
+            <Trash2 size={13} /> ??젣
           </button>
           <button
             onClick={() => {
@@ -418,7 +423,7 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
               gap: 6,
             }}
           >
-            <Pencil size={13} /> 수정하기
+            <Pencil size={13} /> ?섏젙?섍린
           </button>
         </div>
       </div>
@@ -426,7 +431,7 @@ function DetailModal({ item, onClose, onEdit, onDelete }) {
   );
 }
 
-/* ── 슬라이드 패널 ── */
+/* ?? ?щ씪?대뱶 ?⑤꼸 ?? */
 function SlidePanel({ item, onSave, onClose, isEdit, saving }) {
   const [form, setForm] = useState(
     item
@@ -434,16 +439,16 @@ function SlidePanel({ item, onSave, onClose, isEdit, saving }) {
           title: item.title,
           content: item.content || "",
           pinned: item.pinned ?? false,
-          scope: item.scope || "ALL",
+          scope: item.scope || "GLOBAL",
         }
-      : { title: "", content: "", pinned: false, scope: "ALL" },
+      : { title: "", content: "", pinned: false, scope: "GLOBAL" },
   );
   const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
   const [err, setErr] = useState("");
 
   const handleSave = () => {
     if (!form.title.trim()) {
-      setErr("제목은 필수입니다.");
+      setErr("?쒕ぉ? ?꾩닔?낅땲??");
       return;
     }
     onSave(form);
@@ -567,7 +572,7 @@ function SlidePanel({ item, onSave, onClose, isEdit, saving }) {
               value={form.scope}
               onChange={(e) => set("scope", e.target.value)}
             >
-              <option value="ALL">전체</option>
+              <option value="GLOBAL">전체</option>
               <option value="EVENT">이벤트</option>
             </select>
           </Field>
@@ -641,9 +646,7 @@ function SlidePanel({ item, onSave, onClose, isEdit, saving }) {
   );
 }
 
-/* ═══════════════════════════════════════════
-   메인 컴포넌트 (로그인은 AdminLogin에서 처리)
-   ═══════════════════════════════════════════ */
+/* 메인 컴포넌트 (로그인은 AdminLogin에서 처리) */
 export default function Notice() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -676,9 +679,11 @@ export default function Notice() {
     } catch (err) {
       console.error("[Notice] fetch error:", err);
       if (err?.response?.status === 401) {
-        setError("로그인이 필요합니다. 로그인 페이지에서 다시 로그인해주세요.");
+        setError(
+          "로그인이 필요합니다. 로그인 페이지에서 다시 로그인해 주세요.",
+        );
       } else {
-        setError("공지사항을 불러오는데 실패했습니다.");
+        setError("공지사항을 불러오는 데 실패했습니다.");
       }
     } finally {
       setLoading(false);
@@ -691,7 +696,7 @@ export default function Notice() {
 
   const rows = items.filter((e) => !search || e.title?.includes(search));
 
-  /* ── 선택 관련 ── */
+  /* 선택 관리 */
   const isAllSelected =
     rows.length > 0 && rows.every((r) => selected.has(r.noticeId));
   const hasSelected = selected.size > 0;
@@ -759,7 +764,7 @@ export default function Notice() {
     }
   };
 
-  /* ── 선택 삭제 ── */
+  /* 선택 삭제 */
   const handleBatchDelete = async () => {
     setSaving(true);
     const ids = [...selected];
@@ -774,13 +779,13 @@ export default function Notice() {
     } catch (err) {
       console.error("[Notice] batch delete error:", err);
       setModal(null);
-      showToast("일괄 삭제에 실패했습니다.", "error");
+      showToast("선택 삭제에 실패했습니다.", "error");
     } finally {
       setSaving(false);
     }
   };
 
-  /* ── 전체 삭제 ── */
+  /* 전체 삭제 */
   const handleDeleteAll = async () => {
     setSaving(true);
     try {
@@ -842,7 +847,7 @@ export default function Notice() {
                   borderRadius: 6,
                 }}
               >
-                {selected.size}건 선택됨
+                {selected.size}건 선택{" "}
               </span>
             )}
           </div>
@@ -865,7 +870,7 @@ export default function Notice() {
                   fontFamily: ds.ff,
                 }}
               >
-                <Trash2 size={12} /> 선택 삭제
+                <Trash2 size={12} /> ?좏깮 ??젣
               </button>
             )}
             {rows.length > 0 && (
@@ -886,7 +891,7 @@ export default function Notice() {
                   fontFamily: ds.ff,
                 }}
               >
-                <Trash2 size={12} /> 전체 삭제
+                <Trash2 size={12} /> ?꾩껜 ??젣
               </button>
             )}
             <button
@@ -912,7 +917,7 @@ export default function Notice() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="검색어를 입력하세요."
+                placeholder="검색어를 입력하세요"
                 style={{
                   width: 220,
                   padding: "7px 14px 7px 34px",
@@ -972,9 +977,7 @@ export default function Notice() {
             }}
           >
             <Spinner size={28} />
-            <span style={{ fontSize: 13, color: ds.ink4 }}>
-              불러오는 중...
-            </span>
+            <span style={{ fontSize: 13, color: ds.ink4 }}>불러오는 중...</span>
           </div>
         )}
 
@@ -1012,7 +1015,7 @@ export default function Notice() {
                 color: ds.ink3,
               }}
             >
-              다시 시도
+              ?ㅼ떆 ?쒕룄
             </button>
           </div>
         )}
@@ -1086,7 +1089,7 @@ export default function Notice() {
                   flexShrink: 0,
                 }}
               >
-                {r.scope === "ALL" ? "전체" : "이벤트"}
+                {isGlobalScope(r.scope) ? "전체" : "이벤트"}
               </span>
               <span
                 style={{
@@ -1134,7 +1137,7 @@ export default function Notice() {
                     e.currentTarget.style.background = `${ds.brand}06`;
                   }}
                 >
-                  수정
+                  ?섏젙
                 </button>
                 <button
                   onClick={(e) => {
@@ -1163,7 +1166,7 @@ export default function Notice() {
                     e.currentTarget.style.opacity = "0.7";
                   }}
                 >
-                  삭제
+                  ??젣
                 </button>
               </div>
             </div>
