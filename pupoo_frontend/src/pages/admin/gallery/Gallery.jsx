@@ -912,6 +912,25 @@ function FormModal({
   };
   const removeUrl = (idx) => setImageUrls((p) => p.filter((_, i) => i !== idx));
 
+  const [draggedImageIndex, setDraggedImageIndex] = useState(null);
+  const handleImageDragStart = (index) => setDraggedImageIndex(index);
+  const handleImageDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  };
+  const handleImageDrop = (e, dropIndex) => {
+    e.preventDefault();
+    if (draggedImageIndex == null) return;
+    setImageUrls((prev) => {
+      const urls = [...prev];
+      const [removed] = urls.splice(draggedImageIndex, 1);
+      urls.splice(dropIndex, 0, removed);
+      return urls;
+    });
+    setDraggedImageIndex(null);
+  };
+  const handleImageDragEnd = () => setDraggedImageIndex(null);
+
   const handleDrop = (e) => {
     e.preventDefault();
     setDragOver(false);
@@ -1063,6 +1082,9 @@ function FormModal({
             {/* ── 이미지 업로드 (EventManage 스타일) ── */}
             {!isEdit && (
               <Field label="이미지">
+                <p style={{ fontSize: 12, color: "#64748B", margin: "0 0 10px" }}>
+                  첫 번째 이미지가 대표 이미지로 사용됩니다. 드래그하여 순서를 변경할 수 있습니다.
+                </p>
                 {imageUrls.length === 0 ? (
                   <div
                     onClick={() => !uploading && fileRef.current?.click()}
@@ -1237,8 +1259,8 @@ function FormModal({
                   }}
                 />
 
-                {/* 업로드된 이미지 썸네일 리스트 */}
-                {imageUrls.length > 1 && (
+                {/* 업로드된 이미지 썸네일 리스트 (순서 = 대표 이미지 결정, 드래그로 변경) */}
+                {imageUrls.length >= 1 && (
                   <div
                     style={{
                       display: "flex",
@@ -1249,7 +1271,12 @@ function FormModal({
                   >
                     {imageUrls.map((url, i) => (
                       <div
-                        key={i}
+                        key={`${url}-${i}`}
+                        draggable
+                        onDragStart={() => handleImageDragStart(i)}
+                        onDragOver={handleImageDragOver}
+                        onDrop={(e) => handleImageDrop(e, i)}
+                        onDragEnd={handleImageDragEnd}
                         style={{
                           position: "relative",
                           width: 56,
@@ -1260,7 +1287,14 @@ function FormModal({
                             i === 0
                               ? `2px solid ${ds.brand}`
                               : "1px solid #E2E8F0",
+                          cursor: uploading ? "default" : "grab",
+                          opacity: draggedImageIndex === i ? 0.6 : 1,
+                          boxShadow:
+                            draggedImageIndex === i
+                              ? "0 4px 12px rgba(0,0,0,0.15)"
+                              : "none",
                         }}
+                        title="드래그하여 순서 변경"
                       >
                         <img
                           src={resolveImgUrl(url)}
@@ -1269,7 +1303,9 @@ function FormModal({
                             width: "100%",
                             height: "100%",
                             objectFit: "cover",
+                            pointerEvents: "none",
                           }}
+                          draggable={false}
                           onError={(e) => {
                             e.target.style.display = "none";
                           }}
@@ -1278,40 +1314,47 @@ function FormModal({
                           <span
                             style={{
                               position: "absolute",
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
+                              top: 2,
+                              left: 2,
+                              fontSize: 9,
+                              fontWeight: 700,
                               background: ds.brand,
                               color: "#fff",
-                              fontSize: 8,
-                              fontWeight: 700,
-                              textAlign: "center",
-                              padding: "1px 0",
+                              padding: "2px 4px",
+                              borderRadius: 4,
+                              zIndex: 2,
                             }}
                           >
                             대표
                           </span>
                         )}
                         <button
-                          onClick={() => removeUrl(i)}
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeUrl(i);
+                          }}
+                          disabled={uploading}
                           style={{
                             position: "absolute",
                             top: 2,
                             right: 2,
-                            width: 16,
-                            height: 16,
+                            width: 18,
+                            height: 18,
                             borderRadius: "50%",
                             border: "none",
-                            background: "rgba(0,0,0,0.5)",
+                            background: "rgba(0,0,0,0.55)",
                             color: "#fff",
-                            cursor: "pointer",
+                            cursor: uploading ? "not-allowed" : "pointer",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             padding: 0,
+                            zIndex: 2,
                           }}
+                          aria-label="삭제"
                         >
-                          <X size={8} />
+                          <X size={10} />
                         </button>
                       </div>
                     ))}
@@ -1939,7 +1982,7 @@ function SketchCard({ item, onClick, eventMap }) {
    메인 컴포넌트
    ═══════════════════════════════════════════ */
 export default function Gallery() {
-  const [tab, setTab] = useState("sketch");
+  const [tab, setTab] = useState("user");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
