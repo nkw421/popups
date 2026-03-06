@@ -33,7 +33,7 @@ public class Booth {
     @Column(name = "company", length = 100)
     private String company;
 
-    @Column(name = "image_url", columnDefinition = "LONGTEXT")
+    @Transient
     private String imageUrl;
 
     @Enumerated(EnumType.STRING)
