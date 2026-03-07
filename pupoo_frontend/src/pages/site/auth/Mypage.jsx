@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { mypageApi } from "./api/mypageApi";
+import { axiosInstance } from "../../../app/http/axiosInstance";
 import { notificationApi } from "../../../app/http/notificationApi";
 import { reviewApi } from "../../../app/http/reviewApi";
 import { eventApi } from "../../../app/http/eventApi";
@@ -365,6 +366,8 @@ const styles = `
     text-align: center;
   }
   .mp-qr-image {
+    display: block;
+    margin: 0 auto;
     width: 180px;
     height: 180px;
     object-fit: contain;
@@ -513,6 +516,7 @@ export default function MyPage() {
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [qrEventId, setQrEventId] = useState("");
   const [qrPayload, setQrPayload] = useState(null);
+  const [qrImageUrl, setQrImageUrl] = useState(null);
   const [qrLoading, setQrLoading] = useState(false);
   const [qrError, setQrError] = useState("");
 
@@ -717,10 +721,21 @@ export default function MyPage() {
     try {
       setQrLoading(true);
       setQrError("");
-      const data = await mypageApi.issueMyQr(Number(qrEventId));
+      setQrImageUrl(null);
+
+      const eventId = Number(qrEventId);
+      const data = await mypageApi.issueMyQr(eventId);
       setQrPayload(data || null);
+
+      const imageRes = await axiosInstance.get("/api/qr/me/download", {
+        params: { eventId },
+        responseType: "blob",
+      });
+      const imageObjectUrl = URL.createObjectURL(imageRes.data);
+      setQrImageUrl(imageObjectUrl);
     } catch (e) {
       setQrPayload(null);
+      setQrImageUrl(null);
       setQrError(e?.message || "QR 조회에 실패했습니다.");
     } finally {
       setQrLoading(false);
@@ -732,12 +747,21 @@ export default function MyPage() {
     issueQr();
   }, [qrModalOpen, qrEventId, issueQr]);
 
+  useEffect(() => {
+    return () => {
+      if (qrImageUrl) {
+        URL.revokeObjectURL(qrImageUrl);
+      }
+    };
+  }, [qrImageUrl]);
+
   const openQrModal = () => {
     if (!qrEventId && qrCandidates[0]?.eventId) {
       setQrEventId(String(qrCandidates[0].eventId));
     }
     setQrError("");
     setQrPayload(null);
+    setQrImageUrl(null);
     setQrModalOpen(true);
   };
 
@@ -944,7 +968,7 @@ export default function MyPage() {
               {registrations.length === 0 ? (
                 <div className="mp-empty">신청 이력이 없습니다.</div>
               ) : (
-                registrations.map((item) => renderRegistrationItem(item))
+                registrations.map((item) => renderRegistrationItem(item, true))
               )}
             </div>
           </section>
@@ -1053,10 +1077,10 @@ export default function MyPage() {
 
             {qrPayload ? (
               <div className="mp-qr-box">
-                {qrPayload?.originalUrl ? (
+                {qrImageUrl ? (
                   <img
                     className="mp-qr-image"
-                    src={qrPayload.originalUrl}
+                    src={qrImageUrl}
                     alt="내 QR 코드"
                   />
                 ) : null}
