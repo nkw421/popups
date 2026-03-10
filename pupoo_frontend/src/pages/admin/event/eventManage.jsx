@@ -1206,6 +1206,8 @@ function DetailModal({
   onDelete,
   onGeneratePoster,
   isGeneratingPoster,
+  posterOptions,
+  onPosterOptionChange,
 }) {
   const st = statusMap[item.status];
   const pct =
@@ -1351,6 +1353,112 @@ function DetailModal({
               </p>
             </div>
           )}
+        </div>
+
+        <div
+          style={{
+            background: `${ds.brand}08`,
+            border: `1px solid ${ds.brand}1F`,
+            borderRadius: 12,
+            padding: 16,
+            marginBottom: 20,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 800,
+              color: ds.ink,
+              marginBottom: 12,
+            }}
+          >
+            AI 포스터 옵션
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+              gap: 10,
+              marginBottom: 10,
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: ds.ink4,
+                  marginBottom: 6,
+                }}
+              >
+                스타일
+              </div>
+              <select
+                value={posterOptions.style}
+                onChange={(e) => onPosterOptionChange("style", e.target.value)}
+                style={{
+                  ...inputStyle,
+                  background: ds.card,
+                  padding: "9px 12px",
+                }}
+              >
+                {POSTER_STYLE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: ds.ink4,
+                  marginBottom: 6,
+                }}
+              >
+                사이즈
+              </div>
+              <select
+                value={posterOptions.size}
+                onChange={(e) => onPosterOptionChange("size", e.target.value)}
+                style={{
+                  ...inputStyle,
+                  background: ds.card,
+                  padding: "9px 12px",
+                }}
+              >
+                {POSTER_SIZE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: ds.ink4,
+                  marginBottom: 6,
+                }}
+              >
+                톤
+              </div>
+              <input
+                value={posterOptions.tone}
+                onChange={(e) => onPosterOptionChange("tone", e.target.value)}
+                placeholder="bright and welcoming"
+                style={{
+                  ...inputStyle,
+                  background: ds.card,
+                  padding: "9px 12px",
+                }}
+              />
+            </div>
+          </div>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
           <button
@@ -1617,6 +1725,19 @@ const DEFAULT_POSTER_REQUEST = {
   outputFormat: "png",
 };
 
+const POSTER_STYLE_OPTIONS = [
+  { value: "MODERN", label: "Modern" },
+  { value: "FESTIVAL", label: "Festival" },
+  { value: "MINIMAL", label: "Minimal" },
+  { value: "PLAYFUL", label: "Playful" },
+];
+
+const POSTER_SIZE_OPTIONS = [
+  { value: "1024x1024", label: "Square 1024x1024" },
+  { value: "1024x1536", label: "Portrait 1024x1536" },
+  { value: "1536x1024", label: "Landscape 1536x1024" },
+];
+
 /* 프론트 날짜("2026.01.10") → ISO LocalDateTime */
 const toISO = (dotDate, isEnd) => {
   if (!dotDate) return null;
@@ -1664,6 +1785,7 @@ export default function EventManage({ subTab = "all" }) {
   const [panel, setPanel] = useState(null);
   const [toast, setToast] = useState(null);
   const [posterGeneratingId, setPosterGeneratingId] = useState(null);
+  const [posterOptions, setPosterOptions] = useState(DEFAULT_POSTER_REQUEST);
   const [removing, setRemoving] = useState(null);
   const [selected, setSelected] = useState(new Set());
   const [dateFrom, setDateFrom] = useState("");
@@ -1783,15 +1905,26 @@ export default function EventManage({ subTab = "all" }) {
 
   const showToast = (msg, type = "success") => setToast({ msg, type });
 
+  const handlePosterOptionChange = (field, value) => {
+    setPosterOptions((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
   const handleGeneratePoster = async (item) => {
     const eventId = getEventIdValue(item);
     if (!eventId || posterGeneratingId) return;
 
     setPosterGeneratingId(String(eventId));
     try {
+      const posterRequest = {
+        ...DEFAULT_POSTER_REQUEST,
+        ...posterOptions,
+      };
       const res = await eventApi.generateAdminPoster(
         eventId,
-        DEFAULT_POSTER_REQUEST,
+        posterRequest,
         {
           headers: authHeaders(),
         },
@@ -2478,6 +2611,8 @@ export default function EventManage({ subTab = "all" }) {
           onClose={() => setModal(null)}
           onGeneratePoster={handleGeneratePoster}
           isGeneratingPoster={Boolean(posterGeneratingId)}
+          posterOptions={posterOptions}
+          onPosterOptionChange={handlePosterOptionChange}
           onEdit={(item) => {
             setModal(null);
             setPanel({ type: "edit", item });
