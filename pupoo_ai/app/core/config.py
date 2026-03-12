@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     service_name: str = "pupoo-ai"
     internal_token: str = "dev-internal-token"
     log_level: str = "INFO"
+    anthropic_api_key: str = ""
 
     # 조합 6: HateBERT + Redis
     redis_url: str = "redis://localhost:6379/0"
@@ -18,6 +19,7 @@ class Settings(BaseSettings):
 
     if SettingsConfigDict is not None:
         model_config = SettingsConfigDict(
+            env_file=".env",
             env_prefix="PUPOO_AI_",
             case_sensitive=False,
             extra="ignore",

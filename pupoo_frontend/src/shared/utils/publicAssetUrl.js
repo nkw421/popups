@@ -1,4 +1,6 @@
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8080").replace(/\/+$/, "");
+const API_BASE = String(import.meta.env.VITE_API_BASE_URL || "")
+  .trim()
+  .replace(/\/+$/, "");
 
 export function toPublicAssetUrl(rawUrl) {
   if (!rawUrl) return "";
@@ -6,6 +8,10 @@ export function toPublicAssetUrl(rawUrl) {
   if (!raw) return "";
 
   if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  if (/^(data|blob):/i.test(raw)) {
     return raw;
   }
 
