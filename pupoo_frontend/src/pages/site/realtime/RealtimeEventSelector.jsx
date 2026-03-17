@@ -358,6 +358,69 @@ const toArray = (payload) =>
       ? payload
       : [];
 
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+const safeNumber = (value, fallback = 0) => {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+};
+
+const safePercent = (value) => clamp(Math.round(Number(value) || 0), 0, 100);
+
+const getFirstFiniteNumber = (...values) => {
+  for (const value of values) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric)) return numeric;
+  }
+  return null;
+};
+
+const getFirstPositiveNumber = (...values) => {
+  for (const value of values) {
+    const numeric = Number(value);
+    if (Number.isFinite(numeric) && numeric > 0) return numeric;
+  }
+  return getFirstFiniteNumber(...values);
+};
+
+const resolveProgramVisitorCount = (program) => Math.max(
+  0,
+  Math.round(
+    getFirstPositiveNumber(
+      program?.visitorCount,
+      program?.visitCount,
+      program?.checkinCount,
+      program?.attendeeCount,
+      program?.attendanceCount,
+      program?.participantCount,
+      program?.participants,
+      program?.applyCount,
+      program?.appliedCount,
+      program?.totalApply,
+      program?.totalApplyCount,
+    ),
+  ),
+);
+
+const resolveProgramParticipantCount = (program) => Math.max(
+  0,
+  Math.round(
+    getFirstPositiveNumber(
+      program?.participantCount,
+      program?.participants,
+      program?.applyCount,
+      program?.appliedCount,
+      program?.applyCnt,
+      program?.totalApply,
+      program?.totalApplyCount,
+      program?.approvedRegistrationCount,
+      program?.activeRegistrationCount,
+      program?.registrationCount,
+      program?.registeredCount,
+    ),
+  ),
+);
+
 const toValidDate = (value) => {
   if (!value) return null;
   const date = value instanceof Date ? value : new Date(value);
@@ -488,7 +551,14 @@ const resolveEventAiRangeParams = (event, status) => {
 const congestionLevelToPercent = (value) => {
   const numeric = Number(value);
   if (!Number.isFinite(numeric) || numeric <= 0) return 0;
-  return Math.min(Math.round(numeric * 20), 100);
+  // Mixed source scale support: 0~1 ratio, 0~5 level, 0~100 percent
+  if (numeric > 0 && numeric < 1) {
+    return Math.min(Math.round(numeric * 100), 100);
+  }
+  if (numeric <= 5) {
+    return Math.min(Math.round(numeric * 20), 100);
+  }
+  return Math.min(Math.round(numeric), 100);
 };
 
 const summarizeRealtimeCongestionPercent = (rows) => {
@@ -530,6 +600,113 @@ const estimateUpcomingCongestionPercent = (registrations, startAt, endAt) => {
   const registrationsPerDay = totalRegistrations / operationDays;
   const estimated = Math.round((registrationsPerDay / 300) * 100);
   return Math.max(5, Math.min(85, estimated));
+};
+
+const estimatePlannedBaseCongestion = ({
+  registrationCount,
+  dayCount,
+  programCount = 0,
+}) => {
+  const registrations = Math.max(0, safeNumber(registrationCount));
+  const days = Math.max(1, safeNumber(dayCount, 1));
+  const programs = Math.max(0, safeNumber(programCount));
+  const registrationsPerDay = registrations / days;
+
+  const registrationPressure = clamp((registrationsPerDay - 20) / 260, 0, 1);
+  const programPressure = clamp((programs - 4) / 20, 0, 1);
+
+  return safePercent(20 + (registrationPressure * 45) + (programPressure * 10));
+};
+
+const estimateEndedProgramDemandCongestion = ({
+  programs,
+  startAt,
+  endAt,
+}) => {
+  const rows = toArray(programs);
+  if (rows.length === 0) return 0;
+
+  let totalDemand = 0;
+  let totalOperatingHours = 0;
+
+  rows.forEach((program) => {
+    const demand = Math.max(
+      resolveProgramVisitorCount(program),
+      resolveProgramParticipantCount(program),
+      Math.max(0, Math.round(safeNumber(program?.checkinCount))),
+    );
+    if (demand > 0) totalDemand += demand;
+
+    const programStart = toValidDate(program?.startAt);
+    const programEnd = toValidDate(program?.endAt);
+    if (programStart && programEnd && programEnd > programStart) {
+      totalOperatingHours += Math.max(
+        1,
+        (programEnd.getTime() - programStart.getTime()) / (60 * 60 * 1000),
+      );
+    }
+  });
+
+  if (totalDemand <= 0) return 0;
+
+  const eventStart = toValidDate(startAt);
+  const eventEnd = toValidDate(endAt);
+  const fallbackOperatingHours =
+    eventStart && eventEnd && eventEnd > eventStart
+      ? Math.max(1, (eventEnd.getTime() - eventStart.getTime()) / (60 * 60 * 1000))
+      : Math.max(1, rows.length * 2);
+
+  const operatingHours = totalOperatingHours > 0 ? totalOperatingHours : fallbackOperatingHours;
+  const demandPerHour = totalDemand / Math.max(operatingHours, 1);
+  const estimated = safePercent(Math.round(demandPerHour * 3.5));
+  return estimated > 0 ? Math.max(estimated, 18) : 0;
+};
+
+const estimateEndedHeuristicCongestion = ({
+  registrationCount,
+  checkedInCount,
+  programs,
+  startAt,
+  endAt,
+}) => {
+  const rows = toArray(programs);
+  const programDemandTotal = rows.reduce(
+    (sum, program) =>
+      sum +
+      Math.max(
+        resolveProgramParticipantCount(program),
+        resolveProgramVisitorCount(program),
+      ),
+    0,
+  );
+  const baseline = Math.max(
+    0,
+    Math.round(
+      Math.max(
+        safeNumber(registrationCount),
+        safeNumber(checkedInCount),
+        safeNumber(programDemandTotal),
+      ),
+    ),
+  );
+  if (baseline <= 0) return 0;
+
+  const dayCount = Math.max(1, buildDateKeysFromRange(startAt, endAt).length || 1);
+  const base = estimatePlannedBaseCongestion({
+    registrationCount: baseline,
+    dayCount,
+    programCount: rows.length,
+  });
+  return base > 0 ? Math.max(base, 22) : 0;
+};
+
+const estimateEndedRatioCongestion = ({ registrationCount, checkedInCount }) => {
+  const approvedCount = Math.max(0, safeNumber(registrationCount));
+  const checkedIn = Math.max(0, safeNumber(checkedInCount));
+  if (approvedCount <= 0 && checkedIn <= 0) return 0;
+  const denominator = approvedCount > 0 ? approvedCount : checkedIn;
+  if (denominator < 50 || checkedIn < 20) return 0;
+  return safePercent(Math.round((checkedIn / denominator) * 100));
 };
 
 const hexToRgb = (hex) => {
@@ -720,6 +897,67 @@ async function fetchAdminData(url, params, fallback) {
   }
 }
 
+const isUnauthorizedError = (error) => {
+  const status = Number(error?.response?.status);
+  return status === 401 || status === 403;
+};
+
+const getPagedTotalCount = (payload) => {
+  const total = Number(
+    payload?.totalElements ??
+      payload?.totalCount ??
+      payload?.count ??
+      payload?.total ??
+      payload?.totalApply,
+  );
+  if (!Number.isFinite(total) || total < 0) return null;
+  return Math.round(total);
+};
+
+async function fetchProgramApplyStats(programId) {
+  if (!programId) return { totalApply: 0, checkedIn: 0 };
+
+  const pickStats = (payload) => {
+    const rows = toArray(payload);
+    const totalFromPayload = getPagedTotalCount(payload);
+    const totalApply = totalFromPayload != null ? totalFromPayload : rows.length;
+    const checkedIn = Math.max(
+      0,
+      Math.round(
+        getFirstPositiveNumber(
+          payload?.checkedInCount,
+          payload?.checkinCount,
+          payload?.checkedCount,
+          payload?.doneCount,
+        ),
+      ),
+    );
+    return {
+      totalApply: Math.max(0, totalApply),
+      checkedIn,
+    };
+  };
+
+  try {
+    const response = await axiosInstance.get(
+      `/api/admin/dashboard/programs/${programId}/applies`,
+      { params: { page: 0, size: 1 } },
+    );
+    return pickStats(unwrapData(response, {}));
+  } catch (error) {
+    if (!isUnauthorizedError(error)) {
+      return { totalApply: 0, checkedIn: 0 };
+    }
+  }
+
+  try {
+    const response = await programApi.getCandidates(programId, { page: 0, size: 1 });
+    return pickStats(unwrapData(response, {}));
+  } catch {
+    return { totalApply: 0, checkedIn: 0 };
+  }
+}
+
 export default function RealtimeEventSelector({ onSelectEvent, pageTitle, programCategory }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -841,6 +1079,16 @@ export default function RealtimeEventSelector({ onSelectEvent, pageTitle, progra
             }
 
             if (status === "ended") {
+              const realtimePayload = await fetchAdminData(
+                `/api/dashboard/realtime/events/${event.eventId}/congestions`,
+                { limit: 200 },
+                [],
+              );
+              const realtimePercent = summarizeRealtimeCongestionPercent(realtimePayload);
+              if (realtimePercent != null) {
+                return [eventId, realtimePercent];
+              }
+
               const hourlyPayload = await fetchAdminData(
                 `/api/analytics/events/${event.eventId}/congestion-by-hour`,
                 {},
@@ -863,6 +1111,89 @@ export default function RealtimeEventSelector({ onSelectEvent, pageTitle, progra
               if (hourlyAverage != null) {
                 return [eventId, hourlyAverage];
               }
+
+              const rawPrograms = await programApi.getAllProgramsByEvent({
+                eventId,
+                sort: "startAt,asc",
+                pageSize: 200,
+              }).catch(() => []);
+              let programs = toArray(rawPrograms);
+              const hasDemandSignals = programs.some((program) => {
+                const demand = Math.max(
+                  resolveProgramVisitorCount(program),
+                  resolveProgramParticipantCount(program),
+                  Math.max(0, Math.round(safeNumber(program?.checkinCount))),
+                );
+                return Number.isFinite(demand) && demand > 0;
+              });
+
+              if (!hasDemandSignals && programs.length > 0) {
+                const statsEntries = await Promise.all(
+                  programs.map(async (program) => {
+                    const programId = Number(program?.programId);
+                    const stats = await fetchProgramApplyStats(programId);
+                    return [programId, stats];
+                  }),
+                );
+                const statsMap = new Map(statsEntries);
+                programs = programs.map((program) => {
+                  const programId = Number(program?.programId);
+                  const stats = statsMap.get(programId) || { totalApply: 0, checkedIn: 0 };
+                  const totalApply = Math.max(0, Math.round(safeNumber(stats?.totalApply)));
+                  const checkedIn = Math.max(0, Math.round(safeNumber(stats?.checkedIn)));
+                  return {
+                    ...program,
+                    totalApply: Math.max(totalApply, Math.round(safeNumber(program?.totalApply))),
+                    totalApplyCount: Math.max(totalApply, Math.round(safeNumber(program?.totalApplyCount))),
+                    applyCount: Math.max(totalApply, Math.round(safeNumber(program?.applyCount))),
+                    appliedCount: Math.max(totalApply, Math.round(safeNumber(program?.appliedCount))),
+                    participantCount: Math.max(totalApply, Math.round(safeNumber(program?.participantCount))),
+                    participants: Math.max(totalApply, Math.round(safeNumber(program?.participants))),
+                    checkinCount: Math.max(checkedIn, Math.round(safeNumber(program?.checkinCount))),
+                    visitorCount: Math.max(
+                      checkedIn,
+                      totalApply,
+                      Math.round(safeNumber(program?.visitorCount)),
+                    ),
+                  };
+                });
+              }
+
+              const performance = performanceMap.get(eventId);
+              const registrations =
+                Number(
+                  performance?.activeRegistrationCount ??
+                  performance?.approvedRegistrationCount,
+                ) || 0;
+              const checkedInCount = Number(performance?.checkinCount) || 0;
+              const programDemandCongestion = estimateEndedProgramDemandCongestion({
+                programs,
+                startAt: event?.startAt,
+                endAt: event?.endAt,
+              });
+              if (programDemandCongestion > 0) {
+                return [eventId, programDemandCongestion];
+              }
+              const heuristicCongestion = estimateEndedHeuristicCongestion({
+                registrationCount: registrations,
+                checkedInCount,
+                programs,
+                startAt: event?.startAt,
+                endAt: event?.endAt,
+              });
+              if (heuristicCongestion > 0) {
+                return [eventId, heuristicCongestion];
+              }
+              const ratioCongestion = estimateEndedRatioCongestion({
+                registrationCount: registrations,
+                checkedInCount,
+              });
+              if (ratioCongestion > 0) {
+                return [eventId, ratioCongestion];
+              }
+
+              // Ended events: do not fallback to AI here.
+              return [eventId, null];
             }
 
             // For active/pending/ended events: realtime/hourly fallback (or primary for pending) with AI prediction.
@@ -902,10 +1233,6 @@ export default function RealtimeEventSelector({ onSelectEvent, pageTitle, progra
             const checkedInRaw = Number(performance?.checkinCount) || 0;
             const checkedIn = rawStatus === "PLANNED" ? 0 : checkedInRaw;
             const measuredCongestion = congestionMap.get(Number(event.eventId));
-            const endedRatioCongestion =
-              selectorStatus === "ended" && registrations > 0
-                ? Math.max(0, Math.min(100, Math.round((checkedInRaw / registrations) * 100)))
-                : null;
             const upcomingEstimatedCongestion =
               selectorStatus === "upcoming"
                 ? estimateUpcomingCongestionPercent(registrations, event.startAt, event.endAt)
@@ -913,11 +1240,9 @@ export default function RealtimeEventSelector({ onSelectEvent, pageTitle, progra
             const congestion =
               measuredCongestion != null
                 ? measuredCongestion
-                : selectorStatus === "ended"
-                  ? endedRatioCongestion
-                  : selectorStatus === "upcoming"
+                : selectorStatus === "upcoming"
                     ? upcomingEstimatedCongestion
-                  : null;
+                    : null;
             return {
               id: event.eventId,
               name: event.eventName,
