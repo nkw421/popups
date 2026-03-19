@@ -27,9 +27,9 @@ import {
 
 const FONT = "'JeonjuCraftGothic', Pretendard, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
 
-const AVATAR_COLORS = ["#02A17E", "#059669", "#d97706", "#dc2626", "#7c3aed"];
+const AVATAR_COLORS = ["#7CB342", "#059669", "#d97706", "#dc2626", "#7c3aed"];
 const CATEGORY_META = {
-  SESSION: { label: "세션/강연", bg: "#eff4ff", color: "#02A17E" },
+  SESSION: { label: "세션/강연", bg: "#eff4ff", color: "#7CB342" },
   EXPERIENCE: { label: "체험", bg: "#ecfdf5", color: "#059669" },
   CONTEST: { label: "콘테스트", bg: "#fef3c7", color: "#b45309" },
   ETC: { label: "프로그램", bg: "#f3f4f6", color: "#4b5563" },
@@ -273,7 +273,7 @@ const css = `
   grid-column: 1 / -1;
   border: 1px solid #e0e4ff; background: #f8f9ff;
 }
-.kd-product-spec-speaker:hover { border-color: #c7d2fe; background: #E6F7F2; box-shadow: 0 2px 12px rgba(99,102,241,0.08); }
+.kd-product-spec-speaker:hover { border-color: #c7d2fe; background: #F4F9EC; box-shadow: 0 2px 12px rgba(99,102,241,0.08); }
 .kd-speaker-row {
   display: flex; align-items: center; gap: 14px;
   min-height: 36px;
@@ -579,7 +579,7 @@ export default function SessionDetail() {
       <PageHeader
         title="프로그램 상세"
         subtitle="프로그램의 상세 정보를 확인합니다"
-        icon={<Tag size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<Tag size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

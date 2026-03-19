@@ -155,7 +155,7 @@ const MegaLink = ({ item, onNavigate }) => {
    PROMO ICON MAP
 ───────────────────────────────────────────── */
 const PROMO_ICONS = {
-  event: { Icon: CalendarHeart, bg: "#eff4ff", color: "#02A17E" },
+  event: { Icon: CalendarHeart, bg: "#eff4ff", color: "#7CB342" },
   community: { Icon: MessageCircleHeart, bg: "#fef3f2", color: "#e04545" },
   registration: { Icon: TicketCheck, bg: "#ecfdf5", color: "#059669" },
   realtime: { Icon: Activity, bg: "#fef9ee", color: "#ea580c" },
@@ -814,7 +814,7 @@ export default function PupooHeader() {
           gap: 6px;
           padding: 8px 18px;
           border-radius: 999px;
-          background: #02A17E;
+          background: #7CB342;
           color: #fff;
           font-family: 'JeonjuCraftGothic', Pretendard, sans-serif;
           font-size: 13px;
@@ -828,7 +828,7 @@ export default function PupooHeader() {
           margin-right: 8px;
         }
         .kakao-cta:hover {
-          background: #028A6C;
+          background: #5D8C2A;
           transform: scale(1.04);
           box-shadow: 0 4px 20px rgba(37,99,235,0.4);
         }
@@ -837,7 +837,7 @@ export default function PupooHeader() {
         }
         .kakao-cta.light {
           background: #fff;
-          color: #02A17E;
+          color: #7CB342;
           box-shadow: 0 2px 12px rgba(0,0,0,0.1);
         }
         .kakao-cta.light:hover {

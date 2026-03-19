@@ -86,7 +86,7 @@ export default function PaymentApprove() {
                 padding: "0 18px",
                 borderRadius: 10,
                 border: "none",
-                background: "#02A17E",
+                background: "#7CB342",
                 color: "#fff",
                 fontWeight: 800,
                 cursor: "pointer",

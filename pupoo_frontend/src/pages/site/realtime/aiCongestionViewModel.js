@@ -8,7 +8,7 @@ const LEVEL_LABEL_MAP = {
 
 const LEVEL_TONE_MAP = {
   1: { color: "#047857", bg: "#ecfdf5", border: "#a7f3d0" },
-  2: { color: "#028A6C", bg: "#E6F7F2", border: "#CCF0E4" },
+  2: { color: "#5D8C2A", bg: "#F4F9EC", border: "#E4F0D0" },
   3: { color: "#b45309", bg: "#fffbeb", border: "#fde68a" },
   4: { color: "#c2410c", bg: "#fff7ed", border: "#fdba74" },
   5: { color: "#b91c1c", bg: "#fef2f2", border: "#fecaca" },

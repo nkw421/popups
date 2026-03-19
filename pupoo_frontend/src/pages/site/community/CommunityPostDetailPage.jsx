@@ -242,7 +242,7 @@ export default function CommunityPostDetailPage({
           padding: "0 14px",
           borderRadius: 999,
           border: "1px solid #fecaca",
-          background: "#fff5f5",
+          background: "#F7FBF0",
           color: "#b91c1c",
           display: "inline-flex",
           alignItems: "center",
@@ -318,7 +318,7 @@ export default function CommunityPostDetailPage({
                 href={fileApi.getDownloadUrl(attachment.fileId)}
                 target="_blank"
                 rel="noreferrer"
-                style={{ color: "#028A6C", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+                style={{ color: "#5D8C2A", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
               >
                 {attachment.originalName || "첨부파일 다운로드"}
               </a>

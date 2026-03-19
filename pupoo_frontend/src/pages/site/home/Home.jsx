@@ -169,7 +169,7 @@ function EventSection() {
   const leftItems = events.slice(0, 3);
   const rightItems = events.length > 3 ? events.slice(3, 6) : events.slice(0, Math.min(3, events.length));
   const sides = [
-    { items: leftItems, color: { bg: "bg-gradient-to-r from-[#E6F7F2] to-[#EDF9F5]", text: "text-[#02A17E]" } },
+    { items: leftItems, color: { bg: "bg-gradient-to-r from-[#F4F9EC] to-[#F7FBF0]", text: "text-[#7CB342]" } },
     { items: rightItems, color: { bg: "bg-gradient-to-r from-emerald-50 to-teal-100/50", text: "text-teal-700" } },
   ];
   const groupDate = (items) => {
@@ -184,7 +184,7 @@ function EventSection() {
           <div className="text-center mb-10">
             <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">진행 중인 행사 안내</p>
             <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">현재 진행 중인 행사</h2>
-            <button onClick={() => navigate("/event/current")} className="inline-flex items-center gap-1.5 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300" style={{ background: "#02A17E" }}>자세히 보기</button>
+            <button onClick={() => navigate("/event/current")} className="inline-flex items-center gap-1.5 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300" style={{ background: "#7CB342" }}>자세히 보기</button>
           </div>
         </RevealSection>
         <RevealSection delay={0.15}>
@@ -229,7 +229,7 @@ function EventCard({ event, isHovered, onHover, onLeave, onClick }) {
           <p className="text-[13px] text-gray-600 leading-tight">{event.time}</p>
           <p className="text-[13px] text-gray-600 leading-tight">{event.location}</p>
           <div className={`overflow-hidden transition-all duration-300 ease-out ${isHovered ? "max-h-16 mt-3" : "max-h-0 mt-0"}`}>
-            <button type="button" onClick={(e) => { e.stopPropagation(); onClick?.(); }} className="text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: "#02A17E" }}>자세히 보기</button>
+            <button type="button" onClick={(e) => { e.stopPropagation(); onClick?.(); }} className="text-white text-xs font-semibold px-4 py-1.5 rounded-full" style={{ background: "#7CB342" }}>자세히 보기</button>
           </div>
         </div>
       </div>
@@ -348,7 +348,7 @@ function SessionLineup() {
           <div className="text-center mb-10">
             <p className="text-[14px] font-semibold text-gray-500 uppercase mb-1">PuPoo Session</p>
             <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">현재 행사에서 운영 중인 프로그램</h2>
-            <button onClick={() => navigate("/program/current")} className="inline-flex items-center gap-1.5 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300" style={{ background: "#02A17E" }}>전체 프로그램 보기</button>
+            <button onClick={() => navigate("/program/current")} className="inline-flex items-center gap-1.5 text-white text-sm font-semibold px-6 py-2 rounded-full transition-all duration-300" style={{ background: "#7CB342" }}>전체 프로그램 보기</button>
           </div>
         </RevealSection>
         <RevealSection delay={0.12}>
@@ -381,7 +381,7 @@ function SessionLineup() {
                           </div>
                         </div>
                         <div className="mt-3">
-                          <span className="inline-block text-[11px] font-bold text-white px-2.5 py-1 rounded-md" style={{ background: "#02A17E" }}>{catLabel(s.category)}</span>
+                          <span className="inline-block text-[11px] font-bold text-white px-2.5 py-1 rounded-md" style={{ background: "#7CB342" }}>{catLabel(s.category)}</span>
                           <span className="inline-block text-[11px] font-medium bg-gray-200 text-gray-600 px-2.5 py-1 rounded-md ml-1.5">{s.eventName}</span>
                         </div>
                       </div>
@@ -658,7 +658,7 @@ export default function Home() {
         <div className="max-w-[1400px] mx-auto px-[25px]">
           <RevealSection>
             <h2 className="text-2xl md:text-3xl font-extrabold mb-8">
-                <span className="text-[#02A17E]">당신이</span> 좋아할 만한 추천 행사
+                <span className="text-[#7CB342]">당신이</span> 좋아할 만한 추천 행사
             </h2>
           </RevealSection>
           <RevealSection delay={0.08}>

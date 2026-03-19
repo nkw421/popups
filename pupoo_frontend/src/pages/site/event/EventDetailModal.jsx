@@ -82,7 +82,7 @@ const modalStyles = `
   }
   .evm-poster-fallback {
     width: 100%; height: 100%;
-    background: linear-gradient(135deg, #02A17E 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #7CB342 0%, #6366f1 100%);
     display: flex; align-items: center; justify-content: center;
     font-size: 80px;
   }
@@ -251,7 +251,7 @@ const modalStyles = `
   }
   .evm-guide-day-item:hover { border-color: #90b3ff; }
   .evm-guide-day-item.active {
-    border-color: #02A17E;
+    border-color: #7CB342;
     background: #f5f8ff;
     box-shadow: 0 0 0 2px rgba(26,79,214,0.08) inset;
   }
@@ -269,7 +269,7 @@ const modalStyles = `
     font-weight: 800;
   }
   .evm-guide-day-item.active .evm-guide-date-chip {
-    background: #02A17E;
+    background: #7CB342;
     color: #fff;
   }
   .evm-guide-date-day { font-size: 12px; font-weight: 600; line-height: 1; opacity: 0.7; }
@@ -294,7 +294,7 @@ const modalStyles = `
     padding: 3px 10px;
     border-radius: 999px;
     background: #eff4ff;
-    color: #02A17E;
+    color: #7CB342;
     font-size: 11px;
     font-weight: 700;
     margin-bottom: 8px;
@@ -328,7 +328,7 @@ const modalStyles = `
   }
   .evm-guide-program-dot.done { background: #9ca3af; }
   .evm-guide-program-dot.live { background: #10b981; }
-  .evm-guide-program-dot.upcoming { background: #02A17E; }
+  .evm-guide-program-dot.upcoming { background: #7CB342; }
   .evm-guide-program-body { flex: 1; min-width: 0; }
   .evm-guide-program-name {
     font-size: 13.5px;
@@ -385,7 +385,7 @@ const modalStyles = `
   }
   .evm-speaker-name { font-size: 13.5px; font-weight: 700; color: #111827; }
   .evm-speaker-role { font-size: 11.5px; color: #6b7280; margin-top: 1px; }
-  .evm-speaker-topic { font-size: 11px; color: #02A17E; font-weight: 600; margin-top: 4px; }
+  .evm-speaker-topic { font-size: 11px; color: #7CB342; font-weight: 600; margin-top: 4px; }
 
   /* Participants bar */
   .evm-participants-bar {
@@ -400,7 +400,7 @@ const modalStyles = `
   }
   .evm-part-count span { font-size: 14px; font-weight: 500; color: #9ca3af; }
   .evm-part-pct {
-    font-size: 14px; font-weight: 700; color: #02A17E;
+    font-size: 14px; font-weight: 700; color: #7CB342;
   }
   .evm-part-track {
     height: 8px; background: #e5e7eb; border-radius: 100px;
@@ -408,14 +408,14 @@ const modalStyles = `
   }
   .evm-part-fill {
     height: 100%; border-radius: 100px;
-    background: linear-gradient(90deg, #02A17E, #6366f1);
+    background: linear-gradient(90deg, #7CB342, #6366f1);
     transition: width 0.6s cubic-bezier(0.16,1,0.3,1);
   }
   .evm-part-note {
     font-size: 13px; color: #6b7280; font-weight: 500;
     margin-top: 4px;
   }
-  .evm-part-note strong { color: #02A17E; font-weight: 800; }
+  .evm-part-note strong { color: #7CB342; font-weight: 800; }
 
   /* Location */
   .evm-map-placeholder {
@@ -460,8 +460,8 @@ const modalStyles = `
     transition: all 0.15s ease;
   }
   .evm-map-link:hover {
-    border-color: #02A17E;
-    color: #02A17E;
+    border-color: #7CB342;
+    color: #7CB342;
     background: #f8fbff;
   }
   .evm-map-organizer {
@@ -526,7 +526,7 @@ const modalStyles = `
   .evm-btn-secondary:hover { background: #f8f9fc; border-color: #d1d5db; }
   .evm-btn-primary {
     height: 48px; padding: 0 32px; border-radius: 12px;
-    border: none; background: #02A17E; color: #fff;
+    border: none; background: #7CB342; color: #fff;
     font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
     display: flex; align-items: center; gap: 6px;
     transition: all 0.15s;
@@ -543,7 +543,7 @@ const modalStyles = `
     transition: all 0.15s ease;
   }
   .evm-inline-link-btn:hover {
-    border-color: #02A17E; color: #02A17E; background: #f8fbff;
+    border-color: #7CB342; color: #7CB342; background: #f8fbff;
   }
 
   /* Responsive */
@@ -1348,7 +1348,7 @@ export default function EventDetailModal({ event, onClose }) {
             <div className="evm-quick-info">
               <div className="evm-qi-item">
                 <div className="evm-qi-icon" style={{ background: "#eff4ff" }}>
-                  <Calendar size={17} color="#02A17E" />
+                  <Calendar size={17} color="#7CB342" />
                 </div>
                 <div>
                   <div className="evm-qi-label">일시</div>
@@ -1382,7 +1382,7 @@ export default function EventDetailModal({ event, onClose }) {
                   className="evm-section-icon"
                   style={{ background: "#eff4ff" }}
                 >
-                  <Building2 size={15} color="#02A17E" />
+                  <Building2 size={15} color="#7CB342" />
                 </div>
                 <div className="evm-section-title">행사 소개</div>
               </div>
@@ -1609,7 +1609,7 @@ export default function EventDetailModal({ event, onClose }) {
               </div>
 
               <div className="evm-address">
-                <MapPin size={14} color="#02A17E" />
+                <MapPin size={14} color="#7CB342" />
                 {loc}
               </div>
               {hasValidLocation && (
@@ -1644,7 +1644,7 @@ export default function EventDetailModal({ event, onClose }) {
                     className="evm-transport-icon"
                     style={{ background: "#eff4ff" }}
                   >
-                    <Train size={14} color="#02A17E" />
+                    <Train size={14} color="#7CB342" />
                   </div>
                   <div>
                     <strong style={{ fontSize: "12px" }}>지하철</strong>
@@ -1728,7 +1728,7 @@ export default function EventDetailModal({ event, onClose }) {
               <div className="evm-contact-grid">
                 <div className="evm-contact-item">
                   <div className="evm-contact-icon">
-                    <Phone size={14} color="#02A17E" />
+                    <Phone size={14} color="#7CB342" />
                   </div>
                   <div>
                     <div className="evm-contact-label">전화</div>
@@ -1739,7 +1739,7 @@ export default function EventDetailModal({ event, onClose }) {
                 </div>
                 <div className="evm-contact-item">
                   <div className="evm-contact-icon">
-                    <Mail size={14} color="#02A17E" />
+                    <Mail size={14} color="#7CB342" />
                   </div>
                   <div>
                     <div className="evm-contact-label">이메일</div>

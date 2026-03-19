@@ -38,8 +38,8 @@ function InProgressBox() {
     <div
       style={{
         marginBottom: 18,
-        background: "#E6F7F2",
-        border: "1px solid #CCF0E4",
+        background: "#F4F9EC",
+        border: "1px solid #E4F0D0",
         borderRadius: 10,
         padding: "12px 14px",
         fontSize: 13,
@@ -196,7 +196,7 @@ export default function QnAWritePage() {
               padding: "0 18px",
               borderRadius: 10,
               border: "none",
-              background: "#028A6C",
+              background: "#5D8C2A",
               fontSize: 14,
               fontWeight: 800,
               color: "#fff",

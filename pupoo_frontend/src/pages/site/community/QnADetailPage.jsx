@@ -134,7 +134,7 @@ export default function QnADetailPage() {
                   padding: "0 14px",
                   borderRadius: 999,
                   border: "1px solid #fecaca",
-                  background: "#fff5f5",
+                  background: "#F7FBF0",
                   color: "#b91c1c",
                   display: "inline-flex",
                   alignItems: "center",

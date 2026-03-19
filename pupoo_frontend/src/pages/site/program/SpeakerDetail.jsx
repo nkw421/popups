@@ -5,7 +5,7 @@ import PageHeader from "../components/PageHeader";
 import { programApi } from "../../../app/http/programApi";
 import { resolveImageUrl } from "../../../shared/utils/publicAssetUrl";
 
-const AVATAR_COLORS = ["#02A17E", "#059669", "#d97706", "#dc2626", "#7c3aed"];
+const AVATAR_COLORS = ["#7CB342", "#059669", "#d97706", "#dc2626", "#7c3aed"];
 
 function avatarColor(id) {
   return AVATAR_COLORS[Math.abs(Number(id) || 0) % AVATAR_COLORS.length];
@@ -31,7 +31,7 @@ const css = `
 .sp-photo {
   width: 100%; aspect-ratio: 1/1; max-width: 420px;
   border-radius: 50%; overflow: hidden;
-  background: linear-gradient(145deg, #CCF0E4, #E6F7F2);
+  background: linear-gradient(145deg, #E4F0D0, #F4F9EC);
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 12px 48px rgba(0,0,0,0.1);
   margin: 0 auto;
@@ -47,7 +47,7 @@ const css = `
 .sp-badge {
   display: inline-flex; align-items: center; width: fit-content;
   font-size: 13px; font-weight: 800; padding: 4px 10px; border-radius: 6px;
-  background: #eff4ff; color: #02A17E; border: 1px solid #02A17E;
+  background: #eff4ff; color: #7CB342; border: 1px solid #7CB342;
   margin-bottom: 14px;
 }
 .sp-name {
@@ -206,7 +206,7 @@ export default function SpeakerDetail() {
       <PageHeader
         title="연사 상세"
         subtitle="연사의 프로필과 소개를 확인합니다"
-        icon={<Mic2 size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<Mic2 size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

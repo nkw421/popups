@@ -29,7 +29,7 @@ const styles = `
 
   .bt-live-badge {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 4px 12px; background: #fff0f0; border: 1px solid #fecaca;
+    padding: 4px 12px; background: #F4F9EC; border: 1px solid #fecaca;
     border-radius: 100px; font-size: 11px; font-weight: 700; color: #ef4444;
     margin-bottom: 20px;
   }
@@ -69,7 +69,7 @@ const styles = `
     padding: 16px 18px; border: 1px solid #e9ecef; border-radius: 10px;
     background: #fff; transition: all 0.15s; cursor: pointer;
   }
-  .bt-booth-item:hover { border-color: #02A17E; background: #f8faff; }
+  .bt-booth-item:hover { border-color: #7CB342; background: #f8faff; }
   .bt-booth-item.popular { border-color: #fbbf24; background: #fffdf5; }
   .bt-booth-icon {
     width: 44px; height: 44px; border-radius: 10px;
@@ -84,7 +84,7 @@ const styles = `
   }
   .bt-booth-badge.open { background: #ecfdf5; color: #059669; }
   .bt-booth-badge.closed { background: #f3f4f6; color: #9ca3af; }
-  .bt-booth-badge.full { background: #fff0f0; color: #ef4444; }
+  .bt-booth-badge.full { background: #F4F9EC; color: #ef4444; }
   .bt-booth-arrow { color: #d1d5db; flex-shrink: 0; }
 
   /* Floor map placeholder */
@@ -110,7 +110,7 @@ const styles = `
   .bt-rank-name { flex: 1; font-size: 13px; font-weight: 600; color: #111827; }
   .bt-rank-visitors { font-size: 12px; color: #9ca3af; font-weight: 500; }
   .bt-rank-bar-bg { flex: 1; height: 6px; background: #f1f3f5; border-radius: 3px; overflow: hidden; margin-left: 8px; }
-  .bt-rank-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #02A17E, #3DBFA0); }
+  .bt-rank-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #7CB342, #96C462); }
 
   @media (max-width: 900px) {
     .bt-main-grid { grid-template-columns: 1fr; }
@@ -127,7 +127,7 @@ const STATUS_LABEL = {
 };
 
 const BOOTH_COLORS = [
-  { bg: "#eff4ff", color: "#02A17E" },
+  { bg: "#eff4ff", color: "#7CB342" },
   { bg: "#ecfdf5", color: "#10b981" },
   { bg: "#fef3c7", color: "#d97706" },
   { bg: "#fce7f3", color: "#ec4899" },
@@ -187,7 +187,7 @@ function BoothContent({ booths, loading, errorMsg }) {
           {
             label: "전체 부스",
             value: `${booths.length}개`,
-            icon: <Store size={20} color="#02A17E" />,
+            icon: <Store size={20} color="#7CB342" />,
             bg: "#eff4ff",
           },
           {
@@ -344,7 +344,7 @@ export default function Booth() {
             status: toEventStatus(evt?.status, evt?.startAt, evt?.endAt),
             participants: 0,
             thumbnail: null,
-            color: "#02A17E",
+            color: "#7CB342",
           })),
         );
       } catch {

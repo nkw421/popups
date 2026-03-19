@@ -159,7 +159,7 @@ const styles = `
     font-weight: 600;
     letter-spacing: 0.03em;
     background: #eff4ff;
-    color: #02A17E;
+    color: #7CB342;
     margin-bottom: 8px;
     align-self: flex-start;
   }
@@ -212,10 +212,10 @@ const styles = `
     transition: all 0.15s ease;
     font-family: inherit;
   }
-  .es-page-btn:hover { border-color: #02A17E; color: #02A17E; }
+  .es-page-btn:hover { border-color: #7CB342; color: #7CB342; }
   .es-page-btn.active {
-    background: #02A17E;
-    border-color: #02A17E;
+    background: #7CB342;
+    border-color: #7CB342;
     color: #fff;
     font-weight: 600;
   }

@@ -53,17 +53,17 @@ const PAGE_CONFIG = {
   current: {
     title: "현재 진행 프로그램",
     subtitle: "현재 진행 행사에 속한 프로그램을 확인하세요",
-    icon: <Zap size={42} color="#02A17E" strokeWidth={1.6} />,
+    icon: <Zap size={42} color="#7CB342" strokeWidth={1.6} />,
   },
   upcoming: {
     title: "예정 프로그램",
     subtitle: "예정 행사에 속한 프로그램을 미리 확인하세요",
-    icon: <CalendarClock size={42} color="#02A17E" strokeWidth={1.6} />,
+    icon: <CalendarClock size={42} color="#7CB342" strokeWidth={1.6} />,
   },
   closed: {
     title: "종료 프로그램",
     subtitle: "종료 행사에 속한 프로그램 이력을 확인하세요",
-    icon: <ArchiveX size={42} color="#02A17E" strokeWidth={1.6} />,
+    icon: <ArchiveX size={42} color="#7CB342" strokeWidth={1.6} />,
   },
 };
 
@@ -170,7 +170,7 @@ const styles = `
     display:flex; flex-direction:column;
   }
   .ps-card-current:hover { box-shadow:0 6px 18px rgba(0,0,0,0.06); transform:translateY(-3px); }
-  .ps-card-current:hover .ps-card-current-btn { background:#02A17E; color:#fff; border-color:#02A17E; }
+  .ps-card-current:hover .ps-card-current-btn { background:#7CB342; color:#fff; border-color:#7CB342; }
   .ps-card-current-thumb { position:relative; overflow:hidden; background:#f1f5f9; }
   .ps-card-current-thumb img { width:100%; display:block; transition:transform 0.4s ease; }
   .ps-card-current:hover .ps-card-current-thumb img { transform:scale(1.03); }
@@ -182,10 +182,10 @@ const styles = `
   }
   .ps-card-current-thumb-fallback {
     width:100%; aspect-ratio:3/4; display:flex; align-items:center; justify-content:center;
-    font-size:48px; background:linear-gradient(135deg, #E6F7F2 0%, #f8fafc 100%); color:#bfccdf;
+    font-size:48px; background:linear-gradient(135deg, #F4F9EC 0%, #f8fafc 100%); color:#bfccdf;
   }
   .ps-card-current-body { padding:16px 18px 18px; flex:1; display:flex; flex-direction:column; }
-  .ps-card-current-category { font-size:13px; font-weight:700; color:#02A17E; margin-bottom:6px; letter-spacing:0.3px; }
+  .ps-card-current-category { font-size:13px; font-weight:700; color:#7CB342; margin-bottom:6px; letter-spacing:0.3px; }
   .ps-card-current-title { font-size:16.5px; font-weight:700; color:#111827; margin-bottom:10px; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .ps-card-current-meta { display:flex; flex-direction:column; gap:4px; margin-bottom:14px; }
   .ps-card-current-meta-row { display:flex; align-items:center; gap:6px; font-size:14px; color:#6b7280; }
@@ -193,13 +193,13 @@ const styles = `
   .ps-card-current-progress-wrap { margin-bottom:10px; }
   .ps-card-current-progress-label { display:flex; justify-content:space-between; font-size:13px; color:#9ca3af; margin-bottom:5px; }
   .ps-card-current-progress-track { height:6px; background:#f1f3f5; border-radius:100px; overflow:hidden; }
-  .ps-card-current-progress-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, #02A17E, #6366f1); transition:width 0.6s ease; }
+  .ps-card-current-progress-fill { height:100%; border-radius:100px; background:linear-gradient(90deg, #7CB342, #6366f1); transition:width 0.6s ease; }
   .ps-card-current-btn {
     width:100%; height:42px; border:1px solid #e2e8f0; border-radius:10px; background:#fff;
     font-size:15px; font-weight:700; color:#374151; cursor:pointer; display:flex;
     align-items:center; justify-content:center; gap:4px; font-family:inherit; transition:all 0.15s;
   }
-  .ps-card-current-btn:hover { background:#02A17E; color:#fff; border-color:#02A17E; }
+  .ps-card-current-btn:hover { background:#7CB342; color:#fff; border-color:#7CB342; }
 
   /* ── Upcoming: 2-column horizontal cards (matching up-) ── */
   .ps-grid-upcoming { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
@@ -210,14 +210,14 @@ const styles = `
   }
   .ps-card-upcoming:hover { box-shadow:0 12px 36px rgba(0,0,0,0.08); transform:translateY(-2px); }
   .ps-card-upcoming-thumb {
-    width:180px; flex-shrink:0; overflow:hidden; background:#E6F7F2; position:relative;
+    width:180px; flex-shrink:0; overflow:hidden; background:#F4F9EC; position:relative;
   }
   .ps-card-upcoming-thumb img { width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.4s; }
   .ps-card-upcoming:hover .ps-card-upcoming-thumb img { transform:scale(1.03); }
   .ps-card-upcoming-thumb-fallback {
     width:100%; height:100%; min-height:200px;
     display:flex; align-items:center; justify-content:center; font-size:36px;
-    background:linear-gradient(135deg, #E6F7F2 0%, #f8fafc 100%); color:#bfccdf;
+    background:linear-gradient(135deg, #F4F9EC 0%, #f8fafc 100%); color:#bfccdf;
   }
   .ps-card-upcoming-d-badge {
     position:absolute; top:12px; right:12px;
@@ -237,7 +237,7 @@ const styles = `
   .ps-card-upcoming-detail-btn {
     height:34px; padding:0 14px; border-radius:8px; border:none;
     font-size:14.5px; font-weight:700; cursor:pointer; font-family:inherit;
-    background:#02A17E; color:#fff; transition:all 0.15s; flex-shrink:0;
+    background:#7CB342; color:#fff; transition:all 0.15s; flex-shrink:0;
     display:flex; align-items:center; gap:4px;
   }
   .ps-card-upcoming-detail-btn:hover { background:#1640b8; }
@@ -320,7 +320,7 @@ const styles = `
 `;
 
 const CATEGORY_COLORS = {
-  SESSION: { bg: "#E6F7F2", color: "#02A17E" },
+  SESSION: { bg: "#F4F9EC", color: "#7CB342" },
   EXPERIENCE: { bg: "#ecfdf5", color: "#059669" },
   CONTEST: { bg: "#fff7ed", color: "#ea580c" },
   ETC: { bg: "#f3f4f6", color: "#374151" },
@@ -559,7 +559,7 @@ function CurrentCard({ program, onClick }) {
           <div className="ps-card-current-progress-wrap">
             <div className="ps-card-current-progress-label">
               <span>참가자 {participants.toLocaleString()}명 / {capacity.toLocaleString()}명</span>
-              <span style={{ fontWeight: 700, color: pct >= 80 ? "#ef4444" : "#02A17E" }}>{pct}%</span>
+              <span style={{ fontWeight: 700, color: pct >= 80 ? "#ef4444" : "#7CB342" }}>{pct}%</span>
             </div>
             <div className="ps-card-current-progress-track">
               <div className="ps-card-current-progress-fill" style={{ width: `${pct}%` }} />

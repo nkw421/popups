@@ -26,9 +26,9 @@ const STATUS_CONFIG = {
   },
   upcoming: {
     label: "\uC608\uC815",
-    color: "#02A17E",
-    bg: "#E6F7F2",
-    border: "#CCF0E4",
+    color: "#7CB342",
+    bg: "#F4F9EC",
+    border: "#E4F0D0",
   },
   ended: {
     label: "\uC885\uB8CC",
@@ -45,7 +45,7 @@ const STATUS_CONFIG = {
 };
 
 const EVENT_VIEW_BUTTONS = [
-  { key: "dashboard", label: "통합현황", path: "/realtime/dashboard", color: "#02A17E" },
+  { key: "dashboard", label: "통합현황", path: "/realtime/dashboard", color: "#7CB342" },
   { key: "waiting", label: "대기현황", path: "/realtime/waitingstatus", color: "#e67e22" },
   { key: "checkin", label: "체크인현황", path: "/realtime/checkinstatus", color: "#0ea5e9" },
   { key: "vote", label: "투표현황", path: "/realtime/votestatus", color: "#8b5cf6" },
@@ -58,10 +58,10 @@ const selectorStyles = `
     max-width: 1400px;
     margin: 0 auto;
     font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
-    --rte-accent: #02A17E;
+    --rte-accent: #7CB342;
     --rte-accent-light: rgba(78,86,231,0.08);
     --rte-live-dot: #ef4444;
-    --rte-upcoming-dot: #02A17E;
+    --rte-upcoming-dot: #7CB342;
   }
   .rte-selector *, .rte-selector *::before, .rte-selector *::after {
     box-sizing: border-box;
@@ -857,7 +857,7 @@ async function fetchAdminData(url, params, fallback) {
 }
 
 const THEME_CONFIGS = {
-  dashboard: { accent: "#02A17E", liveDot: "#ef4444", upcomingDot: "#02A17E" },
+  dashboard: { accent: "#7CB342", liveDot: "#ef4444", upcomingDot: "#7CB342" },
   waiting:   { accent: "#e67e22", liveDot: "#e67e22", upcomingDot: "#f59e0b" },
   checkin:   { accent: "#0ea5e9", liveDot: "#0ea5e9", upcomingDot: "#38bdf8" },
   vote:      { accent: "#8b5cf6", liveDot: "#8b5cf6", upcomingDot: "#a78bfa" },
@@ -873,7 +873,7 @@ const MiniRing = ({ percent, color, size = 52 }) => {
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ flexShrink: 0 }}>
       <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f0f1f3" strokeWidth={sw} />
       {p > 0 && (
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color || "#02A17E"} strokeWidth={sw}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color || "#7CB342"} strokeWidth={sw}
           strokeDasharray={c} strokeDashoffset={offset}
           strokeLinecap="round" transform={`rotate(-90 ${size / 2} ${size / 2})`}
           style={{ transition: "stroke-dashoffset 0.8s ease" }} />
@@ -894,7 +894,7 @@ const getMetricBarFill = (key, event) => {
 };
 
 const METRIC_BAR_COLORS = {
-  registrations: "#02A17E",
+  registrations: "#7CB342",
   checkedIn: "#22c55e",
   avgWait: "#f59e0b",
   voteCount: "#8b5cf6",
@@ -1299,8 +1299,8 @@ export default function RealtimeEventSelector({ onSelectEvent, pageTitle, progra
                       const rawPercent = isPercent ? (typeof val === "number" ? val : parseFloat(val)) : null;
                       const hasRing = isPercent && Number.isFinite(rawPercent);
                       const barFill = !isPercent && val !== "-" ? getMetricBarFill(m.key, event) : null;
-                      const barColor = isEnded ? "#c5c9cf" : (METRIC_BAR_COLORS[m.key] || numColor || "#02A17E");
-                      const ringColor = isEnded ? "#c5c9cf" : (numColor || "#02A17E");
+                      const barColor = isEnded ? "#c5c9cf" : (METRIC_BAR_COLORS[m.key] || numColor || "#7CB342");
+                      const ringColor = isEnded ? "#c5c9cf" : (numColor || "#7CB342");
                       return (
                         <div className={`rte-metric-card${hasRing ? " has-ring" : ""}`} key={m.key}>
                           {hasRing && (

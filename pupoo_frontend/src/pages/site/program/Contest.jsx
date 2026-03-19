@@ -53,7 +53,7 @@ const styles = `
   /* ?? Live badge ?? */
   .ct-live-badge {
     display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 14px; background: #fff0f0; border: 1px solid #fecaca;
+    padding: 5px 14px; background: #F4F9EC; border: 1px solid #fecaca;
     border-radius: 100px; font-size: 11px; font-weight: 700; color: #ef4444;
     letter-spacing: 0.5px; margin-bottom: 20px;
   }
@@ -160,7 +160,7 @@ const styles = `
     padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; flex-shrink: 0;
   }
   .ct-contest-badge.live { background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
-  .ct-contest-badge.upcoming { background: #E6F7F2; color: #02A17E; border: 1px solid #CCF0E4; }
+  .ct-contest-badge.upcoming { background: #F4F9EC; color: #7CB342; border: 1px solid #E4F0D0; }
   .ct-contest-badge.ended { background: #fff1f2; color: #e11d48; border: 1px solid #fecdd3; }
 
   .ct-contest-info { flex: 1; min-width: 0; width: 100%; }
@@ -482,7 +482,7 @@ const styles = `
   .ct-crop-btn.confirm { background: linear-gradient(135deg, #f59e0b, #f97316); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
 `;
 
-const CARD_BG = ["#fef3c7", "#E6F7F2", "#fdf2f8", "#ecfdf5"];
+const CARD_BG = ["#fef3c7", "#F4F9EC", "#fdf2f8", "#ecfdf5"];
 const CANDIDATE_COLORS = [
   "#8b5cf6",
   "#a78bfa",
@@ -1338,7 +1338,7 @@ function ContestContent({ eventId }) {
           onClick={() => navigate("/program/contest")}
           style={{
             padding: "10px 24px",
-            background: "#02A17E",
+            background: "#7CB342",
             color: "#fff",
             border: "none",
             borderRadius: 8,
@@ -1379,14 +1379,14 @@ function ContestContent({ eventId }) {
           {
             label: "예정",
             value: `${upcomingCount}개`,
-            icon: <Clock size={20} color="#02A17E" />,
+            icon: <Clock size={20} color="#7CB342" />,
             bg: "#eff4ff",
           },
           {
             label: "종료",
             value: `${endedCount}개`,
             icon: <CheckCircle2 size={20} color="#ef4444" />,
-            bg: "#fff0f0",
+            bg: "#F4F9EC",
           },
         ].map((s) => (
           <div key={s.label} className="ct-stat-card">
@@ -1501,7 +1501,7 @@ function ContestContent({ eventId }) {
                             c.status === "live"
                               ? "#d97706"
                               : c.status === "upcoming"
-                                ? "#02A17E"
+                                ? "#7CB342"
                                 : "#9ca3af",
                           display: "flex",
                           alignItems: "center",
@@ -1827,7 +1827,7 @@ export default function Contest() {
   // ── 전체 콘테스트 카드 목록 ──
   const STATUS_BADGE = {
     live: { bg: "#fef3c7", color: "#d97706", dot: "#f59e0b" },
-    upcoming: { bg: "#E6F7F2", color: "#02A17E", dot: "#3DBFA0" },
+    upcoming: { bg: "#F4F9EC", color: "#7CB342", dot: "#96C462" },
     ended: { bg: "#f3f4f6", color: "#9ca3af", dot: "#d1d5db" },
   };
 
@@ -1927,8 +1927,8 @@ export default function Contest() {
             {
               label: "예정",
               value: allContests.filter((c) => c.status === "upcoming").length,
-              ico: <Clock size={18} color="#02A17E" />,
-              bg: "#E6F7F2",
+              ico: <Clock size={18} color="#7CB342" />,
+              bg: "#F4F9EC",
             },
             {
               label: "종료",

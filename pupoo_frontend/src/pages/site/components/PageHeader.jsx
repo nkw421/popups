@@ -94,11 +94,11 @@ const styles = {
   },
   tabActive: {
     color: "#fff",
-    background: "#02A17E",
+    background: "#7CB342",
     borderRadius: 8,
   },
   tabHover: {
-    color: "#02A17E",
+    color: "#7CB342",
   },
 };
 

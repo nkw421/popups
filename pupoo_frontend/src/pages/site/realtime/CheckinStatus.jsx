@@ -139,7 +139,7 @@ const styles = `
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; color: #6b7280; transition: all 0.15s;
   }
-  .ck-refresh-btn:hover { border-color: #02A17E; color: #02A17E; background: #f5f8ff; }
+  .ck-refresh-btn:hover { border-color: #7CB342; color: #7CB342; background: #f5f8ff; }
   .ck-refresh-btn:active { transform: scale(0.93); }
 
   .ck-status-chip {
@@ -149,7 +149,7 @@ const styles = `
   .ck-status-chip-active { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
   .ck-status-chip-active .ck-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: ck-pulse 1.6s ease-in-out infinite; }
   .ck-status-chip-ended { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
-  .ck-status-chip-planned { background: #E6F7F2; color: #02A17E; border: 1px solid #CCF0E4; }
+  .ck-status-chip-planned { background: #F4F9EC; color: #7CB342; border: 1px solid #E4F0D0; }
   @keyframes ck-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(.75); } }
 
   /* ── 카드 ── */
@@ -225,14 +225,14 @@ const styles = `
 
   .ck-notice {
     display: flex; align-items: center; gap: 10px;
-    color: #374151; background: linear-gradient(135deg, #f8fafc 0%, #E6F7F2 100%);
+    color: #374151; background: linear-gradient(135deg, #f8fafc 0%, #F4F9EC 100%);
     border: 1px solid #e2e8f0; border-radius: 14px;
     padding: 16px 20px; margin-bottom: 18px; font-size: 14px; font-weight: 600; line-height: 1.4;
   }
   .ck-notice::before {
     content: "ℹ"; display: flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 8px;
-    background: #02A17E; color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0;
+    background: #7CB342; color: #fff; font-size: 14px; font-weight: 800; flex-shrink: 0;
   }
   .ck-empty { text-align: center; padding: 44px 0; color: #c5c9cf; font-size: 14px; font-weight: 500; }
 
@@ -851,7 +851,7 @@ function CheckinContent({ eventId }) {
         <div className="ck-card">
           <div className="ck-card-header">
             <h2 className="ck-card-title">
-              <span className="ck-card-title-icon" style={{ background: "#eff4ff" }}><UserCheck size={16} color="#02A17E" /></span>
+              <span className="ck-card-title-icon" style={{ background: "#eff4ff" }}><UserCheck size={16} color="#7CB342" /></span>
               내 체크인 상태
             </h2>
             {myCheckin && (
@@ -946,7 +946,7 @@ export default function CheckinStatus() {
       <PageHeader
         title={eventId ? "체크인현황" : "실시간현황"}
         subtitle={eventId ? "참가자 체크인 현황을 실시간으로 확인합니다" : "행사별 실시간 데이터를 한눈에 확인하세요"}
-        icon={<ClipboardCheck size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<ClipboardCheck size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

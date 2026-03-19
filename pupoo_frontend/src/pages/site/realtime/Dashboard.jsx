@@ -98,7 +98,7 @@ const styles = `
     font-size: 14px; font-weight: 700;
     color: #ef4444;
   }
-  .rt-status-chip.planned { color: #02A17E; }
+  .rt-status-chip.planned { color: #7CB342; }
   .rt-status-chip.ended { color: #9ca3af; }
   .rt-status-chip.cancelled { color: #b91c1c; }
   .rt-status-dot {
@@ -167,7 +167,7 @@ const styles = `
     cursor: pointer; color: #6b7280;
     transition: all 0.15s;
   }
-  .rt-refresh-btn:hover { border-color: #02A17E; color: #02A17E; background: #f5f8ff; }
+  .rt-refresh-btn:hover { border-color: #7CB342; color: #7CB342; background: #f5f8ff; }
   .rt-refresh-btn:active { transform: scale(0.93); }
 
   .rt-hero {
@@ -188,7 +188,7 @@ const styles = `
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #02A17E, #7c3aed, #02A17E);
+    background: linear-gradient(90deg, #7CB342, #7c3aed, #7CB342);
     background-size: 200% 100%;
     animation: rt-hero-bar 3s ease infinite;
   }
@@ -678,7 +678,7 @@ const styles = `
     border: none;
   }
   .rt-heat-legend-swatch.actual {
-    background: #02A17E;
+    background: #7CB342;
     box-shadow: 0 0 4px rgba(37,99,235,0.4);
   }
   .rt-heat-legend-swatch.predicted {
@@ -1007,7 +1007,7 @@ const styles = `
     fill: url(#areaGradPredicted);
   }
   .rt-hourly-line-actual {
-    stroke: #02A17E;
+    stroke: #7CB342;
     stroke-width: 2.5;
     fill: none;
     stroke-linecap: round;
@@ -1521,10 +1521,10 @@ const congestionLevelToPercent = (value) => {
 
 const getHeatColor = (pct) => {
   if (pct === 0) return "#f1f3f5";
-  if (pct < 30) return "#CCF0E4";
-  if (pct < 60) return "#5CCDB2";
-  if (pct < 85) return "#3DBFA0";
-  return "#028A6C";
+  if (pct < 30) return "#E4F0D0";
+  if (pct < 60) return "#A8D070";
+  if (pct < 85) return "#96C462";
+  return "#5D8C2A";
 };
 
 const getHeatTextColor = (pct) => {
@@ -1570,9 +1570,9 @@ const resolveCongestionMeta = (value) => {
   if (pct >= 30) {
     return {
       label: "보통",
-      color: "#028A6C",
-      bg: "#E6F7F2",
-      border: "#CCF0E4",
+      color: "#5D8C2A",
+      bg: "#F4F9EC",
+      border: "#E4F0D0",
       sentence: "약간의 대기가 발생할 수 있습니다.",
     };
   }
@@ -1791,8 +1791,8 @@ function HourlyTrendChart({ points, activeDateKey, isTodayForecast, isEnded = fa
         <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none">
           <defs>
             <linearGradient id="areaGradActual" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={isEnded ? "#9ca3af" : "#02A17E"} stopOpacity="0.25" />
-              <stop offset="100%" stopColor={isEnded ? "#9ca3af" : "#02A17E"} stopOpacity="0.02" />
+              <stop offset="0%" stopColor={isEnded ? "#9ca3af" : "#7CB342"} stopOpacity="0.25" />
+              <stop offset="100%" stopColor={isEnded ? "#9ca3af" : "#7CB342"} stopOpacity="0.02" />
             </linearGradient>
             <linearGradient id="areaGradPredicted" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor={isEnded ? "#b0b5bc" : "#8b5cf6"} stopOpacity="0.18" />
@@ -1816,7 +1816,7 @@ function HourlyTrendChart({ points, activeDateKey, isTodayForecast, isEnded = fa
               left: `calc(48px + (100% - 68px) * ${p.x / VIEW_W})`,
               top: `calc(20px + (100% - 50px) * ${p.y / VIEW_H})`,
               width: 10, height: 10, borderRadius: "50%",
-              background: isEnded ? "#9ca3af" : "#02A17E", border: "2px solid #fff",
+              background: isEnded ? "#9ca3af" : "#7CB342", border: "2px solid #fff",
               boxShadow: isEnded ? "0 1px 4px rgba(156,163,175,0.3)" : "0 1px 4px rgba(37,99,235,0.3)",
               transform: "translate(-50%, -50%)",
               cursor: "pointer", zIndex: 3,
@@ -1862,7 +1862,7 @@ function ProgramCrowdCard({ item, isEnded = false }) {
   const pct = item.congestionPercent;
   const accentColor = isEnded
     ? "#9ca3af"
-    : pct >= 80 ? "#ef4444" : pct >= 60 ? "#f59e0b" : pct >= 30 ? "#3DBFA0" : "#22c55e";
+    : pct >= 80 ? "#ef4444" : pct >= 60 ? "#f59e0b" : pct >= 30 ? "#96C462" : "#22c55e";
   const endedText = isEnded ? { color: "#9ca3af" } : undefined;
   return (
     <div className={`rt-program-card${isEnded ? " rt-program-card--ended" : ""}`}>
@@ -2943,11 +2943,11 @@ function DashboardContent({ eventId }) {
       </div>
 
       <div className="rt-card">
-        <div className="rt-card-accent" style={{ background: "#02A17E" }} />
+        <div className="rt-card-accent" style={{ background: "#7CB342" }} />
         <div className="rt-card-header">
           <div className="rt-card-title">
             <div className="rt-card-title-icon">
-              <BarChart2 size={14} color="#02A17E" />
+              <BarChart2 size={14} color="#7CB342" />
             </div>
             지금 행사장은 얼마나 붐빌까요?
           </div>
@@ -3121,7 +3121,7 @@ function DashboardContent({ eventId }) {
 
         <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 14, color: "#6b7280", margin: "0 0 16px", fontWeight: 500 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#3DBFA0", boxShadow: "0 0 4px #3DBFA0", flexShrink: 0 }} />
+            <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#96C462", boxShadow: "0 0 4px #96C462", flexShrink: 0 }} />
             실시간 수집 <strong style={{ color: "#111827", fontWeight: 700 }}>{measuredCongestions.length}</strong>개 지점
           </span>
           <span style={{ color: "#e0e0e0" }}>|</span>
@@ -3179,7 +3179,7 @@ export default function Dashboard() {
       <PageHeader
         title={eventId ? "통합현황" : "실시간현황"}
         subtitle={eventId ? "행사의 실시간 운영 데이터를 확인합니다" : "행사별 실시간 데이터를 한눈에 확인하세요"}
-        icon={<Activity size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<Activity size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

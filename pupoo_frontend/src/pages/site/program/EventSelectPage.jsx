@@ -34,13 +34,13 @@ const styles = `
   }
 
   .ev-filter-btn:hover {
-    border-color: #02A17E;
-    color: #02A17E;
+    border-color: #7CB342;
+    color: #7CB342;
   }
 
   .ev-filter-btn.active {
-    background: #02A17E;
-    border-color: #02A17E;
+    background: #7CB342;
+    border-color: #7CB342;
     color: #fff;
   }
 
@@ -262,7 +262,7 @@ const styles = `
     gap: 4px;
     font-size: 13px;
     font-weight: 700;
-    color: #02A17E;
+    color: #7CB342;
   }
 
   .ev-empty {
@@ -359,7 +359,7 @@ export default function EventSelectPage({ events = [], basePath }) {
         {filtered.length > 0 ? (
           <div className="ev-grid">
             {filtered.map((event) => {
-              const color = event?.color || "#02A17E";
+              const color = event?.color || "#7CB342";
               const status = normalizeStatus(event?.status);
               const thumbnail = event?.imageUrl || event?.thumbnail;
               const participants = Number(event?.participants || 0);

@@ -27,16 +27,16 @@ const styles = `
     width: 5px;
     height: 5px;
     border-radius: 50%;
-    background: #3DBFA0;
+    background: #96C462;
   }
   .pl-circle:nth-child(2) { animation-delay: 240ms; }
-  .pl-circle:nth-child(2)::after { background: #5CCDB2; }
+  .pl-circle:nth-child(2)::after { background: #A8D070; }
   .pl-circle:nth-child(3) { animation-delay: 480ms; }
   .pl-circle:nth-child(3)::after { background: #93bbfd; }
   .pl-circle:nth-child(4) { animation-delay: 720ms; }
-  .pl-circle:nth-child(4)::after { background: #CCF0E4; }
+  .pl-circle:nth-child(4)::after { background: #E4F0D0; }
   .pl-circle:nth-child(5) { animation-delay: 960ms; }
-  .pl-circle:nth-child(5)::after { background: #CCF0E4; }
+  .pl-circle:nth-child(5)::after { background: #E4F0D0; }
   .page-loading-text {
     margin-top: 36px;
     font-size: 15px;

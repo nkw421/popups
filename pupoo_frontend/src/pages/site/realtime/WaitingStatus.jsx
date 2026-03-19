@@ -65,7 +65,7 @@ const styles = `
     font-size: 14px; font-weight: 700;
     color: #ef4444;
   }
-  .wt-status-chip.planned { color: #02A17E; }
+  .wt-status-chip.planned { color: #7CB342; }
   .wt-status-chip.ended { color: #9ca3af; }
   .wt-status-chip.cancelled { color: #b91c1c; }
   .wt-status-dot {
@@ -248,7 +248,7 @@ const styles = `
     cursor: pointer; color: #6b7280;
     transition: all 0.15s;
   }
-  .wt-refresh-btn:hover { border-color: #02A17E; color: #02A17E; background: #f5f8ff; }
+  .wt-refresh-btn:hover { border-color: #7CB342; color: #7CB342; background: #f5f8ff; }
   .wt-refresh-btn:active { transform: scale(0.93); }
 
   .wt-card {
@@ -452,10 +452,10 @@ const styles = `
   .wt-chart-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
   .wt-chart-bar-wrap { height: 176px; display: flex; align-items: flex-end; }
   .wt-chart-bar {
-    width: 100%; min-height: 6px; border-radius: 8px 8px 4px 4px; background: #CCF0E4;
+    width: 100%; min-height: 6px; border-radius: 8px 8px 4px 4px; background: #E4F0D0;
     position: relative; cursor: default; transition: filter 0.15s;
   }
-  .wt-chart-bar.top { background: #02A17E; }
+  .wt-chart-bar.top { background: #7CB342; }
   .wt-chart-bar:hover { filter: brightness(0.92); }
   .wt-chart-bar:hover .wt-chart-tooltip { display: flex; }
   .wt-chart-tooltip {
@@ -472,7 +472,7 @@ const styles = `
     padding: 16px 20px;
     border-radius: 14px;
     border: 1px solid #e2e8f0;
-    background: linear-gradient(135deg, #f8fafc 0%, #E6F7F2 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #F4F9EC 100%);
     color: #374151;
     font-size: 14px;
     font-weight: 600;
@@ -489,7 +489,7 @@ const styles = `
     width: 28px;
     height: 28px;
     border-radius: 8px;
-    background: #02A17E;
+    background: #7CB342;
     color: #fff;
     font-size: 14px;
     font-weight: 800;
@@ -1221,7 +1221,7 @@ function WaitingContent({ eventId }) {
       ) : null}
 
       <div className="wt-card wt-card-congestion">
-        <div className="wt-card-accent" style={{ background: "#02A17E" }} />
+        <div className="wt-card-accent" style={{ background: "#7CB342" }} />
         <div className="wt-card-header wt-card-header-congestion">
           <div className="wt-card-actions">
             <div className="wt-toggle-group">
@@ -1445,7 +1445,7 @@ export default function WaitingStatus() {
       <PageHeader
         title={eventId ? "대기현황" : "실시간현황"}
         subtitle={eventId ? "프로그램 대기 상태를 실시간으로 확인합니다" : "행사별 대기 상태를 실시간으로 확인하세요"}
-        icon={<Timer size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<Timer size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

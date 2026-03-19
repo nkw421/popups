@@ -281,7 +281,7 @@ export default function KakaoJoin() {
     }
     .kj-hint.error { color: #e54545; }
     .kj-error {
-      background: #fff5f5;
+      background: #F7FBF0;
       border: 1px solid #fecaca;
       border-radius: 12px;
       padding: 12px 16px;

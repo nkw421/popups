@@ -61,7 +61,7 @@ const styles = `
     background: #d1d5db;
   }
   .ph-summary-dot.dot-green { background: #16a34a; }
-  .ph-summary-dot.dot-blue { background: #02A17E; }
+  .ph-summary-dot.dot-blue { background: #7CB342; }
   .ph-summary-text {
     display: flex;
     flex-direction: column;
@@ -309,13 +309,13 @@ function methodLabelOf(paymentMethod) {
 function getStatusMeta(payment) {
   const refundStatus = String(payment?.refund?.status || "").toUpperCase();
   if (refundStatus === "REQUESTED") return { label: "환불 요청", color: "#ca8a04" };
-  if (refundStatus === "APPROVED") return { label: "환불 승인", color: "#3DBFA0" };
+  if (refundStatus === "APPROVED") return { label: "환불 승인", color: "#96C462" };
   if (refundStatus === "REJECTED") return { label: "환불 거절", color: "#ef4444" };
   if (refundStatus === "REFUNDED") return { label: "환불 완료", color: "#6b7280" };
 
   switch (String(payment?.status || "").toUpperCase()) {
     case "APPROVED": return { label: "결제 완료", color: "#16a34a" };
-    case "REQUESTED": return { label: "결제 요청", color: "#02A17E" };
+    case "REQUESTED": return { label: "결제 요청", color: "#7CB342" };
     case "FAILED": return { label: "결제 실패", color: "#ef4444" };
     case "CANCELLED": return { label: "취소됨", color: "#ef4444" };
     case "REFUNDED": return { label: "환불 완료", color: "#6b7280" };
@@ -414,7 +414,7 @@ export default function PaymentHistory({ onNavigate }) {
 
       <PageHeader
         title="결제 내역"
-        icon={<CreditCard size={40} strokeWidth={1.8} style={{ color: "#2EB893" }} />}
+        icon={<CreditCard size={40} strokeWidth={1.8} style={{ color: "#8DBD52" }} />}
         subtitle={SUBTITLE_MAP[currentPath]}
         categories={SERVICE_CATEGORIES}
         currentPath={currentPath}

@@ -331,7 +331,7 @@ export default function ContestDetailPage() {
       <PageHeader
         title="콘테스트 상세"
         subtitle="진행 중인 콘테스트의 투표 현황을 확인합니다"
-        icon={<Trophy size={42} color="#02A17E" strokeWidth={1.6} />}
+        icon={<Trophy size={42} color="#7CB342" strokeWidth={1.6} />}
         titleStyle={{ fontSize: 46, lineHeight: "66px", letterSpacing: "-1px" }}
         subtitleStyle={{ fontSize: 20 }}
       />

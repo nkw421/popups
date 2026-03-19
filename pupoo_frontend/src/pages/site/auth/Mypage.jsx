@@ -410,7 +410,7 @@ const styles = `
     letter-spacing: -0.2px;
   }
   .mp-badge.applied {
-    background: #CCF0E4;
+    background: #E4F0D0;
     color: #1e40af;
   }
   .mp-badge.approved {
@@ -430,7 +430,7 @@ const styles = `
     color: #9a3412;
   }
   .mp-badge.refund-approved {
-    background: #CCF0E4;
+    background: #E4F0D0;
     color: #1e40af;
   }
   .mp-badge.refund-rejected {
@@ -579,7 +579,7 @@ const styles = `
   }
   .mp-subscription-btn {
     border: none;
-    background: #CCF0E4;
+    background: #E4F0D0;
     color: #1e40af;
     font-size: 12px;
     font-weight: 700;
@@ -589,7 +589,7 @@ const styles = `
     white-space: nowrap;
     transition: background .15s;
   }
-  .mp-subscription-btn:hover { background: #CCF0E4; }
+  .mp-subscription-btn:hover { background: #E4F0D0; }
   .mp-subscription-btn.warn {
     background: #fee2e2;
     color: #dc2626;

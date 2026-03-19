@@ -23,7 +23,7 @@ const SUBTITLE_MAP = {
 
 const STATUS_META = {
   APPLIED: { label: "신청 완료", bg: "#f0fdf4", color: "#16a34a", border: "#bbf7d0" },
-  APPROVED: { label: "승인 완료", bg: "#E6F7F2", color: "#02A17E", border: "#CCF0E4" },
+  APPROVED: { label: "승인 완료", bg: "#F4F9EC", color: "#7CB342", border: "#E4F0D0" },
   CANCELLED: { label: "신청 취소", bg: "#fef2f2", color: "#ef4444", border: "#fecaca" },
   REJECTED: { label: "승인 거절", bg: "#f9fafb", color: "#6b7280", border: "#e5e7eb" },
 };
@@ -77,7 +77,7 @@ const styles = `
     flex-shrink: 0;
     background: #d1d5db;
   }
-  .ah-summary-dot.dot-blue { background: #02A17E; }
+  .ah-summary-dot.dot-blue { background: #7CB342; }
   .ah-summary-dot.dot-red { background: #ef4444; }
   .ah-summary-text {
     display: flex;
@@ -230,7 +230,7 @@ const styles = `
     padding: 14px 28px;
     border-radius: 14px;
     border: none;
-    background: linear-gradient(135deg, #02A17E 0%, #3DBFA0 100%);
+    background: linear-gradient(135deg, #7CB342 0%, #96C462 100%);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -399,7 +399,7 @@ export default function ApplyHistory() {
 
       <PageHeader
         title="신청 내역 조회"
-        icon={<ClipboardList size={40} strokeWidth={1.8} style={{ color: "#2EB893" }} />}
+        icon={<ClipboardList size={40} strokeWidth={1.8} style={{ color: "#8DBD52" }} />}
         subtitle={SUBTITLE_MAP[currentPath]}
         categories={SERVICE_CATEGORIES}
       />
