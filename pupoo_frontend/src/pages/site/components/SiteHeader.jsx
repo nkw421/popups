@@ -990,7 +990,7 @@ export default function PupooHeader() {
                 src={isLight ? "/logo_white2.png" : "/logo_olive.png"}
                 alt="Pupoo"
                 style={{
-                  height: isMobile ? 17 : isTablet ? 22 : 28,
+                  height: isMobile ? 20 : isTablet ? 22 : 28,
                   width: "auto",
                   display: "block",
                 }}
@@ -1102,7 +1102,7 @@ export default function PupooHeader() {
                   setMobileMenuOpen(false);
                 }}
               >
-                <Search size={18} color={iconColor} strokeWidth={1.8} />
+                <Search size={20} color={iconColor} strokeWidth={1.8} />
               </button>
               {isAuthed ? (
                 <Link
@@ -1116,7 +1116,7 @@ export default function PupooHeader() {
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <UserCircle size={18} color={iconColor} strokeWidth={1.8} />
+                  <UserCircle size={20} color={iconColor} strokeWidth={1.8} />
                 </Link>
               ) : (
                 <Link
@@ -1130,7 +1130,7 @@ export default function PupooHeader() {
                     setMobileMenuOpen(false);
                   }}
                 >
-                  <LogIn size={18} color={iconColor} strokeWidth={1.9} />
+                  <LogIn size={20} color={iconColor} strokeWidth={1.9} />
                 </Link>
               )}
               <button
@@ -1145,8 +1145,8 @@ export default function PupooHeader() {
                 }}
               >
                 {mobileMenuOpen
-                  ? <X size={18} color={iconColor} strokeWidth={1.8} />
-                  : <Menu size={18} color={iconColor} strokeWidth={1.8} />
+                  ? <X size={20} color={iconColor} strokeWidth={1.8} />
+                  : <Menu size={20} color={iconColor} strokeWidth={1.8} />
                 }
               </button>
             </div>
