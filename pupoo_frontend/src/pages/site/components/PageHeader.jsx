@@ -251,52 +251,53 @@ export default function PageHeader({
   return (
     <div style={pageHeaderStyle} className={className || ""}>
       <div style={innerStyle}>
-        <div style={topRowStyle}>
-          <div style={{ minWidth: 0, width: isMobile ? "100%" : "auto" }}>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: isMobile ? 6 : 12,
-              }}
-            >
-              {icon && (
-                <span style={{
-                  flexShrink: 0,
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  width: isMobile ? 22 : isTablet ? 34 : "auto",
-                  height: isMobile ? 22 : isTablet ? 34 : "auto",
-                  overflow: "hidden",
-                }}>
-                  <span style={{
-                    display: "inline-flex",
-                    transform: isMobile ? "scale(0.52)" : isTablet ? "scale(0.8)" : "none",
-                    transformOrigin: "center center",
-                  }}>
-                    {icon}
-                  </span>
-                </span>
-              )}
-              <h1 style={mergedTitleStyle}>{title}</h1>
-            </div>
+        {isMobile ? (
+          /* ── 모바일 전용 심플 레이아웃 ── */
+          <div>
+            <h1 style={mergedTitleStyle}>{title}</h1>
             {subtitle && <p style={mergedSubtitleStyle}>{subtitle}</p>}
           </div>
-          <div style={breadcrumbStyle}>
-            <Home size={12} style={{ color: "#b0b5bd", flexShrink: 0 }} />
-            {breadcrumbItems.map((item, i) => (
-              <span key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                {i > 0 && <span style={styles.breadcrumbSep}>{">"}</span>}
-                <span
-                  style={i === breadcrumbItems.length - 1 ? styles.breadcrumbCurrent : undefined}
-                >
-                  {item}
+        ) : (
+          /* ── 데스크톱/태블릿 기존 레이아웃 ── */
+          <div style={topRowStyle}>
+            <div style={{ minWidth: 0, width: "auto" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                {icon && (
+                  <span style={{
+                    flexShrink: 0,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: isTablet ? 34 : "auto",
+                    height: isTablet ? 34 : "auto",
+                    overflow: "hidden",
+                  }}>
+                    <span style={{
+                      display: "inline-flex",
+                      transform: isTablet ? "scale(0.8)" : "none",
+                      transformOrigin: "center center",
+                    }}>
+                      {icon}
+                    </span>
+                  </span>
+                )}
+                <h1 style={mergedTitleStyle}>{title}</h1>
+              </div>
+              {subtitle && <p style={mergedSubtitleStyle}>{subtitle}</p>}
+            </div>
+            <div style={breadcrumbStyle}>
+              <Home size={12} style={{ color: "#b0b5bd", flexShrink: 0 }} />
+              {breadcrumbItems.map((item, i) => (
+                <span key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  {i > 0 && <span style={styles.breadcrumbSep}>{">"}</span>}
+                  <span style={i === breadcrumbItems.length - 1 ? styles.breadcrumbCurrent : undefined}>
+                    {item}
+                  </span>
                 </span>
-              </span>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {children && <div style={searchAreaStyle}>{children}</div>}
 
@@ -307,26 +308,42 @@ export default function PageHeader({
               const isActive = activePath === targetPath;
               const isHovered = hoveredIdx === i;
 
-              let btnStyle = {
-                ...styles.tabBase,
+              let btnStyle = isMobile ? {
+                // 모바일: 깔끔한 pill, 비활성은 투명
                 flex: "0 0 auto",
                 minWidth: 0,
                 width: "auto",
-                minHeight: isMobile ? 34 : 44,
-                padding: isMobile
-                  ? "0 14px"
-                  : isTablet
-                    ? "11px 14px"
-                    : styles.tabBase.padding,
-                fontSize: isMobile ? 13 : isTablet ? 15 : styles.tabBase.fontSize,
+                height: 32,
+                padding: "0 14px",
+                fontSize: 13,
+                fontWeight: 600,
+                fontFamily: styles.tabBase.fontFamily,
                 whiteSpace: "nowrap",
-                borderRadius: isMobile ? 999 : 0,
-                lineHeight: isMobile ? "34px" : undefined,
+                borderRadius: 999,
+                border: isActive ? "none" : "1px solid #e5e7eb",
+                background: isActive ? "#02A17E" : "transparent",
+                color: isActive ? "#fff" : "#6b7280",
+                cursor: "pointer",
+                transition: "all 0.15s",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+              } : {
+                ...styles.tabBase,
+                flex: "0 0 auto",
+                minWidth: isTablet ? 132 : undefined,
+                width: "auto",
+                minHeight: 44,
+                padding: isTablet ? "11px 14px" : styles.tabBase.padding,
+                fontSize: isTablet ? 15 : styles.tabBase.fontSize,
+                whiteSpace: "nowrap",
+                borderRadius: 0,
               };
 
-              if (isActive) {
+              if (!isMobile && isActive) {
                 btnStyle = { ...btnStyle, ...styles.tabActive };
-              } else if (isHovered) {
+              } else if (!isMobile && isHovered) {
                 btnStyle = { ...btnStyle, ...styles.tabHover };
               }
 
