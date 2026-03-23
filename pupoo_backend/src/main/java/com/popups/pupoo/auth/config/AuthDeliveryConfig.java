@@ -46,7 +46,7 @@ public class AuthDeliveryConfig {
             AwsMessagingProperties awsMessagingProperties,
             ObjectProvider<SesV2Client> sesV2ClientProvider,
             Environment environment,
-            @Value("${verification.email.base-url:http://3.38.233.224:8080}") String verificationBaseUrl
+            @Value("${verification.email.base-url:}") String verificationBaseUrl
     ) {
         String provider = normalizeProvider(authProperties.getEmail().getProvider(), "auth.email.provider");
         logSelectedProvider("email", provider, environment);
@@ -77,11 +77,12 @@ public class AuthDeliveryConfig {
         String provider = normalizeProvider(authProperties.getSms().getProvider(), "auth.sms.provider");
         logSelectedProvider("sms", provider, environment);
         return switch (provider) {
-            case "dev" -> new DevSmsOtpSender(provider);
+            case "dev" -> new DevSmsOtpSender(provider, authProperties.getSms().isEnabled());
             case "aws-sns" -> new AwsSnsSmsOtpSender(
                     provider,
                     requireBean(snsClientProvider.getIfAvailable(), "auth.sms.provider=aws-sns"),
-                    awsMessagingProperties
+                    awsMessagingProperties,
+                    authProperties.getSms().isEnabled()
             );
             default -> throw new IllegalStateException("지원하지 않는 auth.sms.provider 값입니다: " + provider);
         };
