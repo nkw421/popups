@@ -1,0 +1,103 @@
+LightGBM 예측 모델 설명 정리
+작성일: 2026-03-24
+기준: 현재 코드 구현 기준
+
+참고 코드
+- E:\pupoo_workspace\popups\pupoo_ai\app\features\congestion\train\train_congestion_models.py
+- E:\pupoo_workspace\popups\pupoo_ai\app\features\congestion\inference\lightgbm_registry.py
+- E:\pupoo_workspace\popups\pupoo_ai\app\features\congestion\service\prediction_service.py
+
+1) 문제 정의(무엇을 예측하는가)
+- 입력: 과거 혼잡도 시계열 60포인트(5분 간격, 약 300분)
+- 출력: 향후 60분 기준
+  - 평균 혼잡도(target_avg_score_60m)
+  - 피크 혼잡도(target_peak_score_60m)
+- 태스크 유형: 회귀(regression), 점수 범위는 0~100
+
+2) 라벨(정답값) 생성 방식
+- 현재 시점 이후 12포인트(= 60분)의 구간을 추출
+- 평균값을 avg 라벨, 최댓값을 peak 라벨로 생성
+- 따라서 모델 목적은 "1시간 예측"에 최적화되어 있음
+
+3) 입력 피처 구성
+- Raw sequence 60개
+- 통계/추세 engineered feature 18개
+  - mean/std/min/max, 분위수(q25,q50,q75)
+  - 최근 5/10/15 평균, 최근 5/10 표준편차
+  - 최근 구간 min/max, 첫값-마지막값 차이, 기울기(slope)
+- 캘린더 feature 6개
+  - weekday sin/cos
+  - 주말 여부, 공휴일 여부
+  - 행사 기간 내 day index ratio, progress ratio
+- 총 피처 차원: 84 (60 + 18 + 6)
+
+4) 모델 구성(몇 개를 돌리는가)
+- target type 2개: EVENT, PROGRAM
+- 각 target마다 avg 모델과 peak 모델을 분리 학습
+- 총 4개 LightGBM 회귀 모델 운영
+
+5) 핵심 하이퍼파라미터
+- objective="regression"
+- n_estimators=280
+- learning_rate=0.05
+- max_depth=8
+- num_leaves=48
+- min_child_samples=40
+- reg_alpha=0.1, reg_lambda=0.2
+- subsample=0.9, colsample_bytree=0.9
+
+해석
+- 트리 복잡도를 과도하게 키우지 않으면서 비선형 패턴을 반영하는 균형형 설정
+- 규제(reg_alpha/reg_lambda)와 서브샘플링으로 과적합 완화
+
+6) 학습/검증 체계
+- validation_ratio 기본 0.2
+- 무작위 셔플 후 train/valid 분리
+- 평가 지표
+  - avgMae, avgRmse
+  - peakMae, peakRmse
+- 베이스라인과 성능 비교도 함께 저장
+  - baselineAvg: 최근 12포인트 평균
+  - baselinePeak: 과거 최대값
+
+의미
+- "모델이 단순 규칙보다 실제로 개선되는지"를 MAE/RMSE로 제시 가능
+
+7) 추론 시 안정성 장치
+- 입력 시퀀스 길이/값 검증(60개, 수치화, 0~100 클램프)
+- 모델 피처 차원 자동 호환
+  - 캘린더 포함(84), 미포함(78) 둘 다 대응
+- 결과 예측값도 0~100 클램프
+- 평균/피크 일관성 보정(peak는 최소 avg 이상)
+- 모델 로드/추론 실패 시 None 반환 후 상위 fallback 로직 사용
+
+8) Confidence(신뢰도) 계산
+- 최근 12포인트 표준편차(recent_std) 기반
+- confidence = max(0.62, min(0.92, 0.88 - recent_std/140))
+
+의미
+- 최근 변동성이 클수록 신뢰도 하향
+- 운영 화면에서 "예측값 + 신뢰도" 동시 제공 가능
+
+9) 왜 LightGBM을 채택했는가(코드 구조 기반 해석)
+- 테이블형 피처 + 시계열 통계 피처 조합에서 성능/속도 균형이 좋음
+- 학습/추론 비용이 낮아 실서비스 배치/실시간 경로에 적합
+- 결측/노이즈/스케일 불균형에 비교적 강함
+- 딥러닝 단독보다 운영 튜닝(피처/파라미터 조절)이 빠름
+
+10) 현재 구조의 강점
+- 규칙식 + LightGBM + LSTM 보조 + 컨텍스트 보정의 하이브리드 운영
+- 데이터 결손 구간에서도 예측 파이프라인이 끊기지 않음
+- EVENT/PROGRAM 분리 모델로 도메인 특성을 반영 가능
+
+11) 한계와 개선 포인트
+- 검증 분할이 랜덤 셔플 기반이라 시계열 누수 가능성 존재
+  - 개선: time-based split 또는 walk-forward validation 적용
+- 이벤트 타입별(전시/팝업/체험형) 모델 분리 최적화가 더 필요
+- SHAP 기반 피처 중요도 리포트를 정기 산출하면 설명가능성 강화 가능
+- drift 모니터링(월별 성능 저하)과 재학습 트리거 자동화 필요
+
+12) 보고서에 바로 넣을 수 있는 요약 문장
+- 본 시스템의 LightGBM 모델은 과거 300분 혼잡도와 캘린더 맥락을 기반으로 향후 60분 평균/피크 혼잡도를 예측하며, 단순 베이스라인 대비 오차 개선을 목표로 한다.
+- 또한 모델 예측값은 규칙 기반 보정 및 fallback 체계와 결합되어 데이터 결측/급변 상황에서도 운영 안정성을 확보하도록 설계되었다.
+

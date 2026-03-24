@@ -1,0 +1,315 @@
+혼잡도 계산식 정리 (2026-03-24)
+작성 기준: 현재 코드 구현값 기준(가중치/보정식 그대로)
+
+참고 소스(핵심)
+- E:\pupoo_workspace\popups\pupoo_ai\app\features\congestion\service\prediction_service.py
+- E:\pupoo_workspace\popups\pupoo_backend\src\main\java\com\popups\pupoo\ai\application\AiCongestionService.java
+- E:\pupoo_workspace\popups\pupoo_backend\src\main\java\com\popups\pupoo\ai\application\AiCongestionAggregationService.java
+- E:\pupoo_workspace\popups\pupoo_backend\src\main\java\com\popups\pupoo\ai\application\RealtimeWaitSyncService.java
+- E:\pupoo_workspace\popups\pupoo_backend\src\main\java\com\popups\pupoo\common\dashboard\application\AdminRealtimeAggregateService.java
+
+공통 표기
+- clamp01(x): 0~1로 제한
+- clamp100(x), clampPercent(x), clampScore(x): 0~100으로 제한(서비스별 반올림 규칙 포함)
+- rawAvg: 모델 예측 avg_score(모델 없으면 base_score)
+
+============================================================
+1) 이미 지난 행사(종료 행사) 혼잡도 계산식
+============================================================
+[1-1] 행사 기본 혼잡도(base score)
+netEntry = max(entryCount - checkoutCount, 0)
+runningPrograms = max(runningProgramCount, 0)
+totalPrograms = max(totalProgramCount, 1)
+
+waitBaselinePerProgram =
+  if runningPrograms <= 0 then waitBaseline
+  else max(waitBaseline / runningPrograms, 1)
+
+entryPressure = clamp01(netEntry / max(capacityBaseline * 0.08, 1))
+waitPressure = clamp01(totalWaitCount / max(waitBaseline, 1))
+waitDensityPressure = clamp01((totalWaitCount / max(runningPrograms,1)) / max(waitBaselinePerProgram,1))
+waitTimePressure = clamp01(averageWaitMinutes / max(targetWaitMin,1))
+preRegistrationPressure = clamp01(preRegisteredCount / max(capacityBaseline,1))
+participantConversionPressure = clamp01(participantCount / max(preRegisteredCount,1))
+insideOccupancyPressure = clamp01(currentInsideCount / max(capacityBaseline * 0.75,1))
+operationRelief = clamp01(runningPrograms / max(totalPrograms,1))
+
+eventUnitScore =
+  0.10*entryPressure
++ 0.16*waitPressure
++ 0.10*waitDensityPressure
++ 0.14*waitTimePressure
++ 0.22*preRegistrationPressure
++ 0.18*participantConversionPressure
++ 0.14*insideOccupancyPressure
+- 0.04*operationRelief
+
+baseEventScore = clampScore(eventUnitScore * 100)
+
+[1-2] 종료 행사 컨텍스트 보정(과거 데이터 분기)
+조건: planned 예측 요청도 아니고, ongoing도 아닐 때(즉 종료 행사)
+
+signalBlendScore =
+  0.17*applicationTrendScore
++ 0.17*applyConversionScore
++ 0.12*queueOperationScore
++ 0.14*zoneDensityScore
++ 0.10*stayTimeScore
++ 0.11*manualCongestionScore
++ 0.06*revisitScore
++ 0.05*voteHeatScore
++ 0.08*paymentIntentScore
+
+finalAvgPast = clampScore(rawAvg * 0.88 + signalBlendScore * 0.12)
+
+구현 위치
+- prediction_service.py: _event_base_score(703), _signal_blend_score(832), _apply_event_context_calibration(905)
+
+============================================================
+2) 진행중 행사 혼잡도 계산식
+============================================================
+[2-1] 기본 점수는 1번 [1-1]과 동일
+
+[2-2] 진행중 행사 로컬 어댑터 보정(학습 히스토리 기반)
+localBlendWeight = min(0.72, 0.50 + trainCount/120)
+if recentVolatility < 1.2 then localBlendWeight *= 0.7
+
+avgAfterLocal = clampScore(rawAvg*(1-localBlendWeight) + localAvg*localBlendWeight)
+peakAfterLocal = clampScore(max(avgAfterLocal, peakRaw*(1-peakWeight) + localPeak*peakWeight))
+  where peakWeight = min(0.75, localBlendWeight*0.95)
+timelineAfterLocal = clampScore(timelineRaw*(1-timelineWeight) + localAvg*timelineWeight)
+  where timelineWeight = min(0.65, localBlendWeight*0.9)
+
+[2-3] 진행중 행사 컨텍스트(실시간 신호 + 앵커) 보정
+participantSignal = clamp100(participantCount / max(preRegisteredCount,1) * 100)
+insideSignal = clamp100(currentInsideCount / max(capacityBaseline,1) * 100)
+registrationQualitySignal = clamp100(approvedRegistrationCount / max(preRegisteredCount,1) * 100)
+
+runtimeContextScore =
+  0.04*applicationTrendScore
++ 0.06*applyConversionScore
++ 0.06*queueOperationScore
++ 0.08*zoneDensityScore
++ 0.04*stayTimeScore
++ 0.12*manualCongestionScore
++ 0.24*participantSignal
++ 0.20*insideSignal
++ 0.14*registrationQualitySignal
++ 0.01*revisitScore
++ 0.01*voteHeatScore
++ 0.00*paymentIntentScore
+
+liveAnchorScore =
+  0.35*manualCongestionScore
++ 0.30*participantSignal
++ 0.18*insideSignal
++ 0.12*preRegisteredCount/capacityBaseline 환산점수
++ 0.03*queueOperationScore
++ 0.02*averageWaitMinutes/targetWaitMin 환산점수
+
+ongoingContext = clampScore(runtimeContextScore*0.20 + liveAnchorScore*0.80)
+finalAvgOngoing = clampScore(avgAfterLocal*0.42 + ongoingContext*0.58)
+
+구현 위치
+- prediction_service.py: _apply_ongoing_event_local_adaptor(542)
+- prediction_service.py: _event_runtime_context_score(847), _event_live_anchor_score(874)
+- prediction_service.py: _apply_event_context_calibration(905)
+
+============================================================
+3) 진행중 행사 남은 행사일 예상 혼잡도 계산식
+============================================================
+주의: 실제 운영에서는 2개 경로가 존재함
+- AI 예측 서비스 timeline 생성식
+- 관리자 대시보드 timeline 재구성식
+
+[3-1] AI 예측 서비스 timeline(진행중 포함)
+progress = index / (pointCount-1)
+profileMultiplier = time_profile(hour 구간별 배율)
+wave = sin(progress * 2*pi) * 2.2
+trend = (progress - 0.5) * 3.0
+timelineScore = clampScore(baseOrDailyScore * profileMultiplier + wave + trend)
+
+구현 위치
+- prediction_service.py: _build_timeline(968)
+
+[3-2] 대시보드 남은 일자 예측(일자별 base/peak + 진행률 곡선)
+dailyBaseScore =
+  if historicalDailyScore exists then historicalDailyScore
+  else clampPercent(round(baseScore * weekdayFactor * progressFactor))
+
+weekdayFactor:
+- 과거 요일 평균 있으면 clamp(weekdayAvg/baseScore, 0.75, 1.25)
+- 없으면 기본값: 월 0.92, 토 1.08, 일 1.12, 그 외 1.0
+
+progressFactor = 0.9 + 0.2 * sin((dayOffset/(totalDays-1)) * pi)
+
+dailyPeakScore = clampPercent(round(dailyBaseScore * peakRatio))
+peakRatio = max(1.0, peakScore / max(baseScore,1))
+
+시간대 진행률 점수(scoreFromProgress):
+delta = max(0, peakScore - baseScore)
+tailScore = baseScore + round(delta*0.35)
+if progress <= 0.45:
+  score = baseScore + delta*(progress/0.45)
+else:
+  settle = (progress-0.45)/0.55
+  score = peakScore - (peakScore-tailScore)*settle
+score = clampPercent(round(score))
+
+구현 위치
+- AdminRealtimeAggregateService.java: buildPredictionTimeline(1663)
+- AdminRealtimeAggregateService.java: resolveDailyBaseScore(1823)
+- AdminRealtimeAggregateService.java: resolveWeekdayFactor(1845)
+- AdminRealtimeAggregateService.java: resolveEventProgressFactor(1864)
+- AdminRealtimeAggregateService.java: scoreFromProgress(1872)
+
+============================================================
+4) 예정 행사(시작 전) 혼잡도 계산식
+============================================================
+[4-1] 시작 전 forecast 점수(라이브 데이터 없는 경우)
+registration = clamp100(registrationForecastScore)
+ongoingBaseline = clamp100(ongoingBaselineScore)
+endedBaseline = clamp100(endedBaselineScore)
+
+plannedForecast =
+  weighted average of (registration*0.65, ongoingBaseline*0.20, endedBaseline*0.15)
+  using only 값>0인 항목 가중치 합으로 나눔
+plannedForecast = clampScore(bound(plannedForecast, 5, 90))
+
+[4-2] 예정 행사 컨텍스트 보정 점수
+applyVolumeScore = clamp100(activeApplyCount / 2000 * 100)
+capacityScore = clamp100(capacityBaseline / 2000 * 100)
+programScaleScore = clamp100(totalProgramCount / 60 * 100)
+locationScore = locationDemandScore(없으면 location 키워드 맵 점수)
+
+plannedCore =
+  0.36*registrationScore
++ 0.20*applyVolumeScore
++ 0.18*capacityScore
++ 0.11*programScaleScore
++ 0.15*locationScore
+durationPenalty = min(max((durationDays-3)*1.4, 0), 7)
+coreAfterPenalty = clampScore(plannedCore - durationPenalty)
+
+plannedContext = clampScore(coreAfterPenalty*0.70 + signalBlendScore*0.30)
+
+[4-3] 시작 전 최종 보정
+finalAvgPlanned = clampScore(rawAvg*0.65 + plannedContext*0.35)
+
+[4-4] 예정 행사 일자별 점수(남은 기간 일자별 산출)
+heuristicDaily = clampScore(baseScore + (weekdayBias + phaseBonus + holidayBonus)*demandScale)
+  where phaseBonus = sin(dayIndexRatio*pi)*4.4
+  where holidayBonus = 6.0(if holiday)
+  where demandScale = 0.90 + (registrationForecastScore/100)*1.10
+
+calendarWeight = clamp(0.52 + registrationFactor*0.15 + shortDurationBonus + noModelVariationBonus, 0.45, 0.75)
+  shortDurationBonus: durationDays<=4 이면 +0.08
+  noModelVariationBonus: 모델 변동 거의 없으면 +0.12
+
+dailyBlended = clampScore(modelDaily*(1-calendarWeight) + heuristicDaily*calendarWeight)
+
+구현 위치
+- prediction_service.py: _planned_event_forecast_score(756)
+- prediction_service.py: _planned_contextual_score(806)
+- prediction_service.py: _apply_event_context_calibration(905)
+- prediction_service.py: _planned_daily_heuristic_score(616), _build_planned_daily_base_scores(657)
+- AiCongestionService.java: blendPlannedForecastScore(820), estimatePlannedRegistrationScore(799)
+
+============================================================
+5) 프로그램 혼잡도 계산식
+============================================================
+programCapacity = max(programCapacity, 1)
+throughputPerMin = max(throughputPerMin, 1)
+targetWaitMin = max(targetWaitMin, 1)
+
+checkinPressure = clamp01(checkinCount / throughputPerMin)
+queuePressure = clamp01(waitCount / programCapacity)
+waitTimePressure = clamp01(waitMinutes / targetWaitMin)
+applyBacklogPressure = clamp01(activeApplyCount / (programCapacity*2))
+
+programUnitScore =
+  0.20*checkinPressure
++ 0.40*queuePressure
++ 0.30*waitTimePressure
++ 0.10*applyBacklogPressure
+
+programScore = clampScore(programUnitScore * 100)
+
+구현 위치
+- prediction_service.py: _program_base_score(944)
+- AiCongestionService.java: estimateProgramBaseScore(1148)
+- AiCongestionAggregationService.java: calculateProgramCongestionScore(461)
+
+============================================================
+6) 부스 혼잡도 계산식
+============================================================
+현재 코드에서 부스는 "대기열/대기시간 -> 점수" 2단계 계산.
+
+[6-1] 부스 대기열/대기시간 산출
+weightedAppliedCount = ceil(appliedCount * normalize(appliedWeight))
+queueCount = waitingCount + weightedAppliedCount
+
+waitMin =
+  if throughputPerMin > 0 then ceil(queueCount / throughputPerMin)
+  else ceil((queueCount * avgStayMinutes) / concurrency)
+
+모든 값은 안전 범위로 보정(MIN_CONCURRENCY, MAX_WAIT_MINUTES 등)
+
+[6-2] 부스 혼잡도 점수 산출
+minuteScore = min(100, max(0, waitMin * 4))
+countScore = min(100, max(0, waitCount * 5))
+boothCongestionScore = round(minuteScore*0.7 + countScore*0.3)
+boothCongestionPercent = clampPercent(boothCongestionScore)
+
+구현 위치
+- RealtimeWaitSyncService.java: calculateWeightedAppliedCount(266), calculateWaitMinByStay(394), calculateWaitMinByThroughput(406)
+- AdminRealtimeAggregateService.java: computeCongestionScore(1923), deriveCongestionPercentFromWait(1918)
+
+============================================================
+추가 질문 답변: "이것 말고 혼잡도 계산식 더 있나?"
+============================================================
+결론: 더 있음.
+
+추가 계산식 목록(핵심)
+1. 점수 -> 레벨 매핑
+   - score<=20:1, <=40:2, <=60:3, <=80:4, else:5
+   - prediction_service.py: _level_from_score(121)
+   - AiCongestionService.java: levelFromScore(1178)
+
+2. 점수 -> 대기시간(분) 변환 piecewise
+   - 구간별 선형식(25,40,55,70,85 기준)으로 최대 60분 상한
+   - prediction_service.py: _to_wait_minutes(133)
+   - AiCongestionService.java: waitFromScore(1194)
+
+3. 이벤트 상태별 실제/예측 혼잡도 선택
+   - planned/upcoming/pending: predicted 우선
+   - 그 외: measured>0 우선, 없으면 predicted, 없으면 0
+   - AdminRealtimeAggregateService.java: resolveEventCongestionPercent(1330)
+
+4. 레벨<->퍼센트 변환
+   - percent = level*20
+   - level = ceil(percent/20), clamp 1~5
+   - AdminRealtimeAggregateService.java: levelToPercent(1376), percentToLevel(1382)
+
+5. 집계 서비스(Aggregation) 전용 이벤트 가중치 식(메인 예측기와 다름)
+   - eventUnit = 0.22*entry + 0.30*wait + 0.23*waitDensity + 0.30*waitTime - 0.05*operationRelief
+   - AiCongestionAggregationService.java: calculateEventCongestionScore(426)
+
+6. 예정 행사 신청수 기반 기본 추정식(백엔드 fallback)
+   - registrationsPerDay = activeApplyCount / operationDays
+   - estimatedScore = round((registrationsPerDay/300)*100), then bound 5~85
+   - AiCongestionService.java: estimatePlannedRegistrationScore(799)
+
+7. 요일/시간 프로파일 배율 보정(타임라인 재보정)
+   - dayMultiplier = weekendBias + dayCycle
+     weekendBias: 토 1.05, 일 1.08, 평일 1.0
+     dayCycle: ((dayOfYear mod 14) - 7) * 0.004
+   - hourMultiplier = 1.0 + sin(((hour-9)/9)*pi) * 0.03
+   - AiCongestionService.java: dayProfileMultiplier(1411), hourProfileMultiplier(1428)
+
+8. 점수 기반 대기시간 소프트 상한 보정
+   - score < 25 이면 wait=0
+   - scoreBaseWait = waitFromScore(score)
+   - softCap = scoreBaseWait + 8
+   - normalizedWait = min(max(waitMinutes,0), softCap)
+   - AiCongestionService.java: normalizeWaitByScore(1484)
