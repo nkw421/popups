@@ -1,0 +1,1988 @@
+{
+  "git": {
+    "branch": "final-20260324",
+    "commit": "bf8f3cb9ccf43b915f9e6698deb747f3820e63b3",
+    "remote_origin": "https://github.com/nkw421/popups.git"
+  },
+  "counts": {
+    "pupoo_backend": {
+      "files": 619,
+      "lines": 45696
+    },
+    "pupoo_frontend/src": {
+      "files": 214,
+      "lines": 97879
+    },
+    "pupoo_ai": {
+      "files": 64,
+      "lines": 7853
+    },
+    "db": {
+      "files": 9,
+      "lines": 345478
+    },
+    "k8s": {
+      "files": 17,
+      "lines": 460
+    },
+    "scripts": {
+      "files": 0,
+      "lines": 0
+    },
+    "docs": {
+      "files": 16,
+      "lines": 1997
+    }
+  },
+  "backend": {
+    "main_java_files": 598,
+    "test_java_files": 6,
+    "controllers": 64,
+    "services": 76,
+    "repositories": 71,
+    "entities": 56,
+    "dtos": 183,
+    "package_file_counts": {
+      "board": 92,
+      "auth": 78,
+      "common": 60,
+      "ai": 43,
+      "notification": 40,
+      "program": 38,
+      "payment": 36,
+      "event": 27,
+      "user": 23,
+      "gallery": 19,
+      "storage": 18,
+      "qr": 18,
+      "booth": 17,
+      "report": 14,
+      "interest": 14,
+      "reply": 13,
+      "inquiry": 13,
+      "pet": 12,
+      "notice": 12,
+      "contest": 10,
+      "PupooBackendApplication.java": 1
+    },
+    "controller_details": [
+      {
+        "name": "AdminAnalyticsController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/analytics/api/AdminAnalyticsController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/analytics/events"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/analytics/events/{eventId}/congestion-by-hour"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/analytics/yearly"
+          }
+        ]
+      },
+      {
+        "name": "AdminBannedWordController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/api/AdminBannedWordController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/boards/{boardId}/banned-words"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/boards/{boardId}/banned-words"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/banned-words/{bannedWordId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/banned-words/{bannedWordId}"
+          }
+        ]
+      },
+      {
+        "name": "AdminDashboardController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/api/AdminDashboardController.java",
+        "endpoint_count": 20,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/events"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/events"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/dashboard/events/{eventId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/dashboard/events/{eventId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/events/bulk-delete"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/programs"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/events/{eventId}/programs"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/programs"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/dashboard/programs/{programId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/dashboard/programs/{programId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/programs/bulk-delete"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/programs/{programId}/applies"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/dashboard/program-applies/{applyId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/dashboard/program-applies/{applyId}/status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/events/{eventId}/booths"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/booths"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/dashboard/booths/{boothId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/dashboard/booths/{boothId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/booths/bulk-delete"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/past-events"
+          }
+        ]
+      },
+      {
+        "name": "AdminDashboardRealtimeController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/api/AdminDashboardRealtimeController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/realtime/summary"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/realtime/events"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/realtime/events/{eventId}/congestions"
+          }
+        ]
+      },
+      {
+        "name": "AdminEventOperationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/event/api/AdminEventOperationController.java",
+        "endpoint_count": 7,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/events/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/events/{eventId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/events/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/events/{eventId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/events/{eventId}/status"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/events/poster/generate"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/events/poster/upload"
+          }
+        ]
+      },
+      {
+        "name": "AdminFaqController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/faq/api/AdminFaqController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/faqs/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/faqs/{postId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/faqs/{postId}"
+          }
+        ]
+      },
+      {
+        "name": "AdminLogAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/audit/api/AdminLogAdminController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/logs/"
+          }
+        ]
+      },
+      {
+        "name": "AdminModerationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/boardinfo/api/AdminModerationController.java",
+        "endpoint_count": 12,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/posts"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/reviews"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/replies"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/posts/{postId}/hide"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/posts/{postId}/restore"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/moderation/posts/{postId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/reviews/{reviewId}/blind"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/reviews/{reviewId}/restore"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/moderation/reviews/{reviewId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/replies/{targetType}/{commentId}/hide"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/moderation/replies/{targetType}/{commentId}/restore"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/moderation/replies/{targetType}/{commentId}"
+          }
+        ]
+      },
+      {
+        "name": "AdminModerationLogController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/api/AdminModerationLogController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/logs"
+          }
+        ]
+      },
+      {
+        "name": "AdminModerationPolicyController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/api/AdminModerationPolicyController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/policies/active"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/moderation/policies/uploads"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/moderation/policies/upload"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/moderation/multipart/form-data"
+          }
+        ]
+      },
+      {
+        "name": "AdminNoticeController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/notice/api/AdminNoticeController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/notices/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/notices/{id}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/notices/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/notices/{id}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/notices/{id}"
+          }
+        ]
+      },
+      {
+        "name": "AdminNotificationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/notification/api/AdminNotificationController.java",
+        "endpoint_count": 7,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/notifications/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/notifications/"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/admin/notifications/{adminNotificationId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/notifications/{adminNotificationId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/notifications/{adminNotificationId}/send"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/notifications/event"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/notifications/broadcast"
+          }
+        ]
+      },
+      {
+        "name": "AdminOrchestrationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AdminOrchestrationController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/ai/summary"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/ai/capabilities"
+          }
+        ]
+      },
+      {
+        "name": "AdminPaymentsController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/payment/api/AdminPaymentsController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/payments"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/payments/{id}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/events/{eventId}/payments"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/payments/{paymentId}/refund"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/dashboard/payments/bulk-refund"
+          }
+        ]
+      },
+      {
+        "name": "AdminPostController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/post/api/AdminPostController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "PUT",
+            "path": "/api/admin/posts/{postId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/posts/{postId}/delete"
+          }
+        ]
+      },
+      {
+        "name": "AdminQnaController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/qna/api/AdminQnaController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "PUT",
+            "path": "/api/admin/qnas/{qnaId}/answer"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/qnas/{qnaId}/answer"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/qnas/{qnaId}/visibility"
+          }
+        ]
+      },
+      {
+        "name": "AdminRealtimeAggregateController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/api/AdminRealtimeAggregateController.java",
+        "endpoint_count": 12,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/{eventId}/overview"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/{eventId}/overview"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/{eventId}/dashboard"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/{eventId}/dashboard"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/{eventId}/waiting-status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/{eventId}/waiting-status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/{eventId}/checkin-status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/{eventId}/checkin-status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/realtime/events/{eventId}/vote-status"
+          },
+          {
+            "method": "GET",
+            "path": "/api/realtime/events/{eventId}/vote-status"
+          }
+        ]
+      },
+      {
+        "name": "AdminRefundsController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/payment/refund/api/AdminRefundsController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/refunds"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/refunds/{id}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/refunds/{refundId}/approve"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/refunds/{refundId}/reject"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/refunds/{refundId}/execute"
+          }
+        ]
+      },
+      {
+        "name": "AdminReportController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/report/api/AdminReportController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/reports/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/reports/{reportId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/reports/{reportId}"
+          }
+        ]
+      },
+      {
+        "name": "AdminStorageController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/storage/api/AdminStorageController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/files/notice"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/files/{fileId}"
+          }
+        ]
+      },
+      {
+        "name": "AdminUserController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/user/api/AdminUserController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/users/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/users/{id}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/users/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/users/{id}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/users/{id}"
+          }
+        ]
+      },
+      {
+        "name": "AiAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiAdminController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/ai/events/{eventId}/congestion/predict"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/ai/events/{eventId}/programs/congestion"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/ai/congestion/backfill"
+          }
+        ]
+      },
+      {
+        "name": "AiController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/ai/events/{eventId}/congestion/predict"
+          },
+          {
+            "method": "GET",
+            "path": "/api/ai/events/{eventId}/programs/congestion"
+          },
+          {
+            "method": "GET",
+            "path": "/api/ai/programs/{programId}/congestion/predict"
+          },
+          {
+            "method": "GET",
+            "path": "/api/ai/programs/{programId}/recommendations"
+          }
+        ]
+      },
+      {
+        "name": "AuthController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/auth/api/AuthController.java",
+        "endpoint_count": 15,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/auth/signup/start"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/signup/verify-otp"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/signup/email/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/signup/email/confirm"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/signup/complete"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/oauth/kakao/exchange"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/oauth/kakao/login"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/oauth/naver/exchange"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/oauth/naver/login"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/login"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/password-reset/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/password-reset/verify-code"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/password-reset/confirm"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/refresh"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/logout"
+          }
+        ]
+      },
+      {
+        "name": "AuthSmsController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/auth/api/AuthSmsController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/auth/sms/send"
+          },
+          {
+            "method": "POST",
+            "path": "/api/auth/sms/verify"
+          }
+        ]
+      },
+      {
+        "name": "AuthVerificationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/auth/api/AuthVerificationController.java",
+        "endpoint_count": 8,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/users/me/email-verification/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/email-change/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/email-change/confirm"
+          },
+          {
+            "method": "GET",
+            "path": "/api/auth/email/verification/confirm"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/phone-verification/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/phone-verification/confirm"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/phone-change/request"
+          },
+          {
+            "method": "POST",
+            "path": "/api/users/me/phone-change/confirm"
+          }
+        ]
+      },
+      {
+        "name": "BoardController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/boardinfo/api/BoardController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/boards"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/boards"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/boards/{boardId}"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/admin/boards/{boardId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/boards/{boardId}/active"
+          }
+        ]
+      },
+      {
+        "name": "BoothController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/booth/api/BoothController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}/booths"
+          },
+          {
+            "method": "GET",
+            "path": "/api/booths/{boothId}"
+          }
+        ]
+      },
+      {
+        "name": "ChatbotProxyController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/chatbot/chat"
+          }
+        ]
+      },
+      {
+        "name": "ContestVoteController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/contest/vote/api/ContestVoteController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/programs/{programId}/votes/"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/programs/{programId}/votes/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/programs/{programId}/votes/result"
+          }
+        ]
+      },
+      {
+        "name": "DashboardController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/api/DashboardController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/dashboard/{id}"
+          }
+        ]
+      },
+      {
+        "name": "EventController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/event/api/EventController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/events/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/events/closed/analytics"
+          },
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}/galleries"
+          }
+        ]
+      },
+      {
+        "name": "EventRegistrationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/event/api/EventRegistrationController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/event-registrations"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/event-registrations/{applyId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/users/me/event-registrations"
+          }
+        ]
+      },
+      {
+        "name": "FaqController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/faq/api/FaqController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/faqs/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/faqs/{postId}"
+          }
+        ]
+      },
+      {
+        "name": "GalleryAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/gallery/api/GalleryAdminController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/admin/galleries/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/galleries/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/galleries/{galleryId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/galleries/{galleryId}"
+          }
+        ]
+      },
+      {
+        "name": "GalleryController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/gallery/api/GalleryController.java",
+        "endpoint_count": 8,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/galleries/{galleryId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/galleries/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/galleries/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/galleries/{galleryId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/galleries/{galleryId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/galleries/{galleryId}/report"
+          },
+          {
+            "method": "POST",
+            "path": "/api/galleries/{galleryId}/like"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/galleries/{galleryId}/like"
+          }
+        ]
+      },
+      {
+        "name": "GalleryImageUploadController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/gallery/api/GalleryImageUploadController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/galleries/images/upload"
+          },
+          {
+            "method": "POST",
+            "path": "/api/galleries/image/upload"
+          }
+        ]
+      },
+      {
+        "name": "HealthController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/api/HealthController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/health"
+          }
+        ]
+      },
+      {
+        "name": "InquiryController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/inquiry/api/InquiryController.java",
+        "endpoint_count": 8,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/inquiries"
+          },
+          {
+            "method": "GET",
+            "path": "/api/inquiries/mine"
+          },
+          {
+            "method": "GET",
+            "path": "/api/inquiries/{inquiryId}"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/inquiries/{inquiryId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/inquiries/{inquiryId}/close"
+          },
+          {
+            "method": "GET",
+            "path": "/api/admin/inquiries"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/admin/inquiries/{inquiryId}/answer"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/inquiries/{inquiryId}/status"
+          }
+        ]
+      },
+      {
+        "name": "InterestController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/interest/api/InterestController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/interests/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/interests/subscribe"
+          },
+          {
+            "method": "POST",
+            "path": "/api/interests/unsubscribe"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/interests/channels"
+          },
+          {
+            "method": "POST",
+            "path": "/api/interests/mysubscriptions"
+          }
+        ]
+      },
+      {
+        "name": "NoticeController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/notice/api/NoticeController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/notices/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/notices/{noticeId}"
+          }
+        ]
+      },
+      {
+        "name": "NotificationController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/notification/api/NotificationController.java",
+        "endpoint_count": 6,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/notifications/stream"
+          },
+          {
+            "method": "GET",
+            "path": "/api/notifications/unread-count"
+          },
+          {
+            "method": "GET",
+            "path": "/api/notifications/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/notifications/{inboxId}/click"
+          },
+          {
+            "method": "GET",
+            "path": "/api/notifications/settings"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/notifications/settings"
+          }
+        ]
+      },
+      {
+        "name": "PaymentController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/payment/api/PaymentController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/events/{eventId}/payments"
+          },
+          {
+            "method": "GET",
+            "path": "/api/payments/my"
+          },
+          {
+            "method": "POST",
+            "path": "/api/payments/{paymentId}/approve"
+          },
+          {
+            "method": "POST",
+            "path": "/api/payments/{paymentId}/cancel"
+          }
+        ]
+      },
+      {
+        "name": "PetController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/pet/api/PetController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/pets/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/pets/me"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/pets/{petId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/pets/{petId}"
+          }
+        ]
+      },
+      {
+        "name": "PostController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/post/api/PostController.java",
+        "endpoint_count": 7,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/posts/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/posts/{postId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/posts/{postId}/report"
+          },
+          {
+            "method": "POST",
+            "path": "/api/posts/"
+          },
+          {
+            "method": "PUT",
+            "path": "/api/posts/{postId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/posts/{postId}"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/posts/{postId}/close"
+          }
+        ]
+      },
+      {
+        "name": "ProgramAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/api/ProgramAdminController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/programs/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/programs/{programId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/programs/{programId}"
+          }
+        ]
+      },
+      {
+        "name": "ProgramApplyController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/apply/api/ProgramApplyController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/program-applies/my"
+          },
+          {
+            "method": "GET",
+            "path": "/api/program-applies/programs/{programId}/candidates"
+          },
+          {
+            "method": "POST",
+            "path": "/api/program-applies/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/program-applies/{id}/cancel"
+          },
+          {
+            "method": "GET",
+            "path": "/api/program-applies/{id}"
+          }
+        ]
+      },
+      {
+        "name": "ProgramController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/api/ProgramController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}/programs"
+          },
+          {
+            "method": "GET",
+            "path": "/api/programs/{programId}"
+          }
+        ]
+      },
+      {
+        "name": "ProgramSpeakerController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/api/ProgramSpeakerController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/programs/{programId}/speakers/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/programs/{programId}/speakers/{speakerId}"
+          }
+        ]
+      },
+      {
+        "name": "PublicAnalyticsController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/analytics/api/PublicAnalyticsController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/analytics/events"
+          },
+          {
+            "method": "GET",
+            "path": "/api/analytics/events/{eventId}/congestion-by-hour"
+          }
+        ]
+      },
+      {
+        "name": "PublicDashboardRealtimeController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/api/PublicDashboardRealtimeController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/dashboard/realtime/events/{eventId}/congestions"
+          }
+        ]
+      },
+      {
+        "name": "QnaController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/qna/api/QnaController.java",
+        "endpoint_count": 6,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/qnas/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/qnas/{qnaId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/qnas/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/qnas/{qnaId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/qnas/{qnaId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/qnas/{qnaId}/close"
+          }
+        ]
+      },
+      {
+        "name": "QrAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/qr/api/QrAdminController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-in"
+          },
+          {
+            "method": "POST",
+            "path": "/api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-out"
+          }
+        ]
+      },
+      {
+        "name": "QrController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/qr/api/QrController.java",
+        "endpoint_count": 6,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/qr/me"
+          },
+          {
+            "method": "GET",
+            "path": "/api/qr/me/download"
+          },
+          {
+            "method": "POST",
+            "path": "/api/qr/me/sms-test"
+          },
+          {
+            "method": "GET",
+            "path": "/api/me/booth-visits"
+          },
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}/me/booth-visits"
+          },
+          {
+            "method": "GET",
+            "path": "/api/events/{eventId}/booths/{boothId}/me/visits"
+          }
+        ]
+      },
+      {
+        "name": "RefundController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/payment/refund/api/RefundController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/refunds"
+          },
+          {
+            "method": "GET",
+            "path": "/api/refunds/my"
+          }
+        ]
+      },
+      {
+        "name": "ReplyController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/reply/api/ReplyController.java",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/replies/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/replies/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/replies/{replyId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/replies/{replyId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/replies/{targetType}/{replyId}/report"
+          }
+        ]
+      },
+      {
+        "name": "ReportReasonController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/report/api/ReportReasonController.java",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/report-reasons/"
+          }
+        ]
+      },
+      {
+        "name": "ReviewController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/board/review/api/ReviewController.java",
+        "endpoint_count": 6,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/reviews/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/reviews/{reviewId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/reviews/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/reviews/{reviewId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/reviews/{reviewId}"
+          },
+          {
+            "method": "POST",
+            "path": "/api/reviews/{reviewId}/report"
+          }
+        ]
+      },
+      {
+        "name": "SocialAccountController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/user/social/api/SocialAccountController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/social-accounts/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/social-accounts/link"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/social-accounts/unlink"
+          }
+        ]
+      },
+      {
+        "name": "SpaForwardController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/common/config/SpaForwardController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/"
+          },
+          {
+            "method": "GET",
+            "path": "/{path:[^\\\\.]*}"
+          },
+          {
+            "method": "GET",
+            "path": "/**/{path:[^\\\\.]*}"
+          }
+        ]
+      },
+      {
+        "name": "SpeakerAdminController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/speaker/api/SpeakerAdminController.java",
+        "endpoint_count": 3,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/admin/speakers/"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/admin/speakers/{speakerId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/admin/speakers/{speakerId}"
+          }
+        ]
+      },
+      {
+        "name": "SpeakerController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/program/speaker/api/SpeakerController.java",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/speakers/"
+          },
+          {
+            "method": "GET",
+            "path": "/api/speakers/{speakerId}"
+          }
+        ]
+      },
+      {
+        "name": "StorageController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/storage/api/StorageController.java",
+        "endpoint_count": 8,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/files/"
+          },
+          {
+            "method": "POST",
+            "path": "/api/files/admin/notice"
+          },
+          {
+            "method": "GET",
+            "path": "/api/files/by-post/{postId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/files/by-post/{postId}/list"
+          },
+          {
+            "method": "GET",
+            "path": "/api/files/{fileId}"
+          },
+          {
+            "method": "GET",
+            "path": "/api/files/{fileId}/download"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/files/{fileId}"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/files/admin/{fileId}"
+          }
+        ]
+      },
+      {
+        "name": "UserController",
+        "path": "pupoo_backend/src/main/java/com/popups/pupoo/user/api/UserController.java",
+        "endpoint_count": 4,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/users/me"
+          },
+          {
+            "method": "GET",
+            "path": "/api/users/check-nickname"
+          },
+          {
+            "method": "PATCH",
+            "path": "/api/users/me"
+          },
+          {
+            "method": "DELETE",
+            "path": "/api/users/me"
+          }
+        ]
+      }
+    ]
+  },
+  "frontend": {
+    "src_files": 217,
+    "pages": 145,
+    "api_or_http_modules": 46,
+    "components_or_ui_modules": 17,
+    "top_level_file_counts": {
+      "pages": 145,
+      "app": 27,
+      "features": 14,
+      "api": 9,
+      "shared": 7,
+      "ui": 3,
+      "components": 3,
+      "layouts": 2,
+      "App.css": 1,
+      "App.jsx": 1,
+      "index.css": 1,
+      "main.jsx": 1,
+      "ScrollToTop.jsx": 1,
+      "styles.css": 1,
+      "data": 1
+    },
+    "page_files": [
+      "pages/admin/adminlog/AdminLogManage.jsx",
+      "pages/admin/board/BannedWordsManage.jsx",
+      "pages/admin/board/Notice.jsx",
+      "pages/admin/board/Reviews.jsx",
+      "pages/admin/board/boardManage.jsx",
+      "pages/admin/community/Reviews.jsx",
+      "pages/admin/contest/contestManage.jsx",
+      "pages/admin/dashboard/AdminChatBot.jsx",
+      "pages/admin/dashboard/Dashboard.jsx",
+      "pages/admin/dashboard/HomeDashboard.jsx",
+      "pages/admin/dashboard/useChatBot.js",
+      "pages/admin/event/eventManage.jsx",
+      "pages/admin/gallery/Gallery.jsx",
+      "pages/admin/participant/AlertManage.jsx",
+      "pages/admin/participant/ParticipantList.jsx",
+      "pages/admin/participant/PaymentManage.jsx",
+      "pages/admin/past/PastEvents.jsx",
+      "pages/admin/program/programManage.jsx",
+      "pages/admin/realtime/RealtimeData.jsx",
+      "pages/admin/refund/RefundManage.jsx",
+      "pages/admin/report/ReportManage.jsx",
+      "pages/admin/session/sessionManage.jsx",
+      "pages/admin/shared/AdminLogin.jsx",
+      "pages/admin/shared/Components.jsx",
+      "pages/admin/shared/adminStatus.js",
+      "pages/admin/shared/boothImageStore.js",
+      "pages/admin/shared/data.js",
+      "pages/admin/shared/designTokens.js",
+      "pages/admin/shared/eventImageStore.js",
+      "pages/admin/shared/programImageStore.js",
+      "pages/admin/zone/zoneManage.jsx",
+      "pages/site/about/Features.jsx",
+      "pages/site/about/News.jsx",
+      "pages/site/about/Project.jsx",
+      "pages/site/about/TechStack.jsx",
+      "pages/site/about/UseCases.jsx",
+      "pages/site/auth/AuthProvider.jsx",
+      "pages/site/auth/FindPassword.jsx",
+      "pages/site/auth/KakaoCallback.jsx",
+      "pages/site/auth/Login.jsx",
+      "pages/site/auth/Mypage.jsx",
+      "pages/site/auth/MypagePetEditor.jsx",
+      "pages/site/auth/MypageProfileEdit.jsx",
+      "pages/site/auth/MypageQr.jsx",
+      "pages/site/auth/MypageStorageUpload.jsx",
+      "pages/site/auth/NaverCallback.jsx",
+      "pages/site/auth/ResetPassword.jsx",
+      "pages/site/auth/api/authApi.js",
+      "pages/site/auth/api/mypageApi.js",
+      "pages/site/auth/join/JoinNormal.jsx",
+      "pages/site/auth/join/JoinSelect.jsx",
+      "pages/site/auth/join/JoinSocial.jsx",
+      "pages/site/auth/join/KakaoJoin.jsx",
+      "pages/site/auth/join/KakaoOtp.jsx",
+      "pages/site/auth/join/NaverJoin.jsx",
+      "pages/site/community/CommunityBoardEditPage.jsx",
+      "pages/site/community/CommunityBoardWritePage.jsx",
+      "pages/site/community/CommunityPostDetailPage.jsx",
+      "pages/site/community/Faq.jsx",
+      "pages/site/community/FaqDetailPage.jsx",
+      "pages/site/community/FreeBoard.jsx",
+      "pages/site/community/FreeBoardDetailPage.jsx",
+      "pages/site/community/FreeBoardEditPage.jsx",
+      "pages/site/community/FreeBoardWritePage.jsx",
+      "pages/site/community/Gallery.jsx",
+      "pages/site/community/InfoBoard.jsx",
+      "pages/site/community/InfoBoardDetailPage.jsx",
+      "pages/site/community/InfoBoardEditPage.jsx",
+      "pages/site/community/InfoBoardWritePage.jsx",
+      "pages/site/community/Notice.jsx",
+      "pages/site/community/NoticeDetailPage.jsx",
+      "pages/site/community/QnA.jsx",
+      "pages/site/community/QnADetailPage.jsx",
+      "pages/site/community/QnAEditPage.jsx",
+      "pages/site/community/QnAWritePage.jsx",
+      "pages/site/community/Review.jsx",
+      "pages/site/community/ReviewDetailPage.jsx",
+      "pages/site/community/ReviewEditPage.jsx",
+      "pages/site/community/ReviewWritePage.jsx",
+      "pages/site/community/communityConfig.js",
+      "pages/site/community/shared/BadgeTag.jsx",
+      "pages/site/community/shared/CommunityContentTextarea.jsx",
+      "pages/site/community/shared/CommunityDetailLayout.jsx",
+      "pages/site/community/shared/CommunityPagination.jsx",
+      "pages/site/community/shared/CommunityWriteLayout.jsx",
+      "pages/site/community/shared/communityHtml.js",
+      "pages/site/components/EmptyState.jsx",
+      "pages/site/components/EventSelectPage.jsx",
+      "pages/site/components/PageHeader.jsx",
+      "pages/site/components/PageLoading.jsx",
+      "pages/site/components/ProgramScheduleDetail.jsx",
+      "pages/site/components/ReportModal.jsx",
+      "pages/site/components/SiteFooter.jsx",
+      "pages/site/components/SiteHeader.jsx",
+      "pages/site/constants/programConstants.js",
+      "pages/site/event/Closed.jsx",
+      "pages/site/event/Current.jsx",
+      "pages/site/event/Detail.jsx",
+      "pages/site/event/EventDetailModal.jsx",
+      "pages/site/event/EventSchedule.jsx",
+      "pages/site/event/PreRegister.jsx",
+      "pages/site/event/Upcoming.jsx",
+      "pages/site/event/_components/EventList.jsx",
+      "pages/site/gallery/eventgallery.jsx",
+      "pages/site/guide/Location.jsx",
+      "pages/site/guide/Operation.jsx",
+      "pages/site/guide/Timetable.jsx",
+      "pages/site/home/ContestSection.jsx",
+      "pages/site/home/Home.jsx",
+      "pages/site/info/FAQ.jsx",
+      "pages/site/info/Inquiry.jsx",
+      "pages/site/info/Location.jsx",
+      "pages/site/info/PlatformIntro.jsx",
+      "pages/site/payment/Checkout.jsx",
+      "pages/site/payment/PaymentApprove.jsx",
+      "pages/site/policy/EFTTerms.jsx",
+      "pages/site/policy/aboutus.jsx",
+      "pages/site/policy/privacypolicy.jsx",
+      "pages/site/policy/serviceguide.jsx",
+      "pages/site/policy/termsofservice.jsx",
+      "pages/site/program/Contest.jsx",
+      "pages/site/program/ContestDetailPage.jsx",
+      "pages/site/program/Experience.jsx",
+      "pages/site/program/ProgramAll.jsx",
+      "pages/site/program/ProgramStatus.jsx",
+      "pages/site/program/Session.jsx",
+      "pages/site/program/SessionDetail.jsx",
+      "pages/site/program/SpeakerDetail.jsx",
+      "pages/site/program/VoteResult.jsx",
+      "pages/site/program/_components/ProgramList.jsx",
+      "pages/site/program/contest/ContestApply.jsx",
+      "pages/site/program/contest/ContestDetail.jsx",
+      "pages/site/program/contest/ContestResult.jsx",
+      "pages/site/program/contest/ContestVote.jsx",
+      "pages/site/realtime/CheckinStatus.jsx",
+      "pages/site/realtime/Dashboard.jsx",
+      "pages/site/realtime/RealtimeEventSelector.jsx",
+      "pages/site/realtime/VoteStatus.jsx",
+      "pages/site/realtime/WaitingStatus.jsx",
+      "pages/site/realtime/aiCongestionViewModel.js",
+      "pages/site/realtime/useRealtimeAnimations.js",
+      "pages/site/registration/Apply.jsx",
+      "pages/site/registration/ApplyHistory.jsx",
+      "pages/site/registration/PaymentHistory.jsx",
+      "pages/site/registration/QRCheckin.jsx"
+    ]
+  },
+  "ai": {
+    "app_files": 54,
+    "router_files": 6,
+    "feature_files": 32,
+    "feature_file_counts": {
+      "moderation": 10,
+      "congestion": 9,
+      "chatbot": 6,
+      "orchestrator": 6,
+      "__init__.py": 1
+    },
+    "router_details": [
+      {
+        "name": "__init__",
+        "path": "pupoo_ai/app/api/routers/__init__.py",
+        "endpoint_count": 0,
+        "endpoints": []
+      },
+      {
+        "name": "chatbot",
+        "path": "pupoo_ai/app/api/routers/chatbot.py",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/chatbot/chat"
+          }
+        ]
+      },
+      {
+        "name": "congestion",
+        "path": "pupoo_ai/app/api/routers/congestion.py",
+        "endpoint_count": 0,
+        "endpoints": []
+      },
+      {
+        "name": "health",
+        "path": "pupoo_ai/app/api/routers/health.py",
+        "endpoint_count": 2,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/health"
+          },
+          {
+            "method": "GET",
+            "path": "/ready"
+          }
+        ]
+      },
+      {
+        "name": "moderation",
+        "path": "pupoo_ai/app/api/routers/moderation.py",
+        "endpoint_count": 1,
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/moderate"
+          }
+        ]
+      },
+      {
+        "name": "policies",
+        "path": "pupoo_ai/app/api/routers/policies.py",
+        "endpoint_count": 5,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/policies/active"
+          },
+          {
+            "method": "POST",
+            "path": "/policies/upload-and-activate"
+          },
+          {
+            "method": "POST",
+            "path": "/policies/parse-txt"
+          },
+          {
+            "method": "POST",
+            "path": "/policies/embed"
+          },
+          {
+            "method": "POST",
+            "path": "/policies/activate"
+          }
+        ]
+      }
+    ]
+  },
+  "db": {
+    "sql_files": 8,
+    "md_files": 1,
+    "schema_files": [
+      "db/pupoo_schema_v6.7.sql"
+    ],
+    "seed_files": [
+      "db/pupoo_ai_seed_v6.6_practical_generated.sql",
+      "db/pupoo_seed_ai_timeseries_practical_local.sql",
+      "db/pupoo_seed_ai_timeseries_practical_patterned_v6.6.sql",
+      "db/pupoo_seed_v6.6_practical_image_urls_rewritten.sql"
+    ],
+    "simulation_files": [
+      "db/simulations/s1_peak_spike_event3.sql",
+      "db/simulations/s2_cooldown_event3.sql",
+      "db/simulations/s3_bottleneck_transfer_event4.sql"
+    ],
+    "all_sql_files": [
+      "db/pupoo_ai_seed_v6.6_practical_generated.sql",
+      "db/pupoo_schema_v6.7.sql",
+      "db/pupoo_seed_ai_timeseries_practical_local.sql",
+      "db/pupoo_seed_ai_timeseries_practical_patterned_v6.6.sql",
+      "db/pupoo_seed_v6.6_practical_image_urls_rewritten.sql",
+      "db/simulations/s1_peak_spike_event3.sql",
+      "db/simulations/s2_cooldown_event3.sql",
+      "db/simulations/s3_bottleneck_transfer_event4.sql"
+    ]
+  },
+  "k8s": {
+    "manifest_files": 16,
+    "docs_files": 1,
+    "files": [
+      "k8s/README.md",
+      "k8s/base/ai-configmap.yaml",
+      "k8s/base/ai-deployment.yaml",
+      "k8s/base/ai-hpa.yaml",
+      "k8s/base/ai-ingress.yaml",
+      "k8s/base/ai-secret.example.yaml",
+      "k8s/base/ai-service.yaml",
+      "k8s/base/ai-serviceaccount.yaml",
+      "k8s/base/backend-configmap.yaml",
+      "k8s/base/backend-deployment.yaml",
+      "k8s/base/backend-hpa.yaml",
+      "k8s/base/backend-secret.example.yaml",
+      "k8s/base/backend-service.yaml",
+      "k8s/base/backend-serviceaccount.yaml",
+      "k8s/base/ingress.yaml",
+      "k8s/base/kustomization.yaml",
+      "k8s/base/namespace.yaml"
+    ]
+  },
+  "root_manifests": [
+    {
+      "path": "docker-compose.yml",
+      "lines": 23
+    },
+    {
+      "path": "ai-deployment.yaml",
+      "lines": 53
+    },
+    {
+      "path": "ai-service.yaml",
+      "lines": 12
+    },
+    {
+      "path": "backend-deployment.yaml",
+      "lines": 165
+    },
+    {
+      "path": "backend-service.yaml",
+      "lines": 12
+    },
+    {
+      "path": "pupoo-ingress.yaml",
+      "lines": 28
+    },
+    {
+      "path": "alb-ingressclass.yaml",
+      "lines": 6
+    },
+    {
+      "path": "aws-load-balancer-controller-sa.yaml",
+      "lines": 7
+    },
+    {
+      "path": "iam_policy.json",
+      "lines": 251
+    }
+  ]
+}

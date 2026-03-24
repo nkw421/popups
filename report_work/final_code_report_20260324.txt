@@ -1,0 +1,1641 @@
+PUPOO 최종 프로젝트 발표 보고서 (코드/문서 근거 기반, 제출용)
+작성일: 2026-03-24
+프로젝트 루트: E:\pupoo_workspace\popups
+
+작성 원칙
+- 본 문서는 저장소의 코드/설정/산출 문서를 근거로 작성했다.
+- 확인 가능한 근거가 없는 항목은 "근거 미확보"로 명시했다.
+- 기존 기획 문서와 현재 코드가 불일치하면, 현재 코드 기준을 우선 기록하고 차이를 명시했다.
+
+주요 근거 소스
+- report_work/integrated_presentation_report_20260324.txt
+- pupoo_frontend/src/main.jsx
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/build.gradle
+- pupoo_backend/src/main/resources/application.properties
+- pupoo_backend/src/main/java/com/popups/pupoo/**/*
+- pupoo_ai/app/main.py
+- pupoo_ai/app/api/routers/*.py
+- pupoo_ai/app/features/**/*
+- db/pupoo_schema_v6.7.sql
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+- k8s/README.md
+- k8s/base/*.yaml
+- .github/workflows/deploy.yml
+
+============================================================
+0. 표지
+============================================================
+프로젝트명: PUPOO(푸푸)
+부제: 반려동물 행사 통합 운영 플랫폼
+팀명: POPUPS
+팀원: 남광우, 배재혁, 김기정, 정요한
+제출일: 2026-03-24
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- 사용자 제공 보고서 구조 초안
+
+============================================================
+1. 프로젝트 개요
+============================================================
+
+1.1 프로젝트명 및 팀 소개
+- 프로젝트: PUPOO
+- 팀: POPUPS
+- 팀 구성: 4인(남광우, 배재혁, 김기정, 정요한)
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+
+1.2 프로젝트 추진 배경
+- 반려동물 행사 운영이 수기/오프라인 중심으로 분절되어 있어 운영 효율, 안내 정확성, 데이터 축적이 어렵다.
+- 특히 행사 준비-신청-현장-사후분석이 단일 흐름으로 연결되지 않아 일회성 운영으로 끝나는 문제가 있다.
+
+근거
+- report_work/integrated_presentation_report_20260324.txt (문제정의 장)
+
+1.3 프로젝트 목표
+- 행사 등록/노출, 참가 신청, 결제, QR 발급 및 체크인, 현장 운영 데이터 수집, 사후 분석을 단일 플랫폼에서 처리한다.
+- 관리자/참가자/방문객 시나리오를 하나의 서비스 체계로 연결한다.
+- AI 레이어를 분리하여 혼잡도 예측, 추천, 모더레이션, 포스터 생성, 운영 챗봇을 연동한다.
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+
+1.4 서비스 대상
+- 참가자(USER): 행사 탐색, 신청/결제, QR 확인, 마이페이지/커뮤니티 이용
+- 관리자(ADMIN): 행사/프로그램/결제/환불/알림/모더레이션/통계 운영
+- 방문객(비회원/비로그인 포함): 공개 조회 중심 기능 사용
+
+근거
+- pupoo_frontend/src/App.jsx (PublicOnly, RequireAdmin, 공개/인증 라우트 분리)
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+
+1.5 프로젝트 범위
+- Frontend: React SPA 라우팅 및 사용자/관리자 화면
+- Backend: Spring Boot API, 인증/권한, 도메인 서비스, DB 연동
+- AI Service: FastAPI + 혼잡도 추론 + 모더레이션 + 챗봇 오케스트레이션
+- Data: MySQL 스키마 56개 테이블, AI 시계열/학습/예측 로그 포함
+- Infra: S3/CloudFront + EKS + RDS + Redis + GitHub Actions 배포 자동화
+
+근거
+- pupoo_frontend/src/main.jsx
+- pupoo_backend/build.gradle
+- pupoo_ai/app/main.py
+- db/pupoo_schema_v6.7.sql
+- k8s/README.md
+- .github/workflows/deploy.yml
+
+1.6 기대효과 요약 (코드 기준 해석)
+- 운영 프로세스 통합: 신청/결제/QR/운영 로그가 단일 데이터 모델로 연결됨
+- 관리자 운영성 강화: /api/admin/** 기능군 + 감사로그 인터셉터 적용
+- 데이터 기반 운영 전환: ai_* 시계열 및 예측로그 테이블로 누적/활용 구조 확보
+- AI 적용 확장성: AI 서버를 별도 배포 단위(EKS Deployment)로 분리
+
+근거
+- docs/api/backend_routes.json (admin 90개, non-admin 117개)
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/web/AdminAuditInterceptor.java
+- db/pupoo_schema_v6.7.sql (ai_* tables)
+- k8s/base/ai-deployment.yaml
+
+============================================================
+2. 문제 정의 및 필요성
+============================================================
+
+2.1 기존 행사 운영 방식의 한계
+- 수기 대기 관리: 실시간 대기열/혼잡도 반영 어려움
+- 현장 안내 비효율: 공지/동선/체험존 정보 전달 지연
+- 혼잡도 파악 어려움: 정량 데이터 기반 운영 판단 부재
+- 데이터 축적 부재: 행사 종료 후 재활용 가능한 데이터셋 부족
+- 일회성 종료 구조: 다음 행사 기획에 환류되는 구조 약함
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+
+2.2 기존 유사 서비스 한계 분석
+- 기존 반려 서비스는 커뮤니티/쇼핑/정보 중심이고, 현장 운영 전주기(신청-체크인-운영-분석) 통합 범위가 제한적임
+- PUPOO는 행사 운영 도메인을 중심으로 기능을 구성함
+
+근거
+- report_work/integrated_presentation_report_20260324.txt (유사 서비스 비교 섹션)
+
+2.3 PUPOO가 해결하려는 핵심 문제
+- 참가-운영-사후분석 데이터의 단절 해소
+- 운영자 의사결정을 위한 실시간/예측 데이터 제공
+- 안전/공지/모더레이션을 정책 기반으로 통합
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/**/*
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+
+2.4 본 프로젝트의 차별성
+- 라우팅 단에서 관리자/사용자 영역 명확 분리
+- API 단에서 /api/admin/** 권한 분리 강제
+- DB에 AI 학습/예측 로그 테이블을 포함하여 운영 데이터와 연결
+- 배포 파이프라인에서 AI 학습 단계(Train congestion models) 포함
+
+근거
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+- db/pupoo_schema_v6.7.sql
+- .github/workflows/deploy.yml
+
+============================================================
+3. 서비스 기획 및 전체 흐름
+============================================================
+
+3.1 서비스 시나리오
+- 사용자: 행사 탐색 -> 상세 조회 -> 신청/결제 -> QR 발급 -> 현장 체크인 -> 후기/커뮤니티 참여
+- 관리자: 행사/프로그램 등록 -> 참가자/결제/환불 운영 -> 현장 모니터링 -> 공지/알림 발송 -> 사후 통계 확인
+
+근거
+- pupoo_frontend/src/App.jsx
+- docs/api/backend_routes.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+3.2 사용자 유형별 이용 흐름
+- 참가자(USER)
+  - 인증: /api/auth/*
+  - 신청: /api/event-registrations, /api/program-applies
+  - 결제: /api/payments/*
+  - 환불: /api/refunds/*
+  - QR: /api/qr/me, /api/qr/me/download
+- 방문객(PUBLIC)
+  - 공개 조회: posts/notices/events/programs/galleries/reviews/faqs 등 GET 공개 경로
+- 관리자(ADMIN)
+  - /api/admin/** 하위 운영 API
+  - /api/chatbot/** 관리자 전용 챗봇 프록시
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+- docs/api/backend_routes.json
+
+3.3 행사 라이프사이클 관점의 서비스 흐름
+- 행사 준비: event/program/booth/speaker/notice 설정
+- 참가 신청: event_apply/event_program_apply + 결제/환불 연동
+- 현장 운영: QR check-in/out, wait/congestion 집계, 관리자 대시보드 운영
+- 행사 종료 후 분석: analytics API + ai_prediction_logs + timeseries 누적
+
+근거
+- db/pupoo_schema_v6.7.sql
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrAdminService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/dashboard/**/*
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionAggregationService.java
+
+3.4 핵심 서비스 화면 흐름도(텍스트형)
+[Site]
+메인(/) -> 행사(/event/*) -> 신청(/registration/*) -> 결제(/payment/*) -> QR(/registration/qrcheckin)
+
+[Admin]
+/admin/dashboard -> /admin/event/*, /admin/program/*, /admin/participant/*, /admin/refund/*, /admin/report/*, /admin/session/*
+
+근거
+- pupoo_frontend/src/App.jsx
+
+============================================================
+4. 요구사항 분석
+============================================================
+
+4.1 요구사항 수집 방법
+- 기초 요구사항: 최종 결과보고서 문서(사용자/관리자/UI/DB)에서 정리된 항목 사용
+- 구현 정합성 검증: 실제 API 라우트 추출본과 정책 매트릭스로 교차 검증
+- 정책 정합성 검증: SecurityConfig, SSOT 문서, DB 스키마 validate 설정 기준 확인
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+- pupoo_backend/src/main/resources/application.properties
+
+4.2 사용자 기능 요구사항 (코드 반영 현황)
+- 회원/계정: auth/user/pet/social 계열 API 및 프론트 auth/join/find-password/reset-password 라우트 존재
+- 마이페이지: /mypage/* 라우트 및 사용자 정보/참가내역/결제내역/환불/프로필 수정 흐름 존재
+- 행사/콘테스트: /event/*, /program/*, /registration/*, /payment/* 라우트와 event/program/contest API 존재
+- 실시간/세션: /realtime/* 라우트, dashboard/realtime API 존재
+- 게시판/후기/알림: posts/qna/reviews/replies/galleries/notification API 및 화면 존재
+- 결제: payments/refunds/payment_transactions 테이블 및 API 존재
+
+근거
+- pupoo_frontend/src/App.jsx
+- docs/api/backend_routes.json
+- db/pupoo_schema_v6.7.sql
+
+4.3 관리자 기능 요구사항 (코드 반영 현황)
+- 관리자 인증: /api/admin/** + /api/chatbot/** 권한 분리
+- 행사 운영 관리: admin dashboard/event/program/booth/registration API 존재
+- 통계/모니터링: analytics, dashboard realtime API 존재
+- 공지 관리: admin notices API 존재
+- 결제/환불 관리: admin payments/refunds API 존재
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+- docs/api/backend_routes.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+4.4 요구사항 우선순위 및 구현 범위
+- 문서 기준 요구사항 수: 사용자 52, 관리자 16, UI 28, DB 47
+- API 구현 상태 매트릭스: KEEP 42 / HOLD 3 / REMOVE 5
+- HOLD 항목은 운영 보조/외부 연동 성격(예: 챗봇 프록시, AI backfill 등)으로 분류됨
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+4.5 요구사항 대비 구현 결과
+- 백엔드 라우트 총 207개(관리자 90, 일반 117)
+- 프론트 API 호출 총 255개
+- 문서상 AI 적용 예정(L-02) 항목은 현재 코드에서 일부 구현 완료
+  - 구현 확인: 혼잡도 예측, 추천, 모더레이션, 포스터 생성, 챗봇 프록시
+  - 단, 기획서의 일부 기술스택 설명과 현재 구현은 차이 존재(11~13장 상세)
+
+근거
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- report_work/integrated_presentation_report_20260324.txt
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+
+============================================================
+5. UI/UX 설계
+============================================================
+
+5.1 UI 설계 원칙 (코드 구조 기준)
+- 사용자/관리자 라우트 완전 분리
+- 인증 상태 기반 라우트 가드(PublicOnly, RequireAdmin)
+- AuthProvider에서 부트스트랩/토큰 동기화 처리
+
+근거
+- pupoo_frontend/src/main.jsx
+- pupoo_frontend/src/App.jsx
+- pupoo_frontend/src/pages/site/auth/AuthProvider.jsx
+
+5.2 사용자 화면 설계 (라우트/폴더 근거)
+- 사용자 도메인 폴더: about, auth, community, event, gallery, guide, home, info, payment, policy, program, realtime, registration
+- 주요 라우트군
+  - auth=17, community=20, program=12, mypage=6, event=5, payment=4, realtime=4, registration=4
+  - 공개 진입 라우트 포함 총 site path=93
+
+근거
+- pupoo_frontend/src/pages/site/*
+- pupoo_frontend/src/App.jsx (path total=117, site=93, unique=117)
+
+5.3 관리자 화면 설계
+- 관리자 도메인 폴더: adminlog, board, community, contest, dashboard, event, gallery, participant, past, program, realtime, refund, report, session, shared, zone
+- 관리자 path 수: 24
+- 관리자 가드 사용: RequireAdmin 22회
+
+근거
+- pupoo_frontend/src/pages/admin/*
+- pupoo_frontend/src/App.jsx
+
+5.4 화면 설계와 요구사항 매핑
+- 신청/결제/QR: registration/payment 라우트 + backend event/payment/qr API 매핑
+- 커뮤니티/후기/갤러리: community/gallery 라우트 + board/review/gallery API 매핑
+- 관리자 운영: admin 하위 라우트 + admin API 매핑
+
+근거
+- pupoo_frontend/src/App.jsx
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+
+5.5 최종 UI 구현 방향 및 개선 포인트
+- 개선 필요 1: 관리자 placeholder 화면 5개 존재
+  - /admin/participant/detail
+  - /admin/participant/detail/:id
+  - /admin/participant/checkin
+  - /admin/participant/session
+  - /admin/participant/stats
+- 개선 필요 2: 빌드 경고
+  - 대형 번들(>500kB 경고)
+  - axiosInstance 동적/정적 import 혼용 경고
+  - lottie-web eval 경고
+
+근거
+- pupoo_frontend/src/App.jsx
+- 2026-03-24 실행: npm run build 출력 로그
+
+============================================================
+6. 시스템 전체 아키텍처
+============================================================
+
+6.1 전체 시스템 구성
+- Frontend: React + Vite SPA
+- Backend: Spring Boot API 서버
+- AI Service: FastAPI 추론/모더레이션/챗봇
+- Database: MySQL 스키마(v6.7)
+- Infra: AWS(S3/CloudFront, EKS, RDS, Redis) + GitHub Actions
+
+근거
+- pupoo_frontend/package.json
+- pupoo_backend/build.gradle
+- pupoo_ai/app/main.py
+- db/pupoo_schema_v6.7.sql
+- k8s/README.md
+- .github/workflows/deploy.yml
+
+6.2 기술 스택 선정 이유(코드 확인 가능 범위)
+- React 18 + Vite 5: SPA 라우팅/빌드 속도, 페이지 분리 구조
+- Spring Boot 3.5.10 + Java 21: 계층형 API 서버, 보안/검증/DB 접근 통합
+- JWT(JJWT 0.11.5): 토큰 기반 인증
+- MySQL Connector + JPA validate: 스키마 중심 정합성 운영
+- WebFlux WebClient: AI 내부 연동, 외부 API 연동
+- AWS SDK(S3/SES/SNS/STS): 스토리지/메시징 연계
+
+근거
+- pupoo_frontend/package.json
+- pupoo_backend/build.gradle
+- pupoo_backend/src/main/resources/application.properties
+
+6.3 계층 구조 설명
+- Frontend 계층: main(App bootstrap) -> App(route) -> pages/features -> app/http
+- Backend 계층: Controller -> Service(application) -> Repository(persistence) -> Domain model
+- AI 계층: router -> feature service -> inference/embedding/vector store
+- 데이터 계층: MySQL 56개 테이블 + 제약조건 기반 정합성
+- 배포/운영 계층: EKS Deployment/HPA + S3/CloudFront + CI/CD workflow
+
+근거
+- pupoo_frontend/src/main.jsx
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/**/*
+- pupoo_ai/app/main.py
+- db/pupoo_schema_v6.7.sql
+- k8s/base/*.yaml
+
+6.4 모듈 간 데이터 흐름
+1) Frontend -> Backend: axios 기반 REST 호출
+2) Backend -> DB: JPA/Repository
+3) Backend -> AI: AiInferenceClient(WebClient)로 /internal/congestion/* 호출
+4) Backend -> External: OpenAI 이미지 생성 API, AWS 서비스(S3/SES/SNS)
+5) AI -> Backend: 내부 토큰 검증 후 예측/추천/모더레이션 결과 반환
+
+근거
+- pupoo_frontend/src/app/http/axiosInstance.js
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_ai/app/api/routers/congestion.py
+
+6.5 Cloud Native 관점의 설계 의도
+- frontend 정적 분리(S3 + CloudFront)
+- backend/ai 독립 배포(EKS deployment 분리)
+- 수평 확장 설정(HPA: backend 2~6, ai 1~4)
+- readiness/liveness probe 적용
+- CI/CD에서 이미지 빌드 + k8s apply + rollout 확인 자동화
+
+근거
+- k8s/README.md
+- k8s/base/backend-deployment.yaml
+- k8s/base/ai-deployment.yaml
+- k8s/base/backend-hpa.yaml
+- k8s/base/ai-hpa.yaml
+- .github/workflows/deploy.yml
+
+============================================================
+7. 프론트엔드 설계 및 구현
+============================================================
+
+7.1 프론트엔드 아키텍처
+- 엔트리: main.jsx
+  - BrowserRouter + AuthProvider로 앱 부트스트랩
+- 루트: App.jsx
+  - site/admin 라우트 정의, 가드, 리다이렉트 포함
+- 네트워크 계층: src/app/http/*
+  - axios 인스턴스/인터셉터/토큰스토어 분리
+
+근거
+- pupoo_frontend/src/main.jsx
+- pupoo_frontend/src/App.jsx
+- pupoo_frontend/src/app/http/*
+
+7.2 라우팅 구조
+- 전체 path: 117 (unique 117)
+- site: 93 / admin: 24
+- PublicOnly 사용: 8
+- RequireAdmin 사용: 22
+- ComingSoon placeholder: 5
+
+근거
+- pupoo_frontend/src/App.jsx
+
+7.3 공통 컴포넌트 설계
+- 공통 폴더: src/components, src/shared, src/ui, src/layouts
+- 레이아웃 분리: SiteLayout/AdminLayout
+- 인증 컨텍스트: AuthProvider(useContext)로 전역 인증 상태 제공
+
+근거
+- pupoo_frontend/src/components/*
+- pupoo_frontend/src/shared/*
+- pupoo_frontend/src/ui/*
+- pupoo_frontend/src/layouts/*
+- pupoo_frontend/src/pages/site/auth/AuthProvider.jsx
+
+7.4 도메인별 페이지 구성
+- site 폴더 13개 도메인 + admin 폴더 16개 도메인으로 분리
+- pages/site 파일 수: 114
+- pages/admin 파일 수: 31
+
+근거
+- pupoo_frontend/src/pages/site/*
+- pupoo_frontend/src/pages/admin/*
+
+7.5 상태 관리와 API 연동 방식
+- 인증 상태: AuthProvider + tokenStore + AUTH_CHANGE_EVENT
+- API 호출: axiosInstance + request 래퍼 + 도메인별 api 모듈
+- 토큰 재발급/동기화: interceptor + refresh 흐름 처리
+
+근거
+- pupoo_frontend/src/pages/site/auth/AuthProvider.jsx
+- pupoo_frontend/src/app/http/tokenStore.js
+- pupoo_frontend/src/app/http/interceptors.js
+- pupoo_frontend/src/app/http/axiosInstance.js
+
+7.6 사용자 영역/관리자 영역 분리 전략
+- URL prefix 분리: /admin/*
+- 가드 분리: RequireAdmin(관리자), PublicOnly(비로그인 전용)
+- 백엔드 권한 모델과 정합: /api/admin/** 권한 강제
+
+근거
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+
+7.7 UI 구현 시 고려한 점 (현재 코드 기준)
+- 인증 부트스트랩 시 깜빡임/오판 방지를 위한 isBootstrapped 상태 유지
+- 라우트 리다이렉트로 구 경로 호환성 유지
+- 관리자 일부 화면은 placeholder로 남아 있어 운영 전 추가 구현 필요
+
+근거
+- pupoo_frontend/src/pages/site/auth/AuthProvider.jsx
+- pupoo_frontend/src/App.jsx
+
+============================================================
+8. 백엔드 설계 및 구현
+============================================================
+
+8.1 백엔드 설계 원칙
+- DB 우선 설계: `ddl-auto=validate`로 런타임 스키마 정합성 검증
+- 도메인 분리: 최상위 패키지 20개 도메인 단위 구성
+- 계층형 구조: Controller -> Service -> Repository
+- 표준 응답 포맷: ApiResponse 공통 사용
+- 예외 처리 일원화: GlobalExceptionHandler에서 비즈니스/검증/시스템 예외 처리
+
+근거
+- pupoo_backend/src/main/resources/application.properties
+- pupoo_backend/src/main/java/com/popups/pupoo/common/api/ApiResponse.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/exception/GlobalExceptionHandler.java
+- pupoo_backend/src/main/java/com/popups/pupoo/*
+
+8.2 패키지 구조
+- 최상위 패키지: ai, auth, board, booth, common, contest, event, gallery, inquiry, interest, notice, notification, payment, pet, program, qr, reply, report, storage, user
+- 클래스 규모(파일명 규칙 기준)
+  - Controller: 64
+  - Service: 76
+  - Repository(*Repository.java): 64
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/*
+- 2026-03-24 파일 카운트 명령 실행 결과
+
+8.3 인증 및 보안 구조
+- JWT 기반 인증(JJWT 0.11.5)
+- Access/Refresh 토큰 흐름
+  - refresh cookie 정책: auth.refresh.cookie.*
+- 권한 모델
+  - /api/admin/** -> ADMIN/SUPER_ADMIN
+  - /api/chatbot/** -> ADMIN/SUPER_ADMIN
+  - /internal/** -> ADMIN/SUPER_ADMIN
+  - 공개 GET 경로 다수 permitAll
+
+근거
+- pupoo_backend/build.gradle
+- pupoo_backend/src/main/resources/application.properties
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+
+8.4 핵심 도메인 구현
+- 행사/신청
+  - EventRegistration 상태 전이(APPLIED/CANCELLED/APPROVED/REJECTED) 도메인 메서드 보유
+- 결제/환불
+  - Payment 상태(REQUESTED/APPROVED/FAILED/CANCELLED/REFUNDED)
+  - Refund 상태(REQUESTED/APPROVED/REJECTED/COMPLETED), 완료시점 제약 처리
+- QR
+  - 사용자 QR 발급/다운로드/이력 조회
+  - 관리자 CHECKIN/CHECKOUT 정책 및 중복/순서 검증
+- 게시판/커뮤니티
+  - Post/Review/Gallery soft delete/blind/restore 정책
+- 알림
+  - inbox/unread/settings + 관리자 이벤트/브로드캐스트 발송
+- 관리자 기능
+  - dashboard, moderation, reports, refunds, notices 등 /api/admin/** 도메인
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/event/domain/model/EventRegistration.java
+- pupoo_backend/src/main/java/com/popups/pupoo/payment/domain/model/Payment.java
+- pupoo_backend/src/main/java/com/popups/pupoo/payment/refund/domain/model/Refund.java
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrAdminService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/board/post/domain/model/Post.java
+- pupoo_backend/src/main/java/com/popups/pupoo/board/review/domain/model/Review.java
+- pupoo_backend/src/main/java/com/popups/pupoo/gallery/domain/model/Gallery.java
+- pupoo_backend/src/main/java/com/popups/pupoo/notification/application/NotificationService.java
+
+8.5 공통 예외 처리 및 응답 구조
+- ApiResponse 필드: success, message, errorCode, invalidFields, data, error
+- 전역 예외 처리 대상
+  - BusinessException
+  - MethodArgumentNotValidException
+  - HttpMessageNotReadableException
+  - MissingServletRequestParameterException
+  - MethodArgumentTypeMismatchException
+  - DataIntegrityViolationException
+  - IllegalStateException
+  - IllegalArgumentException
+  - Exception
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/api/ApiResponse.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/exception/GlobalExceptionHandler.java
+
+8.6 API 설계 특징
+- 총 백엔드 라우트 207개
+  - 관리자 90 / 일반 117
+  - GET 79, POST 63, PATCH 32, DELETE 27, PUT 6
+- API 상태 정합성 분류
+  - KEEP 42 / HOLD 3 / REMOVE 5
+
+근거
+- docs/api/backend_routes.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+8.7 유지보수성과 확장성 고려 포인트
+- 패키지 분리로 도메인 독립성 유지
+- AI 서버 분리 + 내부 토큰 연동으로 경계 분리
+- 감사로그 인터셉터로 관리자 변경 추적
+- 정책 문서와 코드 정합성 점검 체계(API status matrix) 유지
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/web/AdminAuditInterceptor.java
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+============================================================
+9. 데이터베이스 설계
+============================================================
+
+9.1 DB 설계 원칙
+- 스키마 중심 운영(ddl-auto validate)
+- 도메인별 테이블 분리 + FK/UK/CHECK 기반 무결성
+- 운영/AI 데이터 동시 저장 구조
+
+근거
+- pupoo_backend/src/main/resources/application.properties
+- db/pupoo_schema_v6.7.sql
+
+9.2 ERD 설계 단계
+- 기존 보고서 문서에는 개념적/논리적/물리적 ERD 3단계 설계 기록이 존재
+- 본 코드 기준 문서화 자산은 SQL 스키마가 SSOT 역할
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- db/pupoo_schema_v6.7.sql
+
+9.3 테이블 분류 (v6.7 기준)
+- 전체 CREATE TABLE: 56
+- 사용자/인증
+  - users, social_account, pet, email_verification_token, phone_verification_token, signup_sessions, refresh_token
+- 행사 운영
+  - event, event_images, booths, event_program, speakers, program_speakers, event_congestion_policy
+- 행사 참여/활동
+  - event_apply, event_program_apply, event_history, program_participation_stats, contest_votes
+- 현장 운영
+  - qr_codes, qr_logs, booth_waits, experience_waits, congestions
+- 커뮤니티/콘텐츠
+  - boards, posts, post_comments, reviews, review_comments, galleries, gallery_images, gallery_likes, board_banned_*
+- 고객지원/결제
+  - inquiries, inquiry_answers, payments, payment_transactions, refunds
+- 알림/관심
+  - notification, notification_send, notification_inbox, notification_settings, interests, user_interest_subscriptions, event_interest_map, admin_notification
+- AI 시계열/예측
+  - ai_event_congestion_timeseries, ai_program_congestion_timeseries, ai_training_dataset, ai_prediction_logs
+
+근거
+- db/pupoo_schema_v6.7.sql
+
+9.4 핵심 테이블 상세 설명 (요약)
+- users: 계정/권한/노출설정/인증상태
+- event: 행사 기본정보/일정/상태/요금
+- event_apply: 행사 신청 및 상태 전이
+- event_program, event_program_apply: 프로그램/참여 신청
+- payments/refunds: 결제 및 환불 라이프사이클
+- qr_codes/qr_logs: QR 발급 및 체크인 이력
+- boards/posts/reviews/galleries: 커뮤니티 핵심 엔티티
+- notification*: 사용자 수신함/설정/발송
+- ai_*: 시계열 학습 데이터/예측 로그
+
+근거
+- db/pupoo_schema_v6.7.sql
+- 부록 C 상세 컬럼 명세
+
+9.5 제약조건 및 무결성 설계
+- PRIMARY KEY: 56
+- FOREIGN KEY: 79
+- UNIQUE KEY: 35
+- CHECK: 15
+- GENERATED ALWAYS 컬럼: 5
+- CHECK 예시
+  - reviews rating(1~5)
+  - payments amount > 0
+  - refunds 완료시각 일관성
+  - ai timeseries hour/day 범위 제약
+
+근거
+- db/pupoo_schema_v6.7.sql
+
+9.6 DB 설계의 장점과 한계
+장점
+- 운영 도메인과 AI 도메인을 동일 스키마에서 연결 가능
+- 결제/환불/신고/모더레이션/알림까지 운영 정책을 테이블 제약으로 반영
+한계(코드-DB 불일치)
+- 엔티티 `moderation_policy_uploads` 존재하지만 v6.7 스키마에는 테이블 정의 없음
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/domain/model/ModerationPolicyUpload.java
+- db/pupoo_schema_v6.7.sql (moderation_policy_uploads 검색 결과 0)
+
+============================================================
+10. 운영 정책 및 비즈니스 규칙
+============================================================
+
+10.1 프로젝트 단일 기준(SSOT)
+- 정책 문서상 SSOT 우선순위: DB SQL, 보안설정, 라우팅(App.jsx), 스토리지(app.storage.*)
+- 실제 코드에서도 해당 파일들이 정책 기준점 역할 수행
+
+근거
+- docs/policy-core/governance/MASTER_POLICY.md
+- docs/policy-core/governance/SOURCE_OF_TRUTH_MAP.md
+- pupoo_backend/src/main/resources/application.properties
+- pupoo_frontend/src/App.jsx
+
+10.2 API 공통 정책
+- 공통 응답 포맷 ApiResponse 사용
+- API 정합성 분류 문서(KEEP/HOLD/REMOVE) 유지
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/api/ApiResponse.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+10.3 인증 및 권한 정책
+- /api/admin/**, /api/chatbot/**, /internal/** 관리자 권한 강제
+- 공개 GET 경로 선별 permitAll
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+
+10.4 회원가입/인증 정책
+- signup_sessions, email/phone verification token, refresh_token 테이블 기반 인증 흐름
+- refresh cookie 상세 정책은 properties로 관리
+
+근거
+- db/pupoo_schema_v6.7.sql
+- pupoo_backend/src/main/resources/application.properties
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Auth/AuthVerification 영역)
+
+10.5 삭제 정책
+- 사용자 탈퇴: soft delete(status=DELETED)
+- 게시글/리뷰/갤러리: soft delete/blind/restore 메서드로 상태 관리
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/user/application/UserService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/user/domain/enums/UserStatus.java
+- pupoo_backend/src/main/java/com/popups/pupoo/board/post/domain/model/Post.java
+- pupoo_backend/src/main/java/com/popups/pupoo/board/review/domain/model/Review.java
+- pupoo_backend/src/main/java/com/popups/pupoo/gallery/domain/model/Gallery.java
+
+10.6 게시판 및 커뮤니티 정책
+- 금칙어/모더레이션: board_banned_words, board_filter_policy, WebClientModerationClient
+- AI 모더레이션 비활성/오류 시 BLOCK 처리(안전 우선)
+
+근거
+- db/pupoo_schema_v6.7.sql
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+
+10.7 행사/신청/체크인 정책
+- 행사 신청 상태 전이 제한(EventRegistration 도메인)
+- QR CHECKOUT은 선행 CHECKIN 필요, 연속 동일 상태 방지
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/event/domain/model/EventRegistration.java
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrAdminService.java
+
+10.8 결제/환불 정책
+- 결제/환불 상태 전이 메서드 도메인화
+- 환불 완료 시 completed_at 정합성 CHECK
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/payment/domain/model/Payment.java
+- pupoo_backend/src/main/java/com/popups/pupoo/payment/refund/domain/model/Refund.java
+- db/pupoo_schema_v6.7.sql
+
+10.9 알림 정책
+- 사용자 수신함/읽지않음/설정 API 제공
+- 관리자 이벤트 타겟 발송 + 브로드캐스트 발송 분리
+- in-app/email/sms/push 채널 처리 구조 존재
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/notification/application/NotificationService.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Notification 영역)
+
+10.10 신고/모더레이션 정책
+- 신고 대상: post/review/comment/gallery
+- 동일 유저-동일 대상 중복 신고 금지 정책
+- 관리자 승인/거절 처리 흐름 존재
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/report/application/ReportService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/report/application/AdminReportService.java
+- db/pupoo_schema_v6.7.sql (content_reports)
+
+10.11 관리자 로그 및 감사 정책
+- /api/admin/** 요청에 대한 인터셉터 감사 로그 적용
+- 대상 타입/행위/결과/에러코드/IP 저장
+- /api/admin/logs/**는 감사 인터셉터 예외 처리
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/web/AdminAuditInterceptor.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/application/AdminLogService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/config/AdminAuditWebConfig.java
+
+============================================================
+11. AI 시스템 설계
+============================================================
+
+11.1 AI 도입 배경
+- 행사 운영에서 혼잡도/추천/콘텐츠 통제/운영 지원을 자동화하기 위해 AI 레이어를 분리 도입
+- 백엔드와 AI 서버를 독립 서비스로 구성하여 기능 확장 시 결합도를 낮춤
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_ai/app/main.py
+- k8s/base/ai-deployment.yaml
+
+11.2 AI 전체 목표
+- 혼잡도 예측 고도화
+- 프로그램 추천 제공
+- 게시글/댓글 모더레이션 자동화
+- 행사 포스터 생성 자동화
+- 관리자 운영 챗봇 제공
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+- pupoo_ai/app/api/routers/moderation.py
+
+11.3 AI 기능 구성 개요
+- 행사 추천: 프로그램 혼잡도 기반 대체 추천
+- 혼잡도 예측: event/program 대상 예측 API
+- 금지어/콘텐츠 필터링: RAG 기반 moderation
+- 포스터 생성: OpenAI 이미지 생성 API 연동
+- 관리자 챗봇: backend 프록시 + AI 오케스트레이터
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java
+- pupoo_ai/app/api/routers/congestion.py
+- pupoo_ai/app/api/routers/moderation.py
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_ai/app/api/routers/chatbot.py
+
+11.4 AI 서비스와 본 서비스의 관계
+- 호출 경로
+  - Frontend -> Backend(/api/ai, /api/chatbot, /api/admin/ai)
+  - Backend -> AI internal endpoint (/internal/*, X-Internal-Token)
+- AI 장애 대응
+  - AiInferenceClient는 재시도 후 Optional.empty 반환
+  - Backend는 fallback 예측/추천 로직을 내장
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionService.java
+- pupoo_ai/app/core/auth.py
+
+11.5 AI 적용 효과 (현재 코드 기준)
+- 실시간 운영 데이터 기반 예측 점수 제공
+- 관리자 운영 작업(공지/알림/모더레이션/상태판단)의 자동화 여지 확대
+- 배포 파이프라인에 학습 단계 포함으로 모델 산출물 자동 갱신 가능
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionService.java
+- .github/workflows/deploy.yml (Train congestion models)
+- pupoo_ai/artifacts/congestion/training_report_latest.json
+
+============================================================
+12. AI 모델별 상세 설계
+============================================================
+
+12.1 추천 시스템 (현재 구현)
+입력
+- 현재 프로그램 혼잡 예측값
+- 동일 행사 내 후보 프로그램 목록(예측 점수 포함)
+- threshold(기본 75)
+처리
+- threshold 미만이면 추천 미생성
+- 후보 필터링 후 정렬 키 기반 상위 추천 생성
+출력
+- 추천 프로그램 목록, 예측점수/레벨/기대대기시간/사유
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionService.java
+- pupoo_ai/app/features/congestion/service/prediction_service.py (recommend_programs)
+
+기획 대비 차이
+- 기존 AI 기획 문서의 "OpenAI Embedding 1536차원 + 코사인 유사도"는 현재 코드에서 확인되지 않음
+- 현재 저장소에서 임베딩(768차원)은 moderation RAG(watsonx embedding) 영역에 사용됨
+
+근거
+- pupoo_ai/app/core/config.py (watsonx_embedding_dim=768)
+- pupoo_ai/app/features/moderation/rag_service.py
+
+12.2 혼잡도 예측 시스템
+입력
+- 행사/프로그램 운영 피처(체크인, 대기, 신청, 용량, 시간대 등)
+- 길이 60의 입력 시퀀스
+처리
+- LightGBM 예측 + LSTM baseline 보정 아티팩트 결합
+- 5분 단위 타임라인 생성
+- 컨텍스트/캘린더 보정, 점수-대기시간 정합 보정
+출력
+- 평균/피크 혼잡도, 레벨, 예측 대기시간, 타임라인
+
+근거
+- pupoo_ai/app/features/congestion/service/prediction_service.py
+- pupoo_ai/app/features/congestion/train/train_congestion_models.py
+- pupoo_ai/app/features/congestion/inference/lightgbm_registry.py
+- pupoo_ai/app/features/congestion/inference/lstm_baseline.py
+- pupoo_ai/artifacts/congestion/*.joblib
+
+기획 대비 차이
+- 기획 문서의 "PyTorch LSTM" 표기는 현재 코드에서 직접 확인되지 않음
+- 현재 LSTM baseline 구현은 NumPy/Scikit-learn 기반 보정 구조로 확인됨
+
+근거
+- pupoo_ai/app/features/congestion/inference/lstm_baseline.py (numpy, sklearn import)
+- pupoo_ai/requirements.txt (torch 미기재)
+
+12.3 RAG 기반 게시글 필터링
+입력
+- 게시글/댓글 텍스트
+- policy_docs 문서 집합
+처리
+- 정책 문서 로드 -> 임베딩 생성 -> Milvus 검색 -> watsonx LLM 판정
+- watsonx 미설정/오류 시 fail-safe BLOCK 처리
+출력
+- action(PASS/BLOCK), score, reason, stack, flagged/inferred phrases
+
+근거
+- pupoo_ai/app/features/moderation/rag_service.py
+- pupoo_ai/app/features/moderation/milvus_client.py
+- pupoo_ai/app/features/moderation/watsonx_client.py
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+
+12.4 DALL·E 기반 포스터 생성
+입력
+- 행사 정보 기반 프롬프트(백엔드 서비스에서 생성)
+처리
+- OpenAI 이미지 생성 API `/v1/images/generations` 호출
+- 모델 기본값: `dall-e-3`
+출력
+- 생성 이미지 바이트/URL, 업로드 연계
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Event Asset HOLD)
+
+12.5 관리자 챗봇
+입력
+- 관리자 질의(/api/chatbot/chat)
+처리
+- Backend 프록시 -> AI chatbot router -> Bedrock 호출 + 오케스트레이터 툴 체인
+출력
+- 관리자 질의응답 메시지
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+- pupoo_ai/app/api/routers/chatbot.py
+- pupoo_ai/app/features/chatbot/service/chatbot_service.py
+- pupoo_ai/app/features/chatbot/service/bedrock_client.py
+- pupoo_ai/app/core/config.py (bedrock_model_id=us.amazon.nova-lite-v1:0)
+
+============================================================
+13. AI 연동 프로세스 및 데이터 흐름
+============================================================
+
+13.1 AI 서비스 연동 구조
+- Backend 설정
+  - ai.service.base-url
+  - ai.service.internal-token
+  - connect/response timeout
+- AI 내부 인증
+  - X-Internal-Token 검증
+
+근거
+- pupoo_backend/src/main/resources/application.properties
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_ai/app/core/auth.py
+
+13.2 LSTM/혼잡도 연동 프로세스
+1) Backend가 event/program 피처+시퀀스로 요청 DTO 구성
+2) Backend -> AI `/internal/congestion/events/predict` 또는 `/internal/congestion/programs/predict`
+3) AI가 LightGBM/LSTM 기반 추론 후 응답
+4) Backend가 score/wait 정합 보정 및 로그 저장(ai_prediction_logs)
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/application/AiCongestionService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_ai/app/api/routers/congestion.py
+- db/pupoo_schema_v6.7.sql (ai_prediction_logs)
+
+13.3 RAG 연동 프로세스
+1) Backend moderation client가 `/internal/moderate` 호출
+2) AI moderation router -> rag_service 실행
+3) policy_docs + Milvus + watsonx 판정
+4) 결과(action/reason/score)를 Backend가 정책 처리
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+- pupoo_ai/app/api/routers/moderation.py
+- pupoo_ai/app/features/moderation/rag_service.py
+
+13.4 DALL·E 연동 프로세스
+1) 관리자 포스터 생성 API 호출
+2) Backend가 프롬프트 생성 후 OpenAI 이미지 API 호출
+3) 이미지 응답을 저장소 업로드 흐름과 연결
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+13.5 챗봇 연동 프로세스
+1) 관리자 UI -> Backend `/api/chatbot/chat`
+2) Backend 프록시 -> AI `/api/chatbot/chat`
+3) AI chatbot_service가 intent 분석/오케스트레이션/Bedrock 호출
+4) 응답 반환
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+- pupoo_ai/app/api/routers/chatbot.py
+- pupoo_ai/app/features/chatbot/service/chatbot_service.py
+
+13.6 AI 결과를 실제 서비스에 반영하는 방식
+- 혼잡도/추천: API 응답으로 사용자/관리자 화면 반영
+- 모더레이션: 콘텐츠 등록 전후 차단/판정 근거 반영
+- 포스터: 관리자 운영 자산 생성
+- 챗봇: 관리자 운영 질의응답 보조
+
+근거
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+
+============================================================
+14. 핵심 기능 구현 결과
+============================================================
+
+14.1 회원가입/로그인/인증
+- AuthController/AuthVerificationController 구현
+- refresh 토큰/쿠키 정책 + verification token 테이블 구성
+- 프론트 auth 라우트(회원가입/로그인/비밀번호 재설정) 구현
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Auth/AuthVerification)
+- db/pupoo_schema_v6.7.sql (signup_sessions, refresh_token, *_verification_token)
+- pupoo_frontend/src/App.jsx (/auth/*, /join/*, /find-password, /reset-password/*)
+
+14.2 행사 조회/신청/취소
+- EventController 공개 조회 API
+- EventRegistrationController 신청/취소/내역 API
+- EventRegistrationService 상태 전이 처리
+
+근거
+- docs/api/backend_routes.json
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/EventRegistrationService.java
+
+14.3 결제/승인/환불
+- PaymentController + AdminPaymentsController
+- RefundController + AdminRefundsController
+- payments/refunds/payment_transactions 테이블 기반 처리
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Payment/Refund)
+- db/pupoo_schema_v6.7.sql
+
+14.4 QR 발급/체크인/체크아웃
+- 사용자 QR 발급/다운로드 API
+- 관리자 QR check-in/check-out API
+- 체크아웃 선행조건 및 중복 방지 정책 구현
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrAdminService.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (QR/QR Admin)
+
+14.5 실시간 현황/대기/혼잡도
+- dashboard realtime API 제공
+- congestion/booth_wait/experience_wait 기반 집계
+- AI 예측 API 제공
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Dashboard Realtime, AI)
+- db/pupoo_schema_v6.7.sql (congestions, booth_waits, experience_waits, ai_*)
+
+14.6 게시판/리뷰/Q&A/갤러리
+- posts/qnas/reviews/replies/galleries CRUD 및 신고 처리
+- 관리자 모더레이션 API 존재
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Board/FAQ/Post/QnA/Review/Reply/Gallery/Moderation/Report)
+- pupoo_backend/src/main/java/com/popups/pupoo/report/application/ReportService.java
+
+14.7 관리자 대시보드/행사 관리/참가자 관리
+- AdminDashboardController 계열 API 구현
+- admin dashboard/event/program/participant/refund/report 등 라우트 존재
+
+근거
+- docs/api/backend_routes.json
+- pupoo_frontend/src/App.jsx
+
+14.8 알림/관심 구독
+- 관심 주제 구독(interest/user_interest_subscriptions)
+- 알림 수신함/설정/관리자 발송 기능
+
+근거
+- db/pupoo_schema_v6.7.sql
+- pupoo_backend/src/main/java/com/popups/pupoo/notification/application/NotificationService.java
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md (Interest/Notification)
+
+14.9 AI 추천/혼잡도 예측/필터링/포스터/챗봇
+- 추천/혼잡도: /api/ai/* + /api/admin/ai/*
+- 필터링: /internal/moderate + backend moderation client
+- 포스터: /api/admin/events/poster/generate
+- 챗봇: /api/chatbot/chat
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiAdminController.java
+- pupoo_ai/app/api/routers/moderation.py
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+
+============================================================
+15. 테스트 및 검증
+============================================================
+
+15.1 기능 테스트
+- 프론트 빌드 성공으로 기본 컴파일/번들 무결성 확인
+- 백엔드 테스트 태스크 성공으로 주요 단위/통합 테스트 통과 확인
+
+실행 결과(2026-03-24)
+- `pupoo_frontend`: `npm run build` 성공
+- `pupoo_backend`: `./gradlew test --no-daemon` 성공(BUILD SUCCESSFUL)
+
+근거
+- 2026-03-24 터미널 실행 로그
+
+15.2 API 테스트
+- 정적 검증: backend_routes(207), frontend_calls(255) 추출본 기반 호출 가능 경로 확인
+- 정책 검증: API_STATUS_MATRIX KEEP/HOLD/REMOVE 분류 확인
+
+근거
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+15.3 DB 무결성 검증
+- 스키마 제약 통계
+  - PK 56, FK 79, UK 35, CHECK 15, GENERATED 5
+- 애플리케이션 설정
+  - hibernate `ddl-auto=validate`
+
+근거
+- db/pupoo_schema_v6.7.sql
+- pupoo_backend/src/main/resources/application.properties
+
+15.4 사용자 시나리오 테스트
+- 라우팅 기준 시나리오 경로 확인
+  - auth/event/registration/payment/realtime/community/mypage
+- 공개/비공개 접근 정책 확인(PublicOnly, 공개 GET permitAll)
+
+근거
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/auth/security/config/SecurityConfig.java
+
+15.5 관리자 시나리오 테스트
+- 관리자 라우트 24개 구성 확인
+- 관리자 API 90개 존재 확인
+- 관리자 감사 로그 인터셉터 적용 확인
+
+근거
+- pupoo_frontend/src/App.jsx
+- docs/api/backend_routes.json
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/web/AdminAuditInterceptor.java
+
+15.6 AI 기능 검증
+- AI 유닛 테스트
+  - `pupoo_ai`: `python -m unittest tests.test_orchestrator`
+  - 결과: Ran 20 tests, OK
+- 모델 학습 리포트 확인
+  - EVENT/PROGRAM 모두 status=trained
+
+근거
+- 2026-03-24 터미널 실행 로그
+- pupoo_ai/artifacts/congestion/training_report_latest.json
+
+15.7 통합 테스트 결과
+- 백엔드 테스트 시 프론트 빌드 포함 파이프라인 완료
+- 통합 동작상 치명 오류는 미발생
+- 잔여 이슈: 프론트 번들 크기/동적 import 경고
+
+근거
+- `./gradlew test --no-daemon` 출력
+- `npm run build` 출력
+
+============================================================
+16. 역할 분담 및 협업 방식
+============================================================
+
+16.1 팀 구성
+- 4인 팀: 남광우, 배재혁, 김기정, 정요한
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+
+16.2 개인별 담당 영역
+- 남광우: 로그인/회원가입, 인증/JWT, 전체 흐름 총괄, Git/코드리뷰, 일정관리
+- 배재혁: 이벤트 조회/신청/현황, QR 체크인/아웃, 결제 시스템, 공지 핵심, 사전등록 결제 페이지
+- 김기정: 관리자 기능 전담, 회원관리 대시보드, 이벤트 관리/등록, 관리자 대시보드 UI, 공지 관리
+- 정요한: 알림, 갤러리(이미지), 안내 지도, 부스 배치도, 커뮤니티 보조
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+
+16.3 협업 도구
+- Figma, Notion, Discord (문서 기준)
+- GitHub Actions(코드 기준 CI/CD)
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- .github/workflows/deploy.yml
+
+16.4 Git/브랜치 전략
+- 문서 기준 Git Flow 운영 명시
+- 코드 저장소 기준 CI 배포 워크플로우 존재
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- .github/workflows/deploy.yml
+
+16.5 코드 리뷰 및 일정 관리 방식
+- 문서 기준 코드리뷰/일정관리 수행 기록 존재
+- 본 저장소 기준 자동화는 lint/test/build/deploy 중심 파이프라인으로 확인
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+- .github/workflows/deploy.yml
+
+============================================================
+17. 프로젝트 성과 및 기대효과
+============================================================
+
+17.1 기술적 성과
+- FE/BE/AI 분리 아키텍처 구축
+- 관리자/사용자 권한 모델 및 감사로그 적용
+- AI 시계열/학습/예측 로그 테이블 포함한 확장형 DB 설계
+- CI/CD에서 학습+배포 자동화
+
+근거
+- k8s/base/*.yaml
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/**/*
+- db/pupoo_schema_v6.7.sql
+- .github/workflows/deploy.yml
+
+17.2 서비스적 성과
+- 행사 탐색/신청/결제/QR/커뮤니티/알림/관리자 운영 기능군 통합
+- API 207개, 프론트 호출 255개 기반 기능 범위 확보
+
+근거
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+
+17.3 운영적 성과
+- 관리자 운영 API군과 대시보드/실시간 모니터링 구조 확보
+- 환불/모더레이션/알림/감사로그 정책 내재화
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+- pupoo_backend/src/main/java/com/popups/pupoo/common/audit/web/AdminAuditInterceptor.java
+
+17.4 사용자 경험 측면 기대효과
+- 공개 정보 접근성과 로그인 사용자 기능을 분리해 사용성 확보
+- 신청-결제-QR-현장 이력까지 사용자 여정 연결
+
+근거
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/qr/application/QrService.java
+
+17.5 관리자/주최자 측면 기대효과
+- 행사 운영 자동화(신청/참가/결제/환불/알림)
+- AI 예측 및 챗봇 도입으로 운영 의사결정 지원
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/api/AiAdminController.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+
+============================================================
+18. 한계점 및 개선 방향
+============================================================
+
+18.1 현재 한계 (근거 기반)
+- 관리자 일부 기능 미구현(ComingSoon 5개 라우트)
+- DB-엔티티 불일치: moderation_policy_uploads 테이블 미반영
+- AI 기획 대비 구현 차이
+  - 추천: 임베딩 기반이 아닌 혼잡도 점수 기반 추천
+  - 혼잡도: PyTorch 근거 미확인, 현재는 LightGBM + LSTM baseline(NumPy/Sklearn)
+- 프론트 번들 최적화 필요(대형 청크 및 import 경고)
+- 대규모 트래픽/성능 테스트 자동화 근거 파일 미확보
+
+근거
+- pupoo_frontend/src/App.jsx
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/domain/model/ModerationPolicyUpload.java
+- db/pupoo_schema_v6.7.sql
+- pupoo_ai/app/features/congestion/service/prediction_service.py
+- pupoo_ai/app/features/congestion/inference/lstm_baseline.py
+- 2026-03-24 `npm run build` 로그
+
+18.2 향후 개선 방향
+- 관리자 placeholder 기능 구현 완료
+- DB 마이그레이션으로 엔티티-스키마 정합 완성
+- AI 기능 명세/구현 정렬(추천 모델 정의, LSTM 설명 통일)
+- 프론트 코드 스플리팅/청크 전략 개선
+- 운영 부하/성능 테스트 파이프라인 추가
+
+근거
+- 현재 코드/로그에서 확인된 한계에 대한 직접 대응안
+
+============================================================
+19. 결론
+============================================================
+
+PUPOO는 단순 행사 안내 웹을 넘어, 행사 기획-신청-결제-현장운영-사후분석을 단일 데이터 흐름으로 연결하고 AI 서비스를 별도 레이어로 통합한 반려동물 행사 운영 플랫폼으로 구현되었다.
+
+============================================================
+부록 A. 요구사항 목록표
+============================================================
+
+A-1. 요구사항 총괄 (문서 기준)
+- 사용자 요구사항: 52
+- 관리자 요구사항: 16
+- UI 요구사항: 28
+- DB 요구사항: 47
+
+근거
+- report_work/integrated_presentation_report_20260324.txt
+
+A-2. 구현 정합 지표 (코드 기준)
+- 백엔드 라우트: 207 (admin 90 / non-admin 117)
+- 프론트 API 호출: 255
+- API 상태 매트릭스: KEEP 42 / HOLD 3 / REMOVE 5
+
+근거
+- docs/api/backend_routes.json
+- docs/api/frontend_calls.json
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+A-3. 미완료/유보 항목
+- 관리자 placeholder 라우트 5개(ComingSoon)
+- HOLD API(운영보조/외부연동): Event Asset, AI Backfill, Chatbot
+
+근거
+- pupoo_frontend/src/App.jsx
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+
+============================================================
+부록 B. 주요 API 목록
+============================================================
+
+B-1. 인증/회원
+- POST /api/auth/login
+- POST /api/auth/refresh
+- POST /api/auth/logout
+- POST /api/auth/signup/*
+- GET /api/users/me
+- PATCH /api/users/me
+- DELETE /api/users/me
+
+B-2. 행사/프로그램/신청
+- GET /api/events
+- GET /api/events/{eventId}
+- POST /api/event-registrations
+- GET /api/users/me/event-registrations
+- GET /api/events/{eventId}/programs
+- POST /api/program-applies
+- PATCH /api/program-applies/{id}/cancel
+
+B-3. 결제/환불
+- POST /api/payments
+- GET /api/payments
+- POST /api/refunds
+- GET /api/refunds
+- PATCH /api/admin/refunds/{refundId}/approve
+- PATCH /api/admin/refunds/{refundId}/reject
+
+B-4. QR/현장운영
+- GET /api/qr/me
+- GET /api/qr/me/download
+- POST /api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-in
+- POST /api/admin/operations/events/{eventId}/booths/{boothId}/qr/check-out
+
+B-5. 커뮤니티/알림
+- GET /api/posts
+- POST /api/posts
+- GET /api/reviews
+- POST /api/reviews
+- GET /api/galleries
+- POST /api/galleries
+- GET /api/notifications
+- GET /api/notifications/unread-count
+
+B-6. AI/분석/운영
+- GET /api/ai/events/{eventId}/congestion/predict
+- GET /api/ai/programs/{programId}/congestion/predict
+- GET /api/ai/programs/{programId}/recommendations
+- POST /api/admin/ai/congestion/backfill
+- POST /api/chatbot/chat
+- GET /api/analytics/events
+- GET /api/admin/dashboard
+
+근거
+- docs/policy-core/api-alignment/API_STATUS_MATRIX.md
+- docs/api/backend_routes.json
+
+============================================================
+부록 C. 주요 테이블 상세 명세 (column_name | type)
+============================================================
+
+C-1. users
+- user_id | BIGINT
+- email | VARCHAR(255)
+- password | VARCHAR(255)
+- nickname | VARCHAR(30)
+- phone | VARCHAR(30)
+- status | ENUM('ACTIVE','SUSPENDED','DELETED')
+- role_name | ENUM('USER','ADMIN')
+- email_verified | TINYINT
+- phone_verified | TINYINT
+- created_at | DATETIME
+
+C-2. event
+- event_id | BIGINT
+- event_name | VARCHAR(255)
+- description | VARCHAR(1000)
+- start_at | DATETIME
+- end_at | DATETIME
+- location | VARCHAR(255)
+- status | ENUM('PLANNED','ONGOING','ENDED','CANCELLED')
+- base_fee | DECIMAL(10,2)
+
+C-3. event_apply
+- apply_id | BIGINT
+- user_id | BIGINT
+- event_id | BIGINT
+- applied_at | DATETIME
+- status | ENUM('APPLIED','CANCELLED','APPROVED','REJECTED')
+- active_flag | TINYINT
+
+C-4. event_program
+- program_id | BIGINT
+- event_id | BIGINT
+- category | ENUM('CONTEST','SESSION','EXPERIENCE')
+- program_title | VARCHAR(255)
+- start_at | DATETIME
+- end_at | DATETIME
+- capacity | INT
+- throughput_per_min | DECIMAL(10,2)
+
+C-5. event_program_apply
+- program_apply_id | BIGINT
+- program_id | BIGINT
+- user_id | BIGINT
+- pet_id | BIGINT
+- status | ENUM('APPLIED','WAITING','APPROVED','REJECTED','CANCELLED','CHECKED_IN')
+- ticket_no | VARCHAR(30)
+- eta_min | INT
+- checked_in_at | DATETIME
+- active_flag | TINYINT
+
+C-6. payments
+- payment_id | BIGINT
+- user_id | BIGINT
+- event_id | BIGINT
+- event_apply_id | BIGINT
+- order_no | VARCHAR(50)
+- amount | DECIMAL(10,2)
+- payment_method | ENUM('KAKAOPAY','CARD','BANK','OTHER')
+- status | ENUM('REQUESTED','APPROVED','FAILED','CANCELLED','REFUNDED')
+- requested_at | DATETIME
+
+C-7. refunds
+- refund_id | BIGINT
+- payment_id | BIGINT
+- refund_amount | DECIMAL(10,2)
+- reason | VARCHAR(255)
+- status | ENUM('REQUESTED','APPROVED','REJECTED','COMPLETED')
+- requested_at | DATETIME
+- completed_at | DATETIME
+
+C-8. qr_codes / qr_logs
+- qr_codes.qr_id | BIGINT
+- qr_codes.user_id | BIGINT
+- qr_codes.event_id | BIGINT
+- qr_codes.original_url | VARCHAR(500)
+- qr_codes.mime_type | ENUM('jpeg','jpg','png','gif','webp','tiff','svg')
+- qr_logs.log_id | BIGINT
+- qr_logs.qr_id | BIGINT
+- qr_logs.booth_id | BIGINT
+- qr_logs.check_type | ENUM('CHECKIN','CHECKOUT')
+- qr_logs.checked_at | DATETIME
+
+C-9. boards / posts / reviews / galleries
+- boards.board_id | BIGINT
+- boards.board_type | ENUM('FREE','INFO','REVIEW','QNA','FAQ')
+- posts.post_id | BIGINT
+- posts.status | ENUM('DRAFT','PUBLISHED','HIDDEN')
+- posts.is_deleted | TINYINT
+- reviews.review_id | BIGINT
+- reviews.review_status | ENUM('PUBLIC','REPORTED','BLINDED','DELETED')
+- galleries.gallery_id | BIGINT
+- galleries.gallery_status | ENUM('PUBLIC','PRIVATE','BLINDED','DELETED')
+
+C-10. notification 계열
+- notification.notification_id | BIGINT
+- notification.type | ENUM('EVENT','NOTICE','PAYMENT','APPLY','SYSTEM')
+- notification_inbox.inbox_id | BIGINT
+- notification_inbox.user_id | BIGINT
+- notification_inbox.target_type | ENUM('EVENT','NOTICE')
+- notification_settings.user_id | BIGINT
+- notification_settings.allow_marketing | TINYINT
+
+C-11. AI 테이블
+- ai_event_congestion_timeseries.event_timeseries_id | BIGINT
+- ai_event_congestion_timeseries.timestamp_minute | DATETIME
+- ai_event_congestion_timeseries.congestion_score | DECIMAL(10,2)
+- ai_program_congestion_timeseries.program_timeseries_id | BIGINT
+- ai_program_congestion_timeseries.congestion_score | DECIMAL(10,2)
+- ai_training_dataset.training_dataset_id | BIGINT
+- ai_training_dataset.input_sequence_json | JSON
+- ai_prediction_logs.prediction_log_id | BIGINT
+- ai_prediction_logs.predicted_avg_score_60m | DECIMAL(10,2)
+- ai_prediction_logs.model_version | VARCHAR(50)
+
+근거
+- db/pupoo_schema_v6.7.sql
+
+============================================================
+부록 D. 패키지 구조도
+============================================================
+
+D-1. Backend (top-level)
+- com.popups.pupoo.ai
+- com.popups.pupoo.auth
+- com.popups.pupoo.board
+- com.popups.pupoo.booth
+- com.popups.pupoo.common
+- com.popups.pupoo.contest
+- com.popups.pupoo.event
+- com.popups.pupoo.gallery
+- com.popups.pupoo.inquiry
+- com.popups.pupoo.interest
+- com.popups.pupoo.notice
+- com.popups.pupoo.notification
+- com.popups.pupoo.payment
+- com.popups.pupoo.pet
+- com.popups.pupoo.program
+- com.popups.pupoo.qr
+- com.popups.pupoo.reply
+- com.popups.pupoo.report
+- com.popups.pupoo.storage
+- com.popups.pupoo.user
+
+D-2. Frontend (src top-level)
+- api
+- app
+- assets
+- components
+- data
+- features
+- layouts
+- pages
+- shared
+- ui
+
+D-3. AI (app top-level)
+- api
+- core
+- features
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/*
+- pupoo_frontend/src/*
+- pupoo_ai/app/*
+
+============================================================
+부록 E. 클래스 다이어그램
+============================================================
+
+E-1. 저장소 내 공식 다이어그램 파일 상태
+- `.puml`, `.drawio`, `.mmd` 기반 클래스 다이어그램 파일은 확인되지 않음
+
+E-2. 클래스 구조 근거 소스
+- 도메인 모델: `pupoo_backend/src/main/java/com/popups/pupoo/**/domain/model/*.java`
+- 서비스 계층: `pupoo_backend/src/main/java/com/popups/pupoo/**/application/*Service.java`
+- API 계층: `pupoo_backend/src/main/java/com/popups/pupoo/**/api/*Controller.java`
+
+근거
+- 저장소 파일 검색 결과
+- 백엔드 패키지 구조
+
+============================================================
+부록 F. 시퀀스 다이어그램
+============================================================
+
+F-1. 공식 다이어그램 파일 상태
+- 코드 저장소 내 별도 시퀀스 다이어그램 원본 파일은 확인되지 않음
+
+F-2. 코드 기반 시퀀스(텍스트)
+1) 참가 신청/결제
+- Site -> Backend(EventRegistration/Payment) -> DB(event_apply/payments)
+2) QR 체크인
+- Admin -> Backend(QrAdminService) -> DB(qr_logs/event_history/program_participation_stats)
+3) AI 혼잡도 예측
+- Backend(AiCongestionService) -> AI(congestion router) -> Backend 응답/로그 저장
+4) 모더레이션
+- Backend(WebClientModerationClient) -> AI(moderation router) -> 게시물 차단/통과
+
+근거
+- 관련 서비스/컨트롤러 코드
+
+============================================================
+부록 G. 화면 설계서 일부
+============================================================
+
+G-1. 코드 기반 화면 자산
+- 라우트 정의: `pupoo_frontend/src/App.jsx`
+- 페이지 컴포넌트: `pupoo_frontend/src/pages/site/*`, `pupoo_frontend/src/pages/admin/*`
+- 레이아웃: `pupoo_frontend/src/layouts/*`
+
+G-2. 수치 요약
+- path 총 117(중복 없음)
+- site 93 / admin 24
+- admin placeholder 5
+
+G-3. 설계서 이미지 파일
+- 본 저장소에서 별도 "발표용 화면 설계 이미지 묶음" 파일은 명시적으로 확인되지 않음
+- 기존 PDF/문서(report_work/*) 내 삽입 이미지 기반 사용 필요
+
+근거
+- pupoo_frontend/src/App.jsx
+- report_work/final_report.pdf
+- report_work/integrated_presentation_report_20260324.txt
+
+============================================================
+부록 H. AI 연동 예시 흐름도
+============================================================
+
+H-1. 혼잡도 예측 흐름
+- Backend `AiCongestionService` -> `AiInferenceClient` -> AI `/internal/congestion/events|programs/predict` -> 응답 -> `ai_prediction_logs` 저장
+
+H-2. 추천 흐름
+- Backend `recommendProgram` -> AI `/internal/congestion/programs/recommendations` -> threshold 필터/정렬 추천 결과 반환
+
+H-3. 모더레이션 흐름
+- Backend `WebClientModerationClient` -> AI `/internal/moderate` -> RAG 판정 -> PASS/BLOCK
+
+H-4. 포스터 흐름
+- Backend `AdminEventPosterService` -> OpenAI `/v1/images/generations` -> 결과 업로드
+
+H-5. 챗봇 흐름
+- Admin UI -> Backend `/api/chatbot/chat` -> AI `/api/chatbot/chat` -> Bedrock 응답
+
+근거
+- pupoo_backend/src/main/java/com/popups/pupoo/ai/client/AiInferenceClient.java
+- pupoo_ai/app/api/routers/congestion.py
+- pupoo_backend/src/main/java/com/popups/pupoo/board/bannedword/application/WebClientModerationClient.java
+- pupoo_ai/app/api/routers/moderation.py
+- pupoo_backend/src/main/java/com/popups/pupoo/event/application/AdminEventPosterService.java
+- pupoo_backend/src/main/java/com/popups/pupoo/common/chatbot/api/ChatbotProxyController.java
+- pupoo_ai/app/api/routers/chatbot.py
