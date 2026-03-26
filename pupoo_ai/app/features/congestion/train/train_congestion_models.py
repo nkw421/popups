@@ -375,6 +375,22 @@ def _fetch_training_rows(
         "invalid_label": 0,
     }
 
+    # Timeseries-first: use ai_event/program_congestion_timeseries as the primary training source.
+    sequence_arrays: dict[str, np.ndarray] = {}
+    context_arrays: dict[str, np.ndarray] = {}
+    avg_arrays: dict[str, np.ndarray] = {}
+    peak_arrays: dict[str, np.ndarray] = {}
+    for target_type in SUPPORTED_TARGET_TYPES:
+        primary_sequences, primary_contexts, primary_avg, primary_peak = _fetch_target_rows_from_timeseries(
+            db_config=db_config,
+            target_type=target_type,
+            row_limit=row_limit,
+        )
+        sequence_arrays[target_type] = primary_sequences
+        context_arrays[target_type] = primary_contexts
+        avg_arrays[target_type] = primary_avg
+        peak_arrays[target_type] = primary_peak
+
     sql = """
         SELECT
             d.target_type,
@@ -443,41 +459,45 @@ def _fetch_training_rows(
     finally:
         connection.close()
 
-    sequence_arrays: dict[str, np.ndarray] = {}
-    context_arrays: dict[str, np.ndarray] = {}
-    avg_arrays: dict[str, np.ndarray] = {}
-    peak_arrays: dict[str, np.ndarray] = {}
-
     for target_type in SUPPORTED_TARGET_TYPES:
-        if sequences[target_type]:
-            sequence_arrays[target_type] = np.vstack(sequences[target_type]).astype(np.float32)
-            context_arrays[target_type] = np.vstack(contexts[target_type]).astype(np.float32)
-            avg_arrays[target_type] = np.asarray(avg_targets[target_type], dtype=np.float32)
-            peak_arrays[target_type] = np.asarray(peak_targets[target_type], dtype=np.float32)
-        else:
-            sequence_arrays[target_type] = np.empty((0, SEQUENCE_LENGTH), dtype=np.float32)
-            context_arrays[target_type] = np.empty((0, _CALENDAR_FEATURE_COUNT), dtype=np.float32)
-            avg_arrays[target_type] = np.empty((0,), dtype=np.float32)
-            peak_arrays[target_type] = np.empty((0,), dtype=np.float32)
+        if not sequences[target_type]:
+            continue
+        secondary_sequences = np.vstack(sequences[target_type]).astype(np.float32)
+        secondary_contexts = np.vstack(contexts[target_type]).astype(np.float32)
+        secondary_avg = np.asarray(avg_targets[target_type], dtype=np.float32)
+        secondary_peak = np.asarray(peak_targets[target_type], dtype=np.float32)
 
-    for target_type in SUPPORTED_TARGET_TYPES:
         if sequence_arrays[target_type].shape[0] > 0:
+            print(
+                f"[train] secondary source appended for {target_type}: "
+                f"ai_training_dataset rows -> {secondary_sequences.shape[0]} samples"
+            )
+            sequence_arrays[target_type] = np.concatenate(
+                [sequence_arrays[target_type], secondary_sequences],
+                axis=0,
+            )
+            context_arrays[target_type] = np.concatenate(
+                [context_arrays[target_type], secondary_contexts],
+                axis=0,
+            )
+            avg_arrays[target_type] = np.concatenate(
+                [avg_arrays[target_type], secondary_avg],
+                axis=0,
+            )
+            peak_arrays[target_type] = np.concatenate(
+                [peak_arrays[target_type], secondary_peak],
+                axis=0,
+            )
             continue
 
-        fallback_sequences, fallback_contexts, fallback_avg, fallback_peak = _fetch_target_rows_from_timeseries(
-            db_config=db_config,
-            target_type=target_type,
-            row_limit=row_limit,
+        print(
+            f"[train] secondary source applied for {target_type}: "
+            f"ai_training_dataset rows -> {secondary_sequences.shape[0]} samples"
         )
-        if fallback_sequences.shape[0] > 0:
-            print(
-                f"[train] fallback source applied for {target_type}: "
-                f"ai_*_congestion_timeseries rows -> {fallback_sequences.shape[0]} samples"
-            )
-            sequence_arrays[target_type] = fallback_sequences
-            context_arrays[target_type] = fallback_contexts
-            avg_arrays[target_type] = fallback_avg
-            peak_arrays[target_type] = fallback_peak
+        sequence_arrays[target_type] = secondary_sequences
+        context_arrays[target_type] = secondary_contexts
+        avg_arrays[target_type] = secondary_avg
+        peak_arrays[target_type] = secondary_peak
 
     return sequence_arrays, context_arrays, avg_arrays, peak_arrays, dropped_counts
 
